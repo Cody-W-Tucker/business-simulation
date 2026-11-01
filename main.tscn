@@ -4,3 +4,5 @@
 
 [node name="WhiteboardRoom" type="Node3D"]
 script = ExtResource("1")
+
+[node name="CommunityAssets" type="Node3D" parent="."]

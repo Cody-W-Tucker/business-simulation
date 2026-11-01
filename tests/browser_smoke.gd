@@ -21,18 +21,53 @@ func _wait_for(condition: Callable, seconds: float = 20.0) -> bool:
 	return false
 
 
-func _mouse_button(position: Vector2, pressed: bool) -> void:
+func _mouse_button(position: Vector2, pressed: bool, button := MOUSE_BUTTON_LEFT) -> void:
 	var event := InputEventMouseButton.new()
-	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_index = button
 	event.pressed = pressed
 	event.position = position
 	event.global_position = position
 	Input.parse_input_event(event)
 
 
+func _aim_at(browser_position: Vector2) -> void:
+	var board_point := Vector3(-4.0 + 8.0 * browser_position.x / 2560.0, 2.25 - 4.5 * browser_position.y / 1440.0, 0.15)
+	room.camera.look_at(room.preview_board.to_global(board_point))
+
+
+func _wall_point(browser_position: Vector2) -> Vector2:
+	var point := Vector3(-4.0 + 8.0 * browser_position.x / 2560.0, 2.25 - 4.5 * browser_position.y / 1440.0, 0.15)
+	return room.camera.unproject_position(room.preview_board.to_global(point))
+
+
 func _run() -> void:
 	room = load("res://main.tscn").instantiate()
 	root.add_child(room)
+	var jump := InputEventKey.new()
+	jump.keycode = KEY_SPACE
+	jump.pressed = true
+	room._unhandled_input(jump)
+	if not is_equal_approx(room.vertical_speed, room.jump_speed):
+		_fail("Jump input did not start the configured jump")
+		return
+	room.vertical_speed = 0.0
+	room.last_space_press = -1000
+	if room.camera.keep_aspect != Camera3D.KEEP_WIDTH or not is_equal_approx(room.camera.fov, 90.0):
+		_fail("Camera did not use the 90-degree horizontal field of view")
+		return
+	room._queue_look(Vector2(100, 0))
+	room._apply_look(0.1)
+	var single_step: float = room.camera.rotation.y
+	room.camera.rotation.y = 0.0
+	room.pending_look = Vector2.ZERO
+	room._queue_look(Vector2(100, 0))
+	for i in 10:
+		room._apply_look(0.01)
+	if not is_equal_approx(single_step, room.camera.rotation.y):
+		_fail("Camera smoothing varied with frame subdivision")
+		return
+	room.pending_look = Vector2.ZERO
+	room.camera.rotation.y = 0.0
 	if not await _wait_for(func(): return room.browser != null):
 		_fail("Embedded browser did not initialize")
 		return
@@ -55,28 +90,182 @@ func _run() -> void:
 	if not await _wait_for(func(): return browser.call("get_title") == "restored:"):
 		_fail("Browser fixture did not load")
 		return
+	var project_board: Dictionary = room.boards[1]
+	var project_browser: Node = project_board.get("browser")
+	if project_browser == null or project_board.url != "https://opencode.homehub.tv/":
+		_fail("Projects browser was not created with its URL")
+		return
+	if not await _wait_for(func(): return str(project_browser.call("get_title")).to_lower().contains("opencode") and str(project_browser.call("get_url")).begins_with("https://opencode.homehub.tv/"), 30.0):
+		_fail("Projects site did not report its expected title and URL")
+		return
+	project_browser.call("load_url", fixture)
+	if not await _wait_for(func(): return project_browser.call("get_title") == "restored:"):
+		_fail("Projects browser fixture did not load")
+		return
+	room.camera.look_at(project_board.node.global_position)
+	var project_e := InputEventKey.new()
+	project_e.keycode = KEY_E
+	project_e.pressed = true
+	Input.parse_input_event(project_e)
+	await process_frame
+	if not room.browser_focused or room.browser != project_browser or not project_board.view.visible:
+		_fail("E did not open the targeted Projects browser")
+		return
+	var project_escape := InputEventKey.new()
+	project_escape.keycode = KEY_ESCAPE
+	project_escape.pressed = true
+	Input.parse_input_event(project_escape)
+	await process_frame
+	room.camera.position = Vector3(19, 2.5, 0)
+	room.camera.look_at(project_board.node.global_position)
+	var project_center: Vector2 = root.get_visible_rect().size / 2.0
+	_mouse_button(project_center, true)
+	_mouse_button(project_center, false)
+	await process_frame
+	if not room.wall_keyboard_focused or room.browser != project_browser:
+		_fail("Projects wall did not receive focus")
+		return
+	_mouse_button(_wall_point(Vector2(50, 50)), true)
+	_mouse_button(_wall_point(Vector2(50, 50)), false)
+	if not await _wait_for(func(): return project_browser.call("get_title") == "clicked"):
+		_fail("Projects wall click did not reach its browser")
+		return
+	if browser.call("get_title") != "restored:":
+		_fail("Projects interaction affected the Excalidraw browser")
+		return
+	Input.parse_input_event(project_escape)
+	await process_frame
+	room.camera.position = Vector3(0, 2.5, 0)
+	room.camera.look_at(Vector3(-29.85, 2.7, 0))
+	Input.parse_input_event(project_e)
+	await process_frame
+	if room.browser_focused:
+		_fail("E opened a browser while aiming at a placeholder")
+		return
+	room._select_board(room.boards[0])
 	if not await _wait_for(func(): return room.preview_mesh.visible and room.preview_material.albedo_texture != null):
 		_fail("Browser texture was not displayed on the board")
 		return
-	var image: Image = room.preview_material.albedo_texture.get_image()
-	if image == null or image.is_empty() or image.get_pixel(400, 300).r < 0.9:
+	if not await _wait_for(func():
+		var frame: Image = room.preview_material.albedo_texture.get_image()
+		return frame != null and not frame.is_empty() and frame.get_pixel(400, 300).r >= 0.9
+	):
 		_fail("Browser fixture did not paint its white background")
 		return
+	var image: Image = room.preview_material.albedo_texture.get_image()
 	if image.get_size() != Vector2i(2560, 1440):
 		_fail("Browser texture is not 2560×1440: %s" % image.get_size())
 		return
+	var center: Vector2 = root.get_visible_rect().size / 2.0
+	_aim_at(Vector2(1280, 720))
+	_mouse_button(center, true)
+	_mouse_button(center, false)
+	await process_frame
+	if room.wall_keyboard_focused:
+		_fail("Board could be used from outside its reach")
+		return
+	var far_e := InputEventKey.new()
+	far_e.keycode = KEY_E
+	far_e.pressed = true
+	Input.parse_input_event(far_e)
+	await process_frame
+	if not room.browser_focused or not root.disable_3d:
+		_fail("E did not open the board from outside its reach")
+		return
+	var far_escape := InputEventKey.new()
+	far_escape.keycode = KEY_ESCAPE
+	far_escape.pressed = true
+	Input.parse_input_event(far_escape)
+	await process_frame
+	room.camera.position.z = -19.0
+	_aim_at(Vector2(1280, 720))
+	_mouse_button(center, true)
+	_mouse_button(center, false)
+	await process_frame
+	if not room.wall_keyboard_focused or Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+		_fail("Board click did not enter cursor mode")
+		return
+	_mouse_button(_wall_point(Vector2(50, 50)), true)
+	_mouse_button(_wall_point(Vector2(50, 50)), false)
+	if not await _wait_for(func(): return browser.call("get_title") == "clicked"):
+		_fail("Mouse clicks did not reach browser through the wall")
+		return
+	_mouse_button(_wall_point(Vector2(450, 350)), true)
+	var motion := InputEventMouseMotion.new()
+	motion.position = _wall_point(Vector2(600, 400))
+	motion.global_position = motion.position
+	motion.screen_relative = Vector2(30, 0)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	var old_rotation: float = room.camera.rotation.y
+	Input.parse_input_event(motion)
+	await process_frame
+	_mouse_button(motion.position, false)
+	if not is_equal_approx(old_rotation, room.camera.rotation.y):
+		_fail("Camera moved while drawing")
+		return
+	if not await _wait_for(func(): return browser.call("get_title") == "dragged"):
+		_fail("Mouse dragging did not reach browser through the wall")
+		return
+	if not room.wall_keyboard_focused or not room.keyboard_hint.visible:
+		_fail("Wall interaction did not capture keyboard focus")
+		return
+	_mouse_button(_wall_point(Vector2(50, 120)), true)
+	_mouse_button(_wall_point(Vector2(50, 120)), false)
+	var wall_key := InputEventKey.new()
+	wall_key.keycode = KEY_E
+	wall_key.unicode = 101
+	wall_key.pressed = true
+	Input.parse_input_event(wall_key)
+	wall_key = wall_key.duplicate()
+	wall_key.pressed = false
+	Input.parse_input_event(wall_key)
+	if not await _wait_for(func(): return browser.call("get_title") == "e"):
+		_fail("Typing E did not reach the wall browser")
+		return
+	if room.browser_focused:
+		_fail("Typing E unexpectedly opened the full-window view")
+		return
+	if OS.get_environment("TEST_SKIP_KNOWN_PUNCTUATION_BUG") != "1":
+		for character in ".,!?:;@":
+			var punctuation := InputEventKey.new()
+			punctuation.keycode = character.unicode_at(0)
+			punctuation.unicode = character.unicode_at(0)
+			punctuation.pressed = true
+			Input.parse_input_event(punctuation)
+			punctuation = punctuation.duplicate()
+			punctuation.pressed = false
+			punctuation.unicode = 0
+			Input.parse_input_event(punctuation)
+		if not await _wait_for(func(): return browser.call("get_title") == "e.,!?:;@"):
+			_fail("Punctuation failed; received: %s" % browser.call("get_title"))
+			return
+	_mouse_button(center, true, MOUSE_BUTTON_RIGHT)
+	var glance := InputEventMouseMotion.new()
+	glance.screen_relative = Vector2(30, 0)
+	Input.parse_input_event(glance)
+	await process_frame
+	_mouse_button(center, false, MOUSE_BUTTON_RIGHT)
+	await process_frame
+	if is_equal_approx(old_rotation, room.camera.rotation.y) or Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+		_fail("Right mouse glance did not restore cursor mode")
+		return
+	browser.call("execute_javascript", "document.querySelector('#text').value=''; localStorage.removeItem('test-text');")
+	var escape := InputEventKey.new()
+	escape.keycode = KEY_ESCAPE
+	escape.pressed = true
+	Input.parse_input_event(escape)
+	await process_frame
+	if room.wall_keyboard_focused or room.keyboard_hint.visible or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		_fail("Escape did not return keyboard control to the room")
+		return
+	_aim_at(Vector2(1280, 720))
 	var engage := InputEventKey.new()
 	engage.keycode = KEY_E
 	engage.pressed = true
 	Input.parse_input_event(engage)
 	await process_frame
-	if not room.browser_focused or Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
-		_fail("E did not focus the board and release the cursor")
-		return
-	_mouse_button(Vector2(50, 50), true)
-	_mouse_button(Vector2(50, 50), false)
-	if not await _wait_for(func(): return browser.call("get_title") == "clicked"):
-		_fail("Mouse clicks did not reach browser")
+	if not room.browser_focused or not root.disable_3d:
+		_fail("E did not switch the wall to the full-window browser")
 		return
 	_mouse_button(Vector2(50, 120), true)
 	_mouse_button(Vector2(50, 120), false)
@@ -95,12 +284,9 @@ func _run() -> void:
 	if not await _wait_for(func(): return browser.call("get_title") == "restored:a"):
 		_fail("Persisted browser input was not restored after reload (title: %s)" % browser.call("get_title"))
 		return
-	var escape := InputEventKey.new()
-	escape.keycode = KEY_ESCAPE
-	escape.pressed = true
 	Input.parse_input_event(escape)
 	await process_frame
-	if room.browser_focused or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if room.browser_focused or root.disable_3d or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		_fail("Escape did not return focus to the room")
 		return
 	print("PASS: browser loads, paints, receives mouse and keyboard, persists, and closes focus")

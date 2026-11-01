@@ -4,6 +4,9 @@
 <button style="width:200px;height:100px" onclick="document.title='clicked'">Click</button>
 <input id="text" style="display:block;width:300px;height:50px"
        oninput="document.title=this.value; localStorage.setItem('test-text',this.value)">
+<div id="drag" style="position:absolute;left:400px;top:300px;width:400px;height:200px;background:#eee"
+     onpointerdown="this.setPointerCapture(event.pointerId)"
+     onpointermove="if (event.buttons) document.title='dragged'"></div>
 <script>
   document.querySelector('#text').value = localStorage.getItem('test-text') || '';
   document.title = 'restored:' + document.querySelector('#text').value;

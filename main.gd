@@ -2,8 +2,16 @@ extends Node3D
 
 const EXCALIDRAW_URL := "https://draw.homehub.tv/"
 const REFRESH_SECONDS := 60.0
+const BROWSER_FRAME_RATE := 120
+const BOARD_REACH := 12.0
+
+@export_range(60.0, 110.0, 1.0) var horizontal_fov := 90.0
+@export_range(0.0, 50.0, 1.0) var look_smoothing := 25.0
+@export_range(0.5, 1.0, 0.01) var wall_brightness := 0.88
+@export_range(1.0, 20.0, 0.5) var jump_speed := 11.0
 
 var camera: Camera3D
+var pending_look := Vector2.ZERO
 var preview_material: StandardMaterial3D
 var preview_board: Node3D
 var preview_mesh: MeshInstance3D
@@ -11,8 +19,17 @@ var cef: Node
 var browser: Node
 var browser_layer: CanvasLayer
 var browser_view: TextureRect
+var boards: Array[Dictionary] = []
+var active_board: Dictionary = {}
+var embedded_active := false
 var crosshair_layer: CanvasLayer
+var keyboard_hint: Label
 var browser_focused := false
+var wall_keyboard_focused := false
+var wall_looking := false
+var wall_cursor_position := Vector2.ZERO
+var wall_button := 0
+var wall_mouse_position := Vector2.ZERO
 var browser_pid := -1
 var refresh_in := INF
 var screenshot_path: String
@@ -20,7 +37,7 @@ var profile_path: String
 var vertical_speed := 0.0
 var flying := false
 var last_space_press := -1000
-const EYE_HEIGHT := 2.5
+const EYE_HEIGHT := 1.7
 
 
 func _ready() -> void:
@@ -38,19 +55,22 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_apply_look(delta)
 	_move_camera(delta)
-	if browser != null:
-		if browser_view.texture != null and preview_material.albedo_texture != browser_view.texture:
-			preview_material.albedo_texture = browser_view.texture
-			preview_mesh.visible = true
+	if embedded_active:
+		for board in boards:
+			var view: TextureRect = board.get("view")
+			if view != null and view.texture != null and board.material.albedo_texture != view.texture:
+				board.material.albedo_texture = view.texture
+				board.mesh.visible = true
 		return
 	if browser_pid > 0 and not OS.is_process_running(browser_pid):
 		browser_pid = -1
 		var image := Image.load_from_file(screenshot_path)
 		if image != null and not image.is_empty():
 			image.generate_mipmaps()
-			preview_material.albedo_texture = ImageTexture.create_from_image(image)
-			preview_mesh.visible = true
+			boards[0].material.albedo_texture = ImageTexture.create_from_image(image)
+			boards[0].mesh.visible = true
 		refresh_in = REFRESH_SECONDS
 	elif browser_pid < 0:
 		refresh_in -= delta
@@ -59,7 +79,7 @@ func _process(delta: float) -> void:
 
 
 func _move_camera(delta: float) -> void:
-	if browser_focused or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if browser_focused or wall_keyboard_focused or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
 	var forward := Vector3(-sin(camera.rotation.y), 0, -cos(camera.rotation.y))
 	var right := Vector3(cos(camera.rotation.y), 0, -sin(camera.rotation.y))
@@ -75,8 +95,6 @@ func _move_camera(delta: float) -> void:
 	if movement != Vector3.ZERO:
 		var speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
 		camera.position += movement.normalized() * speed * delta
-		camera.position.x = clampf(camera.position.x, -29.3, 29.3)
-		camera.position.z = clampf(camera.position.z, -29.3, 29.3)
 	if flying:
 		var vertical_input := int(Input.is_key_pressed(KEY_SPACE)) - int(Input.is_key_pressed(KEY_C))
 		var flight_speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
@@ -115,11 +133,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if browser_focused:
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		camera.rotation.y -= event.screen_relative.x * 0.00075
-		camera.rotation.x = clampf(camera.rotation.x - event.screen_relative.y * 0.00075, -1.2, 1.2)
+		_queue_look(event.screen_relative)
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_ESCAPE:
+				_release_wall_button()
+				pending_look = Vector2.ZERO
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
 			KEY_SPACE:
 				if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -130,69 +149,210 @@ func _unhandled_input(event: InputEvent) -> void:
 						last_space_press = -1000
 					else:
 						last_space_press = now
-						if not flying and camera.position.y <= EYE_HEIGHT:
-							vertical_speed = 5.0
+						if not flying and camera.position.y <= EYE_HEIGHT + 0.001:
+							vertical_speed = jump_speed
 			KEY_E:
-				if _aiming_at_board():
+				var target := _target_board(false)
+				if not target.is_empty():
+					_select_board(target)
 					_open_board()
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+	if event is InputEventMouseButton:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			return
-		if _aiming_at_board():
-			_open_board()
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			var target := _target_board(true)
+			if not target.is_empty():
+				_select_board(target)
+				_focus_wall()
 
 
-func _aiming_at_board() -> bool:
-		var center := get_viewport().get_visible_rect().size / 2.0
-		var origin := camera.project_ray_origin(center)
-		var direction := camera.project_ray_normal(center)
-		var local_origin := preview_board.to_local(origin)
-		var local_direction := preview_board.global_transform.basis.inverse() * direction
-		if absf(local_direction.z) > 0.0001:
-			var distance := -local_origin.z / local_direction.z
-			var hit := local_origin + local_direction * distance
-			return distance > 0.0 and absf(hit.x) <= 4.0 and absf(hit.y) <= 2.25
-		return false
+func _target_board(require_reach: bool) -> Dictionary:
+	var center := get_viewport().get_visible_rect().size / 2.0
+	var closest: Dictionary = {}
+	var closest_distance := INF
+	for board in boards:
+		var hit := _board_hit(center, board, false, require_reach)
+		if not hit.is_empty() and hit.distance < closest_distance:
+			closest = board
+			closest_distance = hit.distance
+	return closest
+
+
+func _board_coordinates(screen_position: Vector2, allow_outside := false) -> Vector2:
+	var hit := _board_hit(screen_position, active_board, allow_outside, true)
+	return hit.get("coordinates", Vector2.INF)
+
+
+func _board_hit(screen_position: Vector2, board: Dictionary, allow_outside: bool, require_reach: bool) -> Dictionary:
+	if board.is_empty():
+		return {}
+	var node: Node3D = board.node
+	var size: Vector2 = board.size
+	var origin := node.to_local(camera.project_ray_origin(screen_position))
+	var direction := node.global_transform.basis.inverse() * camera.project_ray_normal(screen_position)
+	if absf(direction.z) < 0.0001:
+		return {}
+	var distance := (0.15 - origin.z) / direction.z
+	var hit := origin + direction * distance
+	var world_distance := camera.global_position.distance_to(node.to_global(hit))
+	if distance <= 0.0 or (not allow_outside and ((require_reach and world_distance > BOARD_REACH) or absf(hit.x) > size.x / 2.0 or absf(hit.y) > size.y / 2.0)):
+		return {}
+	var view: TextureRect = board.get("view")
+	var view_size := view.size if view != null else Vector2(2560, 1440)
+	return {"coordinates": Vector2(clampf(hit.x / size.x + 0.5, 0.0, 1.0), clampf(0.5 - hit.y / size.y, 0.0, 1.0)) * view_size, "distance": world_distance}
+
+
+func _select_board(board: Dictionary) -> void:
+	active_board = board
+	preview_board = board.node
+	preview_mesh = board.mesh
+	preview_material = board.material
+	browser = board.get("browser")
+	browser_view = board.get("view")
+
+
+func _focus_wall() -> void:
+	if browser == null:
+		OS.shell_open(active_board.url)
+		return
+	wall_keyboard_focused = true
+	pending_look = Vector2.ZERO
+	keyboard_hint.visible = true
+	for child in crosshair_layer.get_children():
+		if child is ColorRect:
+			child.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	wall_cursor_position = get_viewport().get_visible_rect().size / 2.0
+	Input.warp_mouse(wall_cursor_position)
+
+
+func _leave_wall() -> void:
+	_release_wall_button()
+	pending_look = Vector2.ZERO
+	wall_keyboard_focused = false
+	wall_looking = false
+	keyboard_hint.visible = false
+	for child in crosshair_layer.get_children():
+		if child is ColorRect:
+			child.visible = true
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _open_board() -> void:
 	if browser == null:
-		OS.shell_open(EXCALIDRAW_URL)
+		OS.shell_open(active_board.url)
 		return
+	_release_wall_button()
+	pending_look = Vector2.ZERO
+	wall_keyboard_focused = false
+	keyboard_hint.visible = false
 	browser_focused = true
+	get_viewport().disable_3d = true
 	browser_layer.visible = true
+	browser_view.visible = true
 	crosshair_layer.visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	browser_view.grab_focus()
 
 
 func _close_board() -> void:
+	_release_wall_button()
 	browser_focused = false
+	get_viewport().disable_3d = false
+	wall_button = 0
 	browser_layer.visible = false
+	browser_view.visible = false
 	crosshair_layer.visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
+func _release_wall_button() -> void:
+	if browser != null:
+		match wall_button:
+			MOUSE_BUTTON_LEFT: browser.call("set_mouse_left_up")
+			MOUSE_BUTTON_RIGHT: browser.call("set_mouse_right_up")
+			MOUSE_BUTTON_MIDDLE: browser.call("set_mouse_middle_up")
+	wall_button = 0
+
+
 func _input(event: InputEvent) -> void:
-	if not browser_focused:
+	if not browser_focused and not wall_keyboard_focused:
 		return
 	if event is InputEventKey:
 		if event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
-			_close_board()
+			if browser_focused:
+				_close_board()
+			else:
+				_leave_wall()
+		elif event.keycode == KEY_ESCAPE:
+			pass
 		else:
 			browser.call("set_key_pressed", event.unicode if event.unicode != 0 else event.keycode,
 				event.pressed, event.shift_pressed, event.alt_pressed, event.is_command_or_control_pressed())
+		get_viewport().set_input_as_handled()
+	elif wall_keyboard_focused and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		if event.pressed and wall_button == 0:
+			wall_cursor_position = event.position
+			wall_looking = true
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		elif not event.pressed and wall_looking:
+			wall_looking = false
+			pending_look = Vector2.ZERO
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			Input.warp_mouse(wall_cursor_position)
+		get_viewport().set_input_as_handled()
+	elif wall_keyboard_focused and event is InputEventMouseMotion and wall_looking:
+		_queue_look(event.screen_relative)
+		get_viewport().set_input_as_handled()
+	elif wall_keyboard_focused and not wall_looking and (event is InputEventMouseMotion or event is InputEventMouseButton):
+		var coordinates := _board_coordinates(event.position, wall_button != 0)
+		if coordinates != Vector2.INF:
+			wall_mouse_position = coordinates
+		if event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_MIDDLE]:
+			if event.pressed and coordinates != Vector2.INF and wall_button == 0:
+				wall_button = event.button_index
+			elif not event.pressed and wall_button == event.button_index:
+				_forward_browser_mouse(event, wall_mouse_position)
+				wall_button = 0
+				get_viewport().set_input_as_handled()
+				return
+			else:
+				get_viewport().set_input_as_handled()
+				return
+		if coordinates != Vector2.INF:
+			_forward_browser_mouse(event, coordinates)
 		get_viewport().set_input_as_handled()
 
 
 func _browser_input(event: InputEvent) -> void:
 	if browser == null:
 		return
+	_forward_browser_mouse(event, event.position)
+
+
+func _queue_look(relative: Vector2) -> void:
+	pending_look += relative * 0.00075
+
+
+func _apply_look(delta: float) -> void:
+	if pending_look == Vector2.ZERO:
+		return
+	var weight := 1.0 if look_smoothing <= 0.0 else 1.0 - exp(-look_smoothing * delta)
+	var step := pending_look * weight
+	pending_look -= step
+	if pending_look.length_squared() < 0.0000000001:
+		pending_look = Vector2.ZERO
+	camera.rotation.y -= step.x
+	camera.rotation.x = clampf(camera.rotation.x - step.y, -1.2, 1.2)
+
+
+func _forward_browser_mouse(event: InputEvent, position: Vector2) -> void:
 	if event is InputEventMouseMotion:
-		browser.call("set_mouse_moved", int(event.position.x), int(event.position.y))
+		browser.call("set_mouse_moved", int(position.x), int(position.y))
 	elif event is InputEventMouseButton:
-		browser.call("set_mouse_moved", int(event.position.x), int(event.position.y))
+		browser.call("set_mouse_moved", int(position.x), int(position.y))
 		match event.button_index:
 			MOUSE_BUTTON_LEFT:
 				browser.call("set_mouse_left_down" if event.pressed else "set_mouse_left_up")
@@ -226,99 +386,45 @@ func _start_embedded_browser() -> void:
 		return
 	browser_layer = CanvasLayer.new()
 	add_child(browser_layer)
-	browser_view = TextureRect.new()
-	browser_view.focus_mode = Control.FOCUS_ALL
-	browser_view.mouse_filter = Control.MOUSE_FILTER_STOP
-	browser_view.gui_input.connect(_browser_input)
-	browser_layer.add_child(browser_view)
-	browser_view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for board in boards:
+		var view := TextureRect.new()
+		view.focus_mode = Control.FOCUS_ALL
+		view.mouse_filter = Control.MOUSE_FILTER_STOP
+		view.gui_input.connect(_browser_input)
+		browser_layer.add_child(view)
+		view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		view.visible = false
+		board["view"] = view
 	await get_tree().process_frame
-	browser = cef.call("create_browser", EXCALIDRAW_URL, browser_view, {"javascript": true, "webgl": true})
-	if browser == null:
-		push_warning("gdCEF browser creation failed: " + str(cef.call("get_error")))
-		browser_layer.visible = false
-		_start_preview()
-		return
-	browser_view.resized.connect(func(): browser.call("resize", browser_view.size))
+	for board in boards:
+		var view: TextureRect = board.view
+		var instance: Node = cef.call("create_browser", board.url, view, {"javascript": true, "webgl": true, "frame_rate": BROWSER_FRAME_RATE})
+		board["browser"] = instance
+		if instance == null:
+			push_warning("gdCEF browser creation failed for %s: %s" % [board.url, cef.call("get_error")])
+		else:
+			embedded_active = true
+			view.resized.connect(_resize_browser.bind(instance, view))
+	_select_board(boards[0])
 	browser_layer.visible = false
+	if not embedded_active:
+		_start_preview()
 
 
-func _box(parent: Node3D, size: Vector3, position: Vector3, color: Color) -> MeshInstance3D:
-	var instance := MeshInstance3D.new()
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	material.roughness = 0.9
-	mesh.material = material
-	instance.mesh = mesh
-	instance.position = position
-	parent.add_child(instance)
-	return instance
-
-
-func _make_board(title: String, subtitle: String, position: Vector3, angle: float, board_size := Vector2(5.0, 2.84)) -> Node3D:
-	var board := Node3D.new()
-	board.position = position
-	board.rotation.y = angle
-	add_child(board)
-	_box(board, Vector3(board_size.x + 0.3, board_size.y + 0.3, 0.14), Vector3.ZERO, Color("334155"))
-	_box(board, Vector3(board_size.x, board_size.y, 0.04), Vector3(0, 0, 0.09), Color("f3f3ee"))
-	var heading := Label3D.new()
-	heading.text = title
-	heading.font_size = 42
-	heading.pixel_size = 0.008
-	heading.modulate = Color("293a4a")
-	heading.position = Vector3(0, 0.35, 0.13)
-	board.add_child(heading)
-	var description := Label3D.new()
-	description.text = subtitle
-	description.font_size = 22
-	description.pixel_size = 0.008
-	description.modulate = Color("758494")
-	description.position = Vector3(0, -0.25, 0.13)
-	board.add_child(description)
-	return board
+func _resize_browser(instance: Node, view: TextureRect) -> void:
+	instance.call("resize", view.size)
 
 
 func _build_room() -> void:
-	var environment := WorldEnvironment.new()
-	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color("202a38")
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("dce8f3")
-	env.ambient_light_energy = 0.85
-	environment.environment = env
-	add_child(environment)
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-55, -30, 0)
-	light.light_energy = 0.8
-	add_child(light)
-	_box(self, Vector3(60, 0.2, 60), Vector3(0, -0.1, 0), Color("657888"))
-	_box(self, Vector3(60, 25, 0.2), Vector3(0, 12.5, -30), Color("d8e0df"))
-	_box(self, Vector3(60, 25, 0.2), Vector3(0, 12.5, 30), Color("d8e0df"))
-	_box(self, Vector3(0.2, 25, 60), Vector3(-30, 12.5, 0), Color("c7d3d4"))
-	_box(self, Vector3(0.2, 25, 60), Vector3(30, 12.5, 0), Color("c7d3d4"))
-	_box(self, Vector3(60, 0.15, 60), Vector3(0, 25, 0), Color("e4e9e6"))
-	preview_board = _make_board("EXCALIDRAW", "Loading preview...", Vector3(0, 2.5, -29.85), 0, Vector2(8.0, 4.5))
-	preview_mesh = MeshInstance3D.new()
-	var quad := QuadMesh.new()
-	quad.size = Vector2(8.0, 4.5)
-	preview_material = StandardMaterial3D.new()
-	preview_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	preview_material.albedo_color = Color.WHITE
-	quad.material = preview_material
-	preview_mesh.mesh = quad
-	preview_mesh.position.z = 0.15
-	preview_mesh.visible = false
-	preview_board.add_child(preview_mesh)
-	_make_board("YOUR IDEAS", "A whiteboard for what's next", Vector3(-29.85, 2.7, 0), PI / 2.0)
-	_make_board("PROJECTS", "Another space to make your own", Vector3(29.85, 2.7, 0), -PI / 2.0)
+	var landscape := preload("res://scripts/landscape.gd").new()
+	add_child(landscape)
+	boards = landscape.build(wall_brightness)
+	_select_board(boards[0])
 	camera = Camera3D.new()
-	camera.position = Vector3(0, 2.5, 0)
+	camera.position = Vector3(0, EYE_HEIGHT, 0)
 	camera.current = true
-	camera.fov = 45
+	camera.keep_aspect = Camera3D.KEEP_WIDTH
+	camera.fov = horizontal_fov
 	add_child(camera)
 
 
@@ -335,3 +441,9 @@ func _build_crosshair() -> void:
 		line.offset_right = bar.end.x
 		line.offset_bottom = bar.end.y
 		crosshair_layer.add_child(line)
+	keyboard_hint = Label.new()
+	keyboard_hint.text = "Board: mouse to draw · hold right mouse to look · Esc to return"
+	keyboard_hint.position = Vector2(20, 20)
+	keyboard_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	keyboard_hint.visible = false
+	crosshair_layer.add_child(keyboard_hint)
