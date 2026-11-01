@@ -1,0 +1,11 @@
+<!doctype html>
+<html><head><title>ready</title></head>
+<body style="margin:0;background:#fff">
+<button style="width:200px;height:100px" onclick="document.title='clicked'">Click</button>
+<input id="text" style="display:block;width:300px;height:50px"
+       oninput="document.title=this.value; localStorage.setItem('test-text',this.value)">
+<script>
+  document.querySelector('#text').value = localStorage.getItem('test-text') || '';
+  document.title = 'restored:' + document.querySelector('#text').value;
+</script>
+</body></html>

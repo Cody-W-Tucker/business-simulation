@@ -1,0 +1,16 @@
+; Godot 4 project configuration.
+config_version=5
+
+[application]
+config/name="Hello 3D World"
+run/main_scene="res://main.tscn"
+
+[display]
+window/size/viewport_width=2560
+window/size/viewport_height=1440
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.04, 0.06, 0.1, 1)
