@@ -50,8 +50,8 @@ character controller: imported meshes do not currently block the player.
 `main.gd` owns movement, browser lifecycle, and interaction. The procedural
 landscape and browser-board definitions live in `scripts/landscape.gd`; add a
 browser board there with `_make_browser_board(...)`. The currently supported
-board geometry is a vertical rectangle facing local +Z, with its browser surface
-0.15 m in front of its origin. The `CommunityAssets` node in `main.tscn` is an
+board geometry is a vertical rectangle facing local +Z. The `CommunityAssets`
+node in `main.tscn` is an
 editor-visible place to instance models and other scene content without editing
 the procedural landscape.
 
@@ -78,8 +78,8 @@ the procedural landscape.
 its own persistent profile under Godot's user data directory; it does not share
 local browser storage or logins with your usual browser. The supplied homepage
 can therefore show a blank canvas. A shareable board or collaboration link may
-provide access to the same drawing; the URL is configured near the top of
-`main.gd`. Back up important work: browser-local storage is not the same as a
+provide access to the same drawing; the URL is configured in
+`scripts/landscape.gd`. Back up important work: browser-local storage is not the same as a
 NAS-side board database.
 
 ## Run on Beast

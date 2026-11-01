@@ -1,6 +1,5 @@
 extends Node3D
 
-const EXCALIDRAW_URL := "https://draw.homehub.tv/"
 const REFRESH_SECONDS := 60.0
 const BROWSER_FRAME_RATE := 120
 const BOARD_REACH := 12.0
@@ -115,7 +114,7 @@ func _start_preview() -> void:
 		"--headless", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
 		"--no-default-browser-check", "--user-data-dir=" + profile_path,
 		"--window-size=2560,1440", "--virtual-time-budget=10000",
-		"--screenshot=" + screenshot_path, EXCALIDRAW_URL
+		"--screenshot=" + screenshot_path, boards[0].url
 	]))
 	if browser_pid <= 0:
 		browser_pid = -1
@@ -194,7 +193,8 @@ func _board_hit(screen_position: Vector2, board: Dictionary, allow_outside: bool
 	var direction := node.global_transform.basis.inverse() * camera.project_ray_normal(screen_position)
 	if absf(direction.z) < 0.0001:
 		return {}
-	var distance := (0.15 - origin.z) / direction.z
+	var surface: MeshInstance3D = board.mesh
+	var distance := (surface.position.z - origin.z) / direction.z
 	var hit := origin + direction * distance
 	var world_distance := camera.global_position.distance_to(node.to_global(hit))
 	if distance <= 0.0 or (not allow_outside and ((require_reach and world_distance > BOARD_REACH) or absf(hit.x) > size.x / 2.0 or absf(hit.y) > size.y / 2.0)):
