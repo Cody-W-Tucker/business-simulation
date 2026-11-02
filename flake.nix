@@ -2,8 +2,12 @@
   description = "Godot 4 3D starter";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.godot-ai = {
+    url = "github:hi-godot/godot-ai/35da2c2fe1e2c20e11b5be01841e966951d6314b";
+    flake = false;
+  };
 
-  outputs = { nixpkgs, ... }:
+  outputs = { nixpkgs, godot-ai, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -25,8 +29,23 @@
       godotWithSharedCpp = pkgs.godot.overrideAttrs (old: {
         sconsFlags = old.sconsFlags ++ [ "use_static_cpp=no" "lto=none" ];
       });
+      godotAiUvx = pkgs.writeShellScriptBin "uvx" ''
+        exec ${pkgs.uv}/bin/uvx --python ${pkgs.python3}/bin/python3 "$@"
+      '';
+      godotAiAttach = pkgs.writeShellApplication {
+        name = "godot-ai-attach";
+        runtimeInputs = [ godotAiUvx ];
+        text = ''
+          export GODOT_AI_DISABLE_TELEMETRY=true
+          exec uvx --isolated --no-config --no-env-file --no-sources --no-build \
+            --index-strategy first-index --keyring-provider disabled \
+            --index https://pypi.org/simple --default-index https://pypi.org/simple \
+            --find-links https://pypi.org/simple/godot-ai/ --link-mode copy \
+            --from godot-ai==4.3.1 godot-ai attach --port 8000 --ws-port 9500
+        '';
+      };
       mkRoomShell = godot: enableCef: pkgs.mkShell {
-        packages = [ godot ];
+        packages = [ godot godotAiUvx pkgs.uv ];
         shellHook = pkgs.lib.optionalString enableCef ''
           export ROOM_ENABLE_GDCEF=1
           export LD_LIBRARY_PATH="${pkgs.libglvnd}/lib:/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
@@ -38,6 +57,13 @@
             esac
           fi
         '' + ''
+          export GODOT_AI_DISABLE_TELEMETRY=true
+          mkdir -p addons
+          if [ ! -e addons/godot_ai ] && [ ! -L addons/godot_ai ]; then
+            ln -s ${godot-ai}/plugin/addons/godot_ai addons/godot_ai
+          elif [ "$(readlink addons/godot_ai)" != "${godot-ai}/plugin/addons/godot_ai" ]; then
+            echo "Godot AI addon conflict: addons/godot_ai already exists; leaving it untouched." >&2
+          fi
           mkdir -p assets/_scratch || exit 1
           ${setupAssets}
           echo "Godot 3D starter: run 'godot --editor' or 'godot --path .'"
@@ -46,6 +72,7 @@
     in {
       packages.${system} = {
         inherit gdcef;
+        godot-ai-mcp = godotAiAttach;
         godot-shared-cpp = godotWithSharedCpp;
       };
       devShells.${system} = {

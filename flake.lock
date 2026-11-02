@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "godot-ai": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792819700,
+        "narHash": "sha256-6hND7eRKh2B5t63DONFkdMv7pySWQ0BfzCmA13ouhsM=",
+        "owner": "hi-godot",
+        "repo": "godot-ai",
+        "rev": "35da2c2fe1e2c20e11b5be01841e966951d6314b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hi-godot",
+        "repo": "godot-ai",
+        "rev": "35da2c2fe1e2c20e11b5be01841e966951d6314b",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793341285,
@@ -18,6 +35,7 @@
     },
     "root": {
       "inputs": {
+        "godot-ai": "godot-ai",
         "nixpkgs": "nixpkgs"
       }
     }

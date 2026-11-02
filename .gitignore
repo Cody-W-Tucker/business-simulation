@@ -1,6 +1,7 @@
 .godot/
 .direnv/
 cef_artifacts
+/addons/godot_ai
 *.translation
 /assets/_scratch/
 # Downloaded source binaries; import metadata and attribution remain tracked.

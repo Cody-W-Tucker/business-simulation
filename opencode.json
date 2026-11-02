@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "godot-ai": {
+        "type": "local",
+        "command": ["nix", "run", ".#godot-ai-mcp"],
+        "cwd": "."
+      }
+    }
+  }
+}

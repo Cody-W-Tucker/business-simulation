@@ -21,6 +21,10 @@ window/size/viewport_height=1440
 window/stretch/mode="canvas_items"
 display_server/driver.linuxbsd="wayland"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
+
 [input]
 
 room_left={

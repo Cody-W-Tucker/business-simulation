@@ -132,6 +132,28 @@ preview-only environment without the custom Godot build, run `nix develop
 
 ## Verify
 
+### Godot AI MCP
+
+The project configures the MIT-licensed [Godot AI](https://github.com/hi-godot/godot-ai)
+editor bridge for OpenCode. From the project root, enter `nix develop` and run
+`godot --editor --path .`. The shell links the pinned editor add-on into
+`addons/godot_ai`; it will not overwrite an existing add-on at that path. The
+plugin is enabled in `project.godot`. Leave the editor open, then connect or
+restart OpenCode and check `/mcps` for `godot-ai`. Ask the agent, for example,
+to inspect the current scene hierarchy. The plugin is inactive in headless mode.
+
+OpenCode starts the stdio bridge automatically. The add-on and bridge use
+authenticated local connections on ports 8000 and 9500 by default. Their tools
+can modify project files and run the project; use them only in a trusted local
+environment. Anonymous telemetry is disabled by the project shell and bridge.
+The add-on source is locked by Nix; the bridge uses `uvx` to download the matching
+version 4.3.1 Python package and dependencies from PyPI on first use. Those
+downloads are version-resolved by uv, not fully hash-pinned by the flake.
+
+Do not use the add-on's in-editor updater on the Nix-store symlink. Upgrade the
+flake pin and matching bridge version together instead. If an existing add-on
+conflicts with the symlink, the shell leaves it untouched and reports a warning.
+
 For a non-graphical smoke test:
 
 ```sh
