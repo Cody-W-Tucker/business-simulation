@@ -56,7 +56,13 @@ root node or in `main.gd` to tune it. Flight remains available by double-tapping
 Space. The player collides with the courtyard walls and arch blockouts; imported meshes such as
 trees do not yet have collision. The ground height remains flat and procedural.
 
-`main.gd` owns movement, browser lifecycle, and interaction. The procedural
+`main.gd` coordinates the room, browser lifecycle, and interaction transitions.
+Room action names are in `scripts/room_input.gd` and their default bindings are
+editable in Project Settings → Input Map. Movement lives in
+`scripts/player_movement.gd`, interaction modes in `scripts/interaction_state.gd`,
+and browser mouse translation in `scripts/browser_input.gd`. Browser keyboard
+events are forwarded separately, so room shortcuts do not intercept typing.
+The procedural
 landscape and browser-board definitions live in `scripts/landscape.gd`; add a
 browser board there with `_make_browser_board(...)`. The currently supported
 board geometry is a vertical rectangle facing local +Z. The `CommunityAssets`
@@ -129,9 +135,13 @@ preview-only environment without the custom Godot build, run `nix develop
 For a non-graphical smoke test:
 
 ```sh
-godot --headless --path . --script res://tests/room_smoke.gd
-godot --headless --path . --script res://tests/movement_smoke.gd
+nix develop .#preview --command bash scripts/verify.sh
 ```
+
+This imports the project, checks GDScript files, runs the room and movement
+smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
+replace an interactive visual check. The project uses GDScript and Godot 4.7.2
+stable, pinned through `flake.lock`.
 
 The browser integration test requires network access to the Excalidraw URL and
 uses a temporary, isolated browser profile. It starts a local HTTP fixture and

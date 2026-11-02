@@ -1,5 +1,11 @@
 # Project asset workflow
 
+The flake lock pins Godot 4.7.2 stable; the project uses GDScript. Use the
+project's Nix shells rather than an unrelated system Godot. After changes, run
+`nix develop .#preview --command bash scripts/verify.sh` from the project root.
+The preview gate does not test gdCEF; use the browser integration test in the
+README for browser changes.
+
 Follow `assets/README.md` when adding or changing assets. Trial files and download
 archives go in ignored `assets/_scratch/`; never commit references to scratch.
 Shared scenes, scripts and tests may only depend on adopted assets: register

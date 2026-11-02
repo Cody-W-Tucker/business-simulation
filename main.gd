@@ -1,5 +1,9 @@
 extends Node3D
 
+const RoomInput = preload("res://scripts/room_input.gd")
+const InteractionState = preload("res://scripts/interaction_state.gd")
+const PlayerMovement = preload("res://scripts/player_movement.gd")
+const BrowserInput = preload("res://scripts/browser_input.gd")
 const REFRESH_SECONDS := 60.0
 const BROWSER_FRAME_RATE := 120
 const BOARD_REACH := 12.0
@@ -26,9 +30,13 @@ var active_board: Dictionary = {}
 var embedded_active := false
 var crosshair_layer: CanvasLayer
 var keyboard_hint: Label
-var browser_focused := false
-var wall_keyboard_focused := false
-var wall_looking := false
+var interaction := InteractionState.new()
+var browser_focused: bool:
+	get: return interaction.mode == InteractionState.Mode.FULL_WINDOW
+var wall_keyboard_focused: bool:
+	get: return interaction.is_wall()
+var wall_looking: bool:
+	get: return interaction.mode == InteractionState.Mode.WALL_LOOK
 var wall_cursor_position := Vector2.ZERO
 var wall_button := 0
 var wall_mouse_position := Vector2.ZERO
@@ -103,48 +111,22 @@ func _move_camera(delta: float) -> void:
 		return
 	var forward := Vector3(-sin(camera.rotation.y), 0, -cos(camera.rotation.y))
 	var right := Vector3(cos(camera.rotation.y), 0, -sin(camera.rotation.y))
-	var movement := Vector3.ZERO
-	if Input.is_key_pressed(KEY_W):
-		movement += forward
-	if Input.is_key_pressed(KEY_S):
-		movement -= forward
-	if Input.is_key_pressed(KEY_D):
-		movement += right
-	if Input.is_key_pressed(KEY_A):
-		movement -= right
-	var speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
+	var input := RoomInput.movement()
+	var movement := right * input.x - forward * input.y
+	var speed := 12.0 if Input.is_action_pressed(RoomInput.FAST) else 6.0
 	_move_player(movement, speed, delta)
 
 
 func _is_on_jump_surface() -> bool:
-	# The courtyard floor is clamped rather than a physics body; raised surfaces
-	# such as the walls are detected by the character's last physics movement.
-	return vertical_speed <= 0.0 and (player.position.y <= 0.001 or player.is_on_floor())
+	return PlayerMovement.is_on_jump_surface(self)
 
 
 func _try_jump() -> bool:
-	if not flying and _is_on_jump_surface():
-		vertical_speed = jump_speed
-		return true
-	return false
+	return PlayerMovement.try_jump(self)
 
 
 func _move_player(movement: Vector3, speed: float, delta: float) -> void:
-	if flying or _is_on_jump_surface():
-		horizontal_velocity = movement.normalized() * speed
-	if flying:
-		var vertical_input := int(Input.is_key_pressed(KEY_SPACE)) - int(Input.is_key_pressed(KEY_C))
-		var flight_speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
-		vertical_speed = vertical_input * flight_speed
-	else:
-		vertical_speed -= 12.0 * delta
-	player.velocity = Vector3(horizontal_velocity.x, vertical_speed, horizontal_velocity.z)
-	player.move_and_slide()
-	horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
-	vertical_speed = player.velocity.y
-	player.position.y = clampf(player.position.y, 0.0, 24.5 - EYE_HEIGHT)
-	if player.position.y <= 0.0 and vertical_speed < 0.0:
-		vertical_speed = 0.0
+	PlayerMovement.move(self, movement, speed, delta)
 
 
 func _start_preview() -> void:
@@ -174,27 +156,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		_queue_look(event.screen_relative)
-	if event is InputEventKey and event.pressed and not event.echo:
-		match event.keycode:
-			KEY_ESCAPE:
-				_release_wall_button()
-				pending_look = Vector2.ZERO
-				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
-			KEY_SPACE:
-				if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-					var now := Time.get_ticks_msec()
-					if now - last_space_press <= 350:
-						flying = not flying
-						vertical_speed = 0.0
-						last_space_press = -1000
-					else:
-						last_space_press = now
-						_try_jump()
-			KEY_E:
-				var target := _target_board(false)
-				if not target.is_empty():
-					_select_board(target)
-					_open_board()
+	if event.is_action_pressed(RoomInput.CANCEL):
+		_release_wall_button()
+		pending_look = Vector2.ZERO
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
+	elif event.is_action_pressed(RoomInput.JUMP):
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			var now := Time.get_ticks_msec()
+			if now - last_space_press <= 350:
+				flying = not flying
+				vertical_speed = 0.0
+				last_space_press = -1000
+			else:
+				last_space_press = now
+				_try_jump()
+	elif event.is_action_pressed(RoomInput.INTERACT):
+		var target := _target_board(false)
+		if not target.is_empty():
+			_select_board(target)
+			_open_board()
 	if event is InputEventMouseButton:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -257,7 +237,7 @@ func _focus_wall() -> void:
 	if browser == null:
 		OS.shell_open(active_board.url)
 		return
-	wall_keyboard_focused = true
+	interaction.mode = InteractionState.Mode.WALL
 	pending_look = Vector2.ZERO
 	keyboard_hint.visible = true
 	for child in crosshair_layer.get_children():
@@ -271,8 +251,7 @@ func _focus_wall() -> void:
 func _leave_wall() -> void:
 	_release_wall_button()
 	pending_look = Vector2.ZERO
-	wall_keyboard_focused = false
-	wall_looking = false
+	interaction.mode = InteractionState.Mode.NAVIGATION
 	keyboard_hint.visible = false
 	for child in crosshair_layer.get_children():
 		if child is ColorRect:
@@ -286,9 +265,8 @@ func _open_board() -> void:
 		return
 	_release_wall_button()
 	pending_look = Vector2.ZERO
-	wall_keyboard_focused = false
 	keyboard_hint.visible = false
-	browser_focused = true
+	interaction.mode = InteractionState.Mode.FULL_WINDOW
 	get_viewport().disable_3d = true
 	browser_layer.visible = true
 	browser_view.visible = true
@@ -299,7 +277,7 @@ func _open_board() -> void:
 
 func _close_board() -> void:
 	_release_wall_button()
-	browser_focused = false
+	interaction.mode = InteractionState.Mode.NAVIGATION
 	get_viewport().disable_3d = false
 	wall_button = 0
 	browser_layer.visible = false
@@ -321,12 +299,12 @@ func _input(event: InputEvent) -> void:
 	if not browser_focused and not wall_keyboard_focused:
 		return
 	if event is InputEventKey:
-		if event.keycode == KEY_ESCAPE and event.pressed and not event.echo:
+		if event.is_action_pressed(RoomInput.CANCEL):
 			if browser_focused:
 				_close_board()
 			else:
 				_leave_wall()
-		elif event.keycode == KEY_ESCAPE:
+		elif event.is_action_released(RoomInput.CANCEL) or (event.is_echo() and event.is_action(RoomInput.CANCEL)):
 			pass
 		else:
 			browser.call("set_key_pressed", event.unicode if event.unicode != 0 else event.keycode,
@@ -335,10 +313,10 @@ func _input(event: InputEvent) -> void:
 	elif wall_keyboard_focused and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		if event.pressed and wall_button == 0:
 			wall_cursor_position = event.position
-			wall_looking = true
+			interaction.mode = InteractionState.Mode.WALL_LOOK
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		elif not event.pressed and wall_looking:
-			wall_looking = false
+			interaction.mode = InteractionState.Mode.WALL
 			pending_look = Vector2.ZERO
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 			Input.warp_mouse(wall_cursor_position)
@@ -389,20 +367,7 @@ func _apply_look(delta: float) -> void:
 
 
 func _forward_browser_mouse(event: InputEvent, position: Vector2) -> void:
-	if event is InputEventMouseMotion:
-		browser.call("set_mouse_moved", int(position.x), int(position.y))
-	elif event is InputEventMouseButton:
-		browser.call("set_mouse_moved", int(position.x), int(position.y))
-		match event.button_index:
-			MOUSE_BUTTON_LEFT:
-				browser.call("set_mouse_left_down" if event.pressed else "set_mouse_left_up")
-			MOUSE_BUTTON_RIGHT:
-				browser.call("set_mouse_right_down" if event.pressed else "set_mouse_right_up")
-			MOUSE_BUTTON_MIDDLE:
-				browser.call("set_mouse_middle_down" if event.pressed else "set_mouse_middle_up")
-			MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN:
-				if event.pressed:
-					browser.call("set_mouse_wheel_vertical", 2 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -2, event.shift_pressed, event.ctrl_pressed, event.alt_pressed)
+	BrowserInput.forward_mouse(browser, event, position)
 
 
 func _start_embedded_browser() -> void:
