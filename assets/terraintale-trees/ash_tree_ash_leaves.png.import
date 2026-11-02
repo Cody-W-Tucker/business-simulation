@@ -3,9 +3,10 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gibx724aqnuh"
-path="res://.godot/imported/ash_tree_ash_leaves.png-ed4c77affa2976323a1090af69e65aba.ctex"
+path.s3tc="res://.godot/imported/ash_tree_ash_leaves.png-ed4c77affa2976323a1090af69e65aba.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8b39c88a6405e2bfd61e5c9bada3549a"
@@ -14,11 +15,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/terraintale-trees/ash_tree_ash_leaves.png"
-dest_files=["res://.godot/imported/ash_tree_ash_leaves.png-ed4c77affa2976323a1090af69e65aba.ctex"]
+dest_files=["res://.godot/imported/ash_tree_ash_leaves.png-ed4c77affa2976323a1090af69e65aba.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
