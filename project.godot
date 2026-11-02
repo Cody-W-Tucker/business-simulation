@@ -11,6 +11,9 @@ window/size/viewport_width=2560
 window/size/viewport_height=1440
 window/stretch/mode="canvas_items"
 
+[physics]
+common/physics_interpolation=true
+
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"

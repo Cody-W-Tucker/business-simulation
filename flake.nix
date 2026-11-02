@@ -8,6 +8,20 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       gdcef = pkgs.callPackage ./packages/gdcef/package.nix { };
+      downloadedAssets = import ./assets/downloads.nix { inherit pkgs; };
+      setupAssets = pkgs.lib.concatStringsSep "\n" (pkgs.lib.mapAttrsToList (path: source: ''
+        asset=${pkgs.lib.escapeShellArg path}
+        source=${pkgs.lib.escapeShellArg (toString source)}
+        mkdir -p "$(dirname "$asset")" || exit 1
+        if [ -e "$asset" ] || [ -L "$asset" ]; then
+          if ! cmp -s "$source" "$asset"; then
+            echo "Asset conflict: $asset differs from the pinned download; move it aside and re-enter nix develop." >&2
+            exit 1
+          fi
+        else
+          ln -s "$source" "$asset" || exit 1
+        fi
+      '') downloadedAssets);
       godotWithSharedCpp = pkgs.godot.overrideAttrs (old: {
         sconsFlags = old.sconsFlags ++ [ "use_static_cpp=no" "lto=none" ];
       });
@@ -24,6 +38,8 @@
             esac
           fi
         '' + ''
+          mkdir -p assets/_scratch || exit 1
+          ${setupAssets}
           echo "Godot 3D starter: run 'godot --editor' or 'godot --path .'"
         '';
       };

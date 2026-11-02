@@ -1,16 +1,20 @@
 # The Whiteboard Room
 
-A Godot 4 open landscape with three freestanding whiteboards. The middle board loads
+A Godot 4 open landscape with four freestanding whiteboards. The middle board loads
 Excalidraw at https://draw.homehub.tv/ and the Projects wall loads OpenCode at
-https://opencode.homehub.tv/. The remaining board is a placeholder.
-The surrounding scene uses a procedural sky, distant static hills, and fog;
-it requires no external landscape assets.
+https://opencode.homehub.tv/. The other two boards are placeholders.
+The surrounding scene uses a photographic outdoor sky, a stone-paved courtyard,
+a grassy meadow and a border of trees, with fog for distance. The horizon is a panorama, not walkable
+mountain geometry. Asset sources and licensing are recorded in
+`assets/polyhaven-landscape/SOURCE.md`, `assets/ambientcg-grass/SOURCE.md`, and
+`assets/terraintale-trees/SOURCE.md`.
 
 ## Controls
 
 - **WASD**: walk; **Shift**: run; move the mouse to look.
 - **Space**: jump. Double-tap Space to toggle flight; hold Space to rise, C to
-  descend, and Shift to fly faster.
+  descend, and Shift to fly faster. Jumping carries horizontal momentum; you can
+  retain takeoff direction and speed in the air, and can jump again after landing on a wall.
 - Get within 12 room units of a browser board, aim at it and **click** to
   use it in place. The camera stays still while you move the cursor and draw;
   keyboard input goes to the board. Hold the **right mouse button** to look around,
@@ -37,6 +41,11 @@ The root node exposes `horizontal_fov` (default 90 degrees), `look_smoothing`
 may feel laggy to some people; the board tint affects only the wall texture,
 not the full-window browser. Take a break if the room causes discomfort.
 
+`environment_shadows` on the root node defaults to enabled. Temporarily disable
+it in the inspector to compare performance with directional shadows off; restart
+the scene after changing it. The camera interpolates between physics ticks while
+mouse look remains per-frame, to avoid judder on high-refresh displays.
+
 ## World scale and building on the project
 
 One Godot unit is one meter. The camera sits at a 1.7 m eye height; the active
@@ -44,8 +53,8 @@ boards are 8 × 4.5 m, with their lower edges about 0.25–0.45 m off the ground
 They're deliberately large surfaces, not desktop monitors. The default jump
 reaches roughly 5 m above the starting eye position; change `jump_speed` on the
 root node or in `main.gd` to tune it. Flight remains available by double-tapping
-Space. Movement and jumping are prototype kinematics, not a collision-based
-character controller: imported meshes do not currently block the player.
+Space. The player collides with the courtyard walls and arch blockouts; imported meshes such as
+trees do not yet have collision. The ground height remains flat and procedural.
 
 `main.gd` owns movement, browser lifecycle, and interaction. The procedural
 landscape and browser-board definitions live in `scripts/landscape.gd`; add a
@@ -57,9 +66,9 @@ the procedural landscape.
 
 ### Add a community asset or plugin
 
-1. Check the asset's license, redistribution terms, version, Godot compatibility,
-   and source. Record these next to the asset, along with any required attribution;
-   don't commit credentials or assets whose terms prohibit redistribution.
+1. Try candidates in ignored `assets/_scratch/`. Follow `assets/README.md` to
+   promote assets used by shared scenes or scripts, including placeholders.
+   Check license, access and redistribution terms, and record provenance.
 2. For models, prefer glTF 2.0 (`.glb` or `.gltf` plus its dependencies). Put
    source files under `assets/<asset-name>/`, open the project in Godot, and let
    the editor import them. Instance the imported scene under `CommunityAssets`
@@ -68,9 +77,10 @@ the procedural landscape.
    directory and Project Settings → Plugins). Review scripts and native binaries
    before enabling them; plugins execute code in the editor. Commit the plugin
    files and any required project configuration only when its license permits it.
-4. Keep source assets and Godot's `.import` sidecar settings in Git; generated
-   `.godot/` files stay ignored. Add new files to Git before evaluating the Nix
-   flake, since Git-backed flakes only include tracked or staged files.
+4. Keep Godot's `.import` sidecar settings and project-owned or modified source
+   in Git. Unmodified adopted downloads are pinned in `assets/downloads.nix`;
+   generated `.godot/` files stay ignored. Add new files to Git before evaluating
+   the Nix flake, since Git-backed flakes only include tracked or staged files.
 5. Run the headless and browser checks below, then inspect the scene interactively
    on the target desktop for scale, lighting, performance, and comfort.
 
@@ -120,6 +130,7 @@ For a non-graphical smoke test:
 
 ```sh
 godot --headless --path . --script res://tests/room_smoke.gd
+godot --headless --path . --script res://tests/movement_smoke.gd
 ```
 
 The browser integration test requires network access to the Excalidraw URL and

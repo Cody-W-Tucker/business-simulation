@@ -8,8 +8,11 @@ const BOARD_REACH := 12.0
 @export_range(0.0, 50.0, 1.0) var look_smoothing := 25.0
 @export_range(0.5, 1.0, 0.01) var wall_brightness := 0.88
 @export_range(1.0, 20.0, 0.5) var jump_speed := 11.0
+@export var environment_shadows := true
 
 var camera: Camera3D
+var player: CharacterBody3D
+var last_camera_position := Vector3.ZERO
 var pending_look := Vector2.ZERO
 var preview_material: StandardMaterial3D
 var preview_board: Node3D
@@ -34,6 +37,7 @@ var refresh_in := INF
 var screenshot_path: String
 var profile_path: String
 var vertical_speed := 0.0
+var horizontal_velocity := Vector3.ZERO
 var flying := false
 var last_space_press := -1000
 const EYE_HEIGHT := 1.7
@@ -54,8 +58,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_sync_external_camera_position()
+	# Physics supplies collision-safe positions; the camera follows between ticks
+	# while mouse look stays responsive at the display's render rate.
+	camera.global_position = player.get_global_transform_interpolated().origin + Vector3.UP * EYE_HEIGHT
+	last_camera_position = camera.position
 	_apply_look(delta)
-	_move_camera(delta)
 	if embedded_active:
 		for board in boards:
 			var view: TextureRect = board.get("view")
@@ -77,6 +85,19 @@ func _process(delta: float) -> void:
 			_start_preview()
 
 
+func _physics_process(delta: float) -> void:
+	_sync_external_camera_position()
+	_move_camera(delta)
+
+
+func _sync_external_camera_position() -> void:
+	# Preserve callers that deliberately reposition the camera, including tests.
+	if not camera.position.is_equal_approx(last_camera_position):
+		player.global_position = camera.global_position - Vector3.UP * EYE_HEIGHT
+		player.reset_physics_interpolation()
+		last_camera_position = camera.position
+
+
 func _move_camera(delta: float) -> void:
 	if browser_focused or wall_keyboard_focused or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
@@ -91,18 +112,38 @@ func _move_camera(delta: float) -> void:
 		movement += right
 	if Input.is_key_pressed(KEY_A):
 		movement -= right
-	if movement != Vector3.ZERO:
-		var speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
-		camera.position += movement.normalized() * speed * delta
+	var speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
+	_move_player(movement, speed, delta)
+
+
+func _is_on_jump_surface() -> bool:
+	# The courtyard floor is clamped rather than a physics body; raised surfaces
+	# such as the walls are detected by the character's last physics movement.
+	return vertical_speed <= 0.0 and (player.position.y <= 0.001 or player.is_on_floor())
+
+
+func _try_jump() -> bool:
+	if not flying and _is_on_jump_surface():
+		vertical_speed = jump_speed
+		return true
+	return false
+
+
+func _move_player(movement: Vector3, speed: float, delta: float) -> void:
+	if flying or _is_on_jump_surface():
+		horizontal_velocity = movement.normalized() * speed
 	if flying:
 		var vertical_input := int(Input.is_key_pressed(KEY_SPACE)) - int(Input.is_key_pressed(KEY_C))
 		var flight_speed := 12.0 if Input.is_key_pressed(KEY_SHIFT) else 6.0
-		camera.position.y = clampf(camera.position.y + vertical_input * flight_speed * delta, EYE_HEIGHT, 24.5)
-		return
-	vertical_speed -= 12.0 * delta
-	camera.position.y += vertical_speed * delta
-	if camera.position.y < EYE_HEIGHT:
-		camera.position.y = EYE_HEIGHT
+		vertical_speed = vertical_input * flight_speed
+	else:
+		vertical_speed -= 12.0 * delta
+	player.velocity = Vector3(horizontal_velocity.x, vertical_speed, horizontal_velocity.z)
+	player.move_and_slide()
+	horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
+	vertical_speed = player.velocity.y
+	player.position.y = clampf(player.position.y, 0.0, 24.5 - EYE_HEIGHT)
+	if player.position.y <= 0.0 and vertical_speed < 0.0:
 		vertical_speed = 0.0
 
 
@@ -148,8 +189,7 @@ func _unhandled_input(event: InputEvent) -> void:
 						last_space_press = -1000
 					else:
 						last_space_press = now
-						if not flying and camera.position.y <= EYE_HEIGHT + 0.001:
-							vertical_speed = jump_speed
+						_try_jump()
 			KEY_E:
 				var target := _target_board(false)
 				if not target.is_empty():
@@ -418,14 +458,26 @@ func _resize_browser(instance: Node, view: TextureRect) -> void:
 func _build_room() -> void:
 	var landscape := preload("res://scripts/landscape.gd").new()
 	add_child(landscape)
-	boards = landscape.build(wall_brightness)
+	boards = landscape.build(wall_brightness, environment_shadows)
 	_select_board(boards[0])
 	camera = Camera3D.new()
+	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera.position = Vector3(0, EYE_HEIGHT, 0)
 	camera.current = true
 	camera.keep_aspect = Camera3D.KEEP_WIDTH
 	camera.fov = horizontal_fov
 	add_child(camera)
+	player = CharacterBody3D.new()
+	player.name = "PlayerCollision"
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.3
+	capsule.height = EYE_HEIGHT
+	var shape := CollisionShape3D.new()
+	shape.shape = capsule
+	shape.position.y = EYE_HEIGHT / 2.0
+	player.add_child(shape)
+	add_child(player)
+	last_camera_position = camera.position
 
 
 func _build_crosshair() -> void:

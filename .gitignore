@@ -1,3 +1,12 @@
 .godot/
 .direnv/
 cef_artifacts
+*.translation
+/assets/_scratch/
+# Downloaded source binaries; import metadata and attribution remain tracked.
+/assets/ambientcg-grass/Grass001_2K-JPG_Color.jpg
+/assets/polyhaven-landscape/meadow_2_4k.hdr
+/assets/polyhaven-landscape/stone_floor_diff_4k.jpg
+/assets/polyhaven-landscape/stone_floor_nor_gl_4k.jpg
+/assets/polyhaven-landscape/white_sandstone_blocks_02_diff_1k.jpg
+/assets/polyhaven-landscape/white_sandstone_blocks_02_nor_gl_1k.jpg
