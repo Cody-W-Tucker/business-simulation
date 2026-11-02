@@ -221,15 +221,6 @@ $Label.text = tr("Score: {0}") % score  # GOOD
 - **RichTextLabel** supports better RTL paragraph alignment
 - Translation import pipeline handles `.po` files natively (no conversion needed)
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`project_info`** — Check configured locales and translation file paths
-- **`script_read`** / **`script_edit`** — Read and modify localization scripts
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [TranslationServer Deep Dive](references/translation-server.md)

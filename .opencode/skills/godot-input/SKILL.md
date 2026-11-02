@@ -359,15 +359,6 @@ func _unhandled_input(event: InputEvent) -> void:
 - **InputActionEvent** — Enhanced event structure for complex action queries
 - **Gamepad** — Improved auto-detection and button mapping consistency
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`project_info`** — Check configured input actions and settings
-- **`script_read`** / **`script_edit`** — Read and modify input scripts
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Input Map Best Practices](references/input-map.md)

@@ -235,15 +235,6 @@ var current_state: PortraitState = PortraitState.IDLE
 - **tween_await()** — Animate dialogue panel entrance/exit smoothly: `await get_tree().create_tween().tween_property(panel, "modulate:a", 1.0).finished`
 - **RichTextLabel** — Improved bbcode for dialogue formatting (`[wave]`, `[shake]`, `[carousel]`)
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** / **`script_edit`** — Read and modify dialogue scripts
-- **`scene_tree`** — Inspect dialogue UI node hierarchy
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Dialogue Resource Design](references/dialogue-resources.md)

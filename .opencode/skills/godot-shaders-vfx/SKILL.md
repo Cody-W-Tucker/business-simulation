@@ -283,15 +283,6 @@ $Sprite2D_B.material = shared_material  # Same material instance
 - **Screen shaders** — Enhanced SCREEN_TEXTURE sampling quality
 - **render_mode** — New `world_vertex_coords` option for world-space shader effects
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** / **`script_edit`** — Read and modify shader scripts
-- **`scene_tree`** — Inspect particle node hierarchy and parameters
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [GSL Shader Patterns](references/gsl-patterns.md)

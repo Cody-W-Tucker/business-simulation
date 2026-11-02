@@ -224,18 +224,6 @@ Create a `.gdextension` file to expose C# classes to GDScript projects.
 - Use `await` with tweens for async animation sequences
 - Export attributes work the same — no changes in 4.7
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** — Read C# script files for review
-- **`script_edit`** — Update C# scripts directly
-- **`script_validate`** — Validate C# scripts for syntax errors
-- **`scene_tree`** — Inspect scene hierarchy to verify node composition
-- **`class_db_info`** — Query Godot class info for C# interop patterns
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [C# API Reference](references/csharp-api.md)

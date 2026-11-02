@@ -302,17 +302,6 @@ func aoe_attack(center: Vector3, radius: float, damage: int) -> void:
 | `move_and_snap()` | Platformer with snap-to-floor | SlideFlags |
 | `move_teleport()` | Teleportation (no sliding) | CollisionData or null |
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools enhance physics debugging:
-
-- **`physics_debug_draw`** — Toggle collision shape visualization in editor
-- **`physics_query_shape`** — Run shape queries from any position without placing nodes
-- **`rigid_body_apply_force`** — Apply forces to rigid bodies for testing
-- **`physics_stats`** — View active physics bodies, sleep count, and frame cost
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [CharacterBody3D Documentation](references/characterbody3d-guide.md)

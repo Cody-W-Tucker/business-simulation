@@ -298,15 +298,6 @@ func deserialize_inventory(data: Array) -> void:
 - **ResourceCache** — Preload item resources at game start for instant UI updates
 - **tween_await()** — Animate gold counter changes or item pickup effects
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** / **`script_edit`** — Read and modify inventory scripts
-- **`scene_tree`** — Inspect inventory UI node hierarchy
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Item Resource Design](references/item-resources.md)

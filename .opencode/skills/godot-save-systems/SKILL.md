@@ -231,15 +231,6 @@ func _on_auto_save() -> void:
 - **ResourceSaver** supports `ResourceSaver.FLAG_COMPRESS` for smaller save files
 - **ConfigFile** — Use for settings/preferences (separate from game saves)
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** / **`script_edit`** — Read and modify save system scripts
-- **`project_info`** — Check user:// directory paths for save location debugging
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Resource Save Patterns](references/resource-saves.md)

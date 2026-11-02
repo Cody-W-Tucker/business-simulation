@@ -147,18 +147,6 @@ Common export configurations:
 | Android | Mobile, API 31+, ARM64 | Use VirtualJoystick for controls |
 | HTML5 | Web, WASM | Limited to web-compatible features |
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`project_settings_read`** — Read current project.godot settings
-- **`project_settings_set`** — Modify project settings (e.g., enable HDR, set Steam app ID)
-- **`file_browse`** — List project directories to verify scaffold structure
-- **`file_write`** — Write configuration files directly
-- **`class_db_info`** — Query Godot class database for export preset node types
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Godot Project Configuration](references/project-configuration.md)

@@ -162,18 +162,6 @@ grep -rn "\.connect(" --include="*.gd" scripts/
 grep -rn "queue_free" --include="*.gd" scripts/
 ```
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools enhance code review:
-
-- **`script_read`** — Read any script file for review without opening the editor
-- **`script_validate`** — Run syntax validation with `checkDeprecated: true` and `suggestTweenAwait: true`
-- **`file_search`** — Search across all project files for patterns (e.g., `queue_free`, signal leaks)
-- **`file_browse`** — List project directories to verify structure
-- **`class_db_info`** — Verify methods/properties exist before flagging issues
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [GDScript Style Guide](references/gdscript-styleguide.md)

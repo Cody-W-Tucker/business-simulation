@@ -269,15 +269,6 @@ func execute(bb: Dictionary, delta: float) -> Status:
 - **tween_await()** — Use for state transitions with animated duration: `await get_tree().create_tween().tween_property(...) .finished`
 - **AnimationTree** — Combine FSM logic with AnimationTree state machines for visual feedback
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`scene_tree`** — Inspect scene hierarchy to audit FSM node structure
-- **`script_read`** / **`script_edit`** — Read and modify state machine scripts
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [FSM Implementation Guide](references/fsm-guide.md)

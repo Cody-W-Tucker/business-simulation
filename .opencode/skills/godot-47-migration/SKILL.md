@@ -128,18 +128,6 @@ func play_sequence():
 | Perfetto tracing | Profiling | godot-debugging |
 | Steam Frame | Networking | godot-project-setup |
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools support migration:
-
-- **`script_validate`** — Run with `suggestTweenAwait: true` to detect nested tween callbacks and suggest `await` migration
-- **`project_settings_read`** — Check current HDR/Steam settings before migration
-- **`project_settings_set`** — Apply 4.7 settings (e.g., `rendering/hdr`, `steam/frame/*`) directly
-- **`file_search`** — Search for deprecated API patterns across the project
-- **`class_db_info`** — Verify new 4.7 classes like AreaLight3D and VirtualJoystick are available
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Full Migration Guide](../../docs/migration-4.7.md)

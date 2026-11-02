@@ -163,18 +163,6 @@ var health_bar = get_node("UI/HealthBar")  # Fragile to hierarchy changes
 - **tween_await()** — Use await with tweens for sequential animations
 - **Typed signals** are now the standard — prefer typed over untyped
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** — Read any script file from the project
-- **`script_edit`** — Write updated script contents directly to disk
-- **`script_validate`** — Validate GDScript syntax with `suggestTweenAwait: true` for Godot 4.7 migration
-- **`scene_tree`** — Inspect the current scene hierarchy
-- **`class_db_info`** — Query available methods/properties on any Godot class
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [GDScript Style Guide](references/gdscript-style.md)

@@ -285,17 +285,6 @@ func play_with_wait():
 | `create_tween()` | Create animation tweens |
 | `await tween.finished` | Wait for tween completion |
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools enhance animation debugging:
-
-- **`animation_play`** — Play any animation from the project without opening the editor
-- **`animation_list`** — List all available animations and their libraries
-- **`animation_state_get`** — Query current AnimationTree state machine status
-- **`animation_preview_frame`** — Preview a specific frame of any animation
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [AnimationPlayer Documentation](references/animationplayer-guide.md)

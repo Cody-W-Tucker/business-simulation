@@ -282,15 +282,6 @@ func play_directional_cue(direction: Vector3, sound: AudioStream) -> void:
 - **Vorbis/Opus** — Opus codec support for higher quality at lower bitrates
 - **Spatial audio** — Enhanced HRTF filtering for headphone-based 3D audio
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`script_read`** / **`script_edit`** — Read and modify audio scripts
-- **`project_info`** — Check configured audio buses and settings
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Audio Bus Configuration](references/audio-buses.md)

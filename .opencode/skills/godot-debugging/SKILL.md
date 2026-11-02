@@ -198,19 +198,6 @@ static func check_node_ready(node: Node):
     return node.is_inside_tree()
 ```
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools provide live debugging capabilities:
-
-- **`debugger_output`** — Read real-time debugger output from the running scene
-- **`output_log`** — Read Godot's output log with level filtering (error/warning/info)
-- **`scene_run` / `scene_stop`** — Start and stop scenes for testing fixes
-- **`pause_resume`** — Pause execution to inspect state at breakpoints
-- **`script_validate`** — Validate scripts without leaving the agent workflow
-- **`scene_tree`** — Inspect runtime scene hierarchy for missing nodes
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Debugging Guide](references/debugging-workflow.md)

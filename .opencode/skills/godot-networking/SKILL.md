@@ -342,17 +342,6 @@ func join_lobby(lobby_id: String):
 multiplayer.peer_connected.connect(func(id): print("Peer connected: ", id))
 multiplayer.peer_disconnected.connect(func(id): print("Peer disconnected: ", id))
 ```
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools enhance networking debugging:
-
-- **`network_peer_list`** — List connected peers and their unique IDs
-- **`rpc_trace`** — Log all RPC calls with sender/receiver info for debugging
-- **`network_stats`** — View bandwidth usage, packet loss, and latency metrics
-- **`lobby_inspect`** — Query Steam lobby state and player list
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Multiplayer API Documentation](references/multiplayer-api.md)

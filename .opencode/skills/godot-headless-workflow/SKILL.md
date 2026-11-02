@@ -37,7 +37,7 @@ the editor**. Every change must pass the headless gate before you claim it works
 3. **Scenes are text** (`.tscn`/`.tres`) — editable by hand *with care*, or better, generated
    by tool scripts. See §Text Asset Safety.
 4. **Never touch `.godot/`** — it's a regenerable cache.
-5. **The editor GUI is optional.** Use it (or the package's MCP bridge) only for visual
+5. **The editor GUI is optional.** Use it (or a configured editor MCP server) only for visual
    layout iteration; logic, tests, and builds are all CLI work.
 
 ## Prerequisites
@@ -283,7 +283,7 @@ time — don't guess API surface (see failure modes below).
 | Task | Tool |
 |---|---|
 | Script edits, tests, exports, CI, refactors | **Headless CLI (this skill)** |
-| Visual layout polish, animation curves, theme tweaking | Editor GUI (human) or the package's `mcp-bridge/` MCP server for agent-driven editor control |
+| Visual layout polish, animation curves, theme tweaking | Editor GUI (human) or a configured editor MCP server for agent-driven editor control |
 | Import cache issues | Always `--import` headless, never hand-fix `.godot/` |
 
 ## Related Skills

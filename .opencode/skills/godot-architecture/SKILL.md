@@ -202,16 +202,6 @@ func cleanup() -> void:
 - **DrawableTexture2D** — Procedural rendering for debug visualization of entity bounds
 - **Perfetto tracing** — Profile architecture decisions with CPU/GPU trace markers
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect and modify your project live:
-
-- **`scene_tree`** — Inspect scene hierarchy to audit composition patterns
-- **`script_read`** / **`script_edit`** — Read and modify architecture scripts
-- **`class_db_info`** — Query available methods on Godot classes for integration points
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Composition Patterns](references/composition-patterns.md)

@@ -271,17 +271,6 @@ func slide_out(panel: Control):
 | `AspectRatioContainer` | Fixed aspect ratio |
 | `Control` (root) | Full rect anchor |
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools enhance UI debugging:
-
-- **`ui_inspect`** — Inspect the current control tree and their properties
-- **`ui_preview_theme`** — Preview theme changes in real-time
-- **`ui_resize_preview`** — Test responsive layouts at different screen sizes
-- **`ui_find_control`** — Find controls by path or name in the scene tree
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Control Node Documentation](references/control-reference.md)

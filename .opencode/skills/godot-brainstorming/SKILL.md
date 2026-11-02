@@ -120,17 +120,6 @@ For multiplayer with Steam, use the new Steam Frame configuration for lobby mana
 - **VirtualJoystick** — Built-in mobile controls simplify mobile game development
 - **Control offset transforms** — New UI animation system enables complex transitions without custom shaders
 
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools can inspect your live project:
-
-- **`scene_tree`** — Inspect current scene hierarchy for architecture decisions
-- **`class_db_info`** — Query class capabilities to choose the right node type
-- **`map_project`** — Generate a project graph to visualize architecture
-- **`project_settings_read`** — Check current project configuration during brainstorming
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Scene Composition Patterns](references/scene-composition.md)

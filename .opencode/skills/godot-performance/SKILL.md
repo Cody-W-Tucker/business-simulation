@@ -310,18 +310,6 @@ func _process(delta):
     fps_label.text = "FPS: " + str(Performance.get_monitor(Performance.TIME_FPS))
     mem_label.text = "Mem: " + str(Performance.get_monitor(Performance.MEMORY_STATIC) / 1024 / 1024) + " MB"
 ```
-## MCP Bridge Tools (Optional — Live Editor Integration)
-
-When the MCP bridge is running (Phase 2), these tools enhance performance debugging:
-
-- **`profiler_start`** — Start a profiling session from the editor
-- **`profiler_stop`** — Stop and display results
-- **`memory_stats`** — View current memory allocation breakdown
-- **`render_stats`** — Query draw calls, triangles, and active textures
-- **`perfetto_export`** — Export Perfetto trace for Android debugging
-
-> **Note:** MCP tools require the Godot editor to be running with the MCP plugin enabled. Skills work independently without the bridge.
-
 ## References
 
 - [Profiler Documentation](references/profiler-guide.md)
