@@ -78,7 +78,7 @@ marketing is on the CFO's side. Shared offices have divided workstations and
 bullpen-facing data boards. A smaller
 glass-fronted conference room connects directly to the CEO's private office,
 which also opens into the bullpen. A receptionist placeholder stands behind the
-reception desk. Figures and monitors do not have their own interaction yet. The
+reception desk. Figures and placeholder monitors do not have their own interaction yet. The
 Interiors A archive has not been adopted into this scene.
 
 `OFFICE_PLAN.md` records the hypothetical knowledge-business headcount and
