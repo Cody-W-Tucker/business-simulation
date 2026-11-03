@@ -6,15 +6,13 @@ complete or verified on Beast's desktop.
 
 ## gdCEF build and keyboard input
 
-- [ ] Add a reproducible, pinned build of gdCEF to the Nix development workflow,
-  retaining the shared-C++-runtime Godot configuration and clean shutdown.
-- [ ] Fix keyboard event translation in gdCEF. The prebuilt extension drops at
-  least the period character; investigate punctuation, shifted characters,
-  navigation keys, and shortcuts in both wall and full-window modes. Preserve
-  normal text input and key-release behavior rather than injecting text through
+See [README.md](README.md#verify) for the current pinned extension build and
+punctuation regression check.
+
+- [ ] Investigate shifted characters, navigation keys, and shortcuts beyond the
+  punctuation regression in both wall and full-window modes. Preserve normal
+  text input and key-release behavior rather than injecting text through
   page-specific JavaScript.
-- [ ] Run the punctuation regression in `tests/browser_smoke.gd` without
-  `TEST_SKIP_KNOWN_PUNCTUATION_BUG`, alongside the rest of the integration suite.
 
 ## Browser performance and distance-based refresh
 
@@ -57,5 +55,3 @@ complete or verified on Beast's desktop.
   other browser.
 - Browser storage is separate from the user's regular browser profile. The
   embedded browsers share the gdCEF profile but use normal per-origin storage.
-- The integration suite currently has a known punctuation failure. Its optional
-  skip only isolates other checks; it is not a fix.

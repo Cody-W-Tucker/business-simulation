@@ -8,17 +8,16 @@
   "origin": "interior_floor",
   "footprint_m": [58.2, 36.2],
   "height_m": 7.2,
-  "interaction_sides": ["interior", "courtyard_transition"],
+  "interaction_sides": ["interior"],
   "style_references": [
-    "scripts/landscape.gd: courtyard's light stone and dark board frames",
-    "scripts/build_office.gd: previous reception, placeholder monitors and basic furniture",
-    "assets/polyhaven-landscape/meadow_2_4k.hdr: shared window panorama"
+    "scripts/build_office.gd: interior palette, reception, placeholder monitors and basic furniture",
+    "scripts/browser_boards.gd: live browser board frames"
   ],
   "controller": {"radius_m": 0.3, "height_m": 1.9},
   "collision": {"required": true, "strategy": "split_primitives_around_openings"},
   "construction_junctions": [
     {"name": "interior_floor_ceiling_walls", "interfaces": ["room_edges", "wing_connections"], "status": "blockout_review_pending"},
-    {"name": "openings", "interfaces": ["courtyard_return", "customer_rooms", "research_spokes", "window"], "status": "blockout_review_pending"}
+    {"name": "openings", "interfaces": ["customer_rooms", "research_spokes", "window"], "status": "blockout_review_pending"}
   ],
   "routes": [
     {"name": "customers", "required": true, "points_local": [[0, 0, 2.5], [0, 0, 0], [8, 0, 0], [8, 0, -3]]},
@@ -33,5 +32,5 @@
   "review": {"required_views": ["entry", "customers", "account_manager", "specialist", "manager_hall", "manager_office", "research", "stairs_lower", "stairs_middle", "stairs_upper", "departments", "bullpen", "cubicle_entry", "cubicle_inside", "department_north", "department_south", "bullpen_manager", "ceo", "conference_glass", "conference_wall", "conference"], "inspect_native_resolution": true},
   "evidence": {"structural": [], "runtime": ["res://tests/office_smoke.gd: player ascent/descent, doorway and glass collision probes"], "navigation": [], "performance": [], "visual": []},
   "measured": {},
-  "notes": ["Interior-only layout blockout, not a finished building; no NPC navigation is implemented.", "Second-floor layout extends beyond the smaller ground-floor rooms; no exterior or structural supports are modeled.", "Screens are nonfunctional placeholders. Junction and performance review remain open.", "Node and light budgets are provisional and must be measured before final acceptance."]
+  "notes": ["Interior-only layout blockout, not a finished building; no NPC navigation is implemented.", "Second-floor layout extends beyond the smaller ground-floor rooms; no exterior or structural supports are modeled.", "For live browser screens and placeholder interaction limits, see README.md#world-scale-and-building-on-the-project. Junction and performance review remain open.", "Node and light budgets are provisional and must be measured before final acceptance."]
 }

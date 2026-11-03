@@ -77,14 +77,8 @@ func _run() -> void:
 		if cubicles != spec[1]:
 			_fail("Incorrect bullpen cubicles: " + spec[0])
 			return
-	room.player.position = Vector3(-17, 0, 26.9)
-	room.camera.position = room.player.position + Vector3.UP * room.EYE_HEIGHT
-	room.camera.look_at(Vector3(-17, 1.4, 29.2))
-	if not room._try_office_door() or not room.player.position.is_equal_approx(Vector3(250, 0, 2.5)):
-		_fail("Courtyard-to-office transition failed")
-		return
-	if not room._target_board(false).is_empty():
-		_fail("Courtyard browser is targetable from the office")
+	if not room.player.position.is_equal_approx(Vector3(250, 0, 2.5)):
+		_fail("Player did not spawn in reception")
 		return
 	await physics_frame
 	# Check openings and adjacent solid walls, using the actual player capsule.
@@ -235,14 +229,5 @@ func _run() -> void:
 	if room.player.position.y > 0.3:
 		_fail("Staircase did not return to reception: %s" % room.player.position)
 		return
-	room.player.position = Vector3(250, 0, 2.5)
-	room.camera.position = room.player.position + Vector3.UP * room.EYE_HEIGHT
-	room.camera.look_at(Vector3(250, 1.4, 4.9))
-	if not room._try_office_door() or not room.player.position.is_equal_approx(Vector3(-17, 0, 26.9)):
-		_fail("Office-to-courtyard transition failed")
-		return
-	if room._try_office_door():
-		_fail("Door activated while looking away")
-		return
-	print("PASS: office structure, round-trip doors, doorway and partition collision")
+	print("PASS: office structure, reception spawn, doorway and partition collision")
 	quit(0)

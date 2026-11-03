@@ -52,12 +52,14 @@ func _move_player(position: Vector3) -> void:
 
 
 func _aim_at(browser_position: Vector2) -> void:
-	var board_point := Vector3(-4.0 + 8.0 * browser_position.x / 2560.0, 2.25 - 4.5 * browser_position.y / 1440.0, 0.15)
+	var size: Vector2 = room.active_board.size
+	var board_point := Vector3(size.x * (browser_position.x / 2560.0 - 0.5), size.y * (0.5 - browser_position.y / 1440.0), 0.15)
 	room.camera.look_at(room.preview_board.to_global(board_point))
 
 
 func _wall_point(browser_position: Vector2) -> Vector2:
-	var point := Vector3(-4.0 + 8.0 * browser_position.x / 2560.0, 2.25 - 4.5 * browser_position.y / 1440.0, 0.15)
+	var size: Vector2 = room.active_board.size
+	var point := Vector3(size.x * (browser_position.x / 2560.0 - 0.5), size.y * (0.5 - browser_position.y / 1440.0), 0.15)
 	return room.camera.unproject_position(room.preview_board.to_global(point))
 
 
@@ -123,6 +125,7 @@ func _run() -> void:
 	if not await _wait_for(func(): return project_browser.call("get_title") == "restored:"):
 		_fail("Projects browser fixture did not load")
 		return
+	await _move_player(Vector3(250, 0, -15))
 	room.camera.look_at(project_board.node.global_position)
 	_tap_key(KEY_E)
 	await process_frame
@@ -131,7 +134,7 @@ func _run() -> void:
 		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	await _move_player(Vector3(19, 0, 0))
+	await _move_player(project_board.node.to_global(Vector3(0, -1.65, 3)))
 	room.camera.look_at(project_board.node.global_position)
 	var project_center: Vector2 = root.get_visible_rect().size / 2.0
 	_mouse_button(project_center, true)
@@ -150,8 +153,8 @@ func _run() -> void:
 		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	await _move_player(Vector3.ZERO)
-	room.camera.look_at(Vector3(-29.85, 2.7, 0))
+	await _move_player(Vector3(250, 0, -15))
+	room.camera.look_at(room.get_node("OfficeInterior/ProjectsResearchWing/OctagonWall4/ResearchPlaceholder").global_position)
 	_tap_key(KEY_E)
 	await process_frame
 	if room.browser_focused:
@@ -172,6 +175,7 @@ func _run() -> void:
 		_fail("Browser texture is not 2560×1440: %s" % image.get_size())
 		return
 	var center: Vector2 = root.get_visible_rect().size / 2.0
+	await _move_player(room.preview_board.to_global(Vector3(0, -1.65, 14)))
 	_aim_at(Vector2(1280, 720))
 	_mouse_button(center, true)
 	_mouse_button(center, false)
@@ -186,7 +190,7 @@ func _run() -> void:
 		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	await _move_player(Vector3(0, 0, -19))
+	await _move_player(room.preview_board.to_global(Vector3(0, -1.65, 3)))
 	_aim_at(Vector2(1280, 720))
 	_mouse_button(center, true)
 	_mouse_button(center, false)
@@ -234,20 +238,19 @@ func _run() -> void:
 	if room.browser_focused:
 		_fail("Typing E unexpectedly opened the full-window view")
 		return
-	if OS.get_environment("TEST_SKIP_KNOWN_PUNCTUATION_BUG") != "1":
-		for character in ".,!?:;@":
-			var punctuation := InputEventKey.new()
-			punctuation.keycode = character.unicode_at(0)
-			punctuation.unicode = character.unicode_at(0)
-			punctuation.pressed = true
-			Input.parse_input_event(punctuation)
-			punctuation = punctuation.duplicate()
-			punctuation.pressed = false
-			punctuation.unicode = 0
-			Input.parse_input_event(punctuation)
-		if not await _wait_for(func(): return browser.call("get_title") == "e.,!?:;@"):
-			_fail("Punctuation failed; received: %s" % browser.call("get_title"))
-			return
+	for character in ".,!?:;@":
+		var punctuation := InputEventKey.new()
+		punctuation.keycode = character.unicode_at(0)
+		punctuation.unicode = character.unicode_at(0)
+		punctuation.pressed = true
+		Input.parse_input_event(punctuation)
+		punctuation = punctuation.duplicate()
+		punctuation.pressed = false
+		punctuation.unicode = 0
+		Input.parse_input_event(punctuation)
+	if not await _wait_for(func(): return browser.call("get_title") == "e.,!?:;@"):
+		_fail("Punctuation failed; received: %s" % browser.call("get_title"))
+		return
 	_mouse_button(center, true, MOUSE_BUTTON_RIGHT)
 	var glance := InputEventMouseMotion.new()
 	glance.screen_relative = Vector2(30, 0)
