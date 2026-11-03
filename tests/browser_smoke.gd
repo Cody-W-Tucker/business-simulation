@@ -238,20 +238,19 @@ func _run() -> void:
 	if room.browser_focused:
 		_fail("Typing E unexpectedly opened the full-window view")
 		return
-	if OS.get_environment("TEST_SKIP_KNOWN_PUNCTUATION_BUG") != "1":
-		for character in ".,!?:;@":
-			var punctuation := InputEventKey.new()
-			punctuation.keycode = character.unicode_at(0)
-			punctuation.unicode = character.unicode_at(0)
-			punctuation.pressed = true
-			Input.parse_input_event(punctuation)
-			punctuation = punctuation.duplicate()
-			punctuation.pressed = false
-			punctuation.unicode = 0
-			Input.parse_input_event(punctuation)
-		if not await _wait_for(func(): return browser.call("get_title") == "e.,!?:;@"):
-			_fail("Punctuation failed; received: %s" % browser.call("get_title"))
-			return
+	for character in ".,!?:;@":
+		var punctuation := InputEventKey.new()
+		punctuation.keycode = character.unicode_at(0)
+		punctuation.unicode = character.unicode_at(0)
+		punctuation.pressed = true
+		Input.parse_input_event(punctuation)
+		punctuation = punctuation.duplicate()
+		punctuation.pressed = false
+		punctuation.unicode = 0
+		Input.parse_input_event(punctuation)
+	if not await _wait_for(func(): return browser.call("get_title") == "e.,!?:;@"):
+		_fail("Punctuation failed; received: %s" % browser.call("get_title"))
+		return
 	_mouse_button(center, true, MOUSE_BUTTON_RIGHT)
 	var glance := InputEventMouseMotion.new()
 	glance.screen_relative = Vector2(30, 0)

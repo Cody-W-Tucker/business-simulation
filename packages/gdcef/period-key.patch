@@ -1,0 +1,23 @@
+diff --git a/gdcef/browser/src/browser_io.cpp b/gdcef/browser/src/browser_io.cpp
+--- a/gdcef/browser/src/browser_io.cpp
++++ b/gdcef/browser/src/browser_io.cpp
+@@ -468,7 +468,8 @@ void GdBrowserView::keyPress(int key,
+         else
+         {
+             // For letters, windows_key_code uses uppercase (VK_A=65 to VK_Z=90)
+-            int vk_code = key;
++            // A period is VK_OEM_PERIOD, not VK_DELETE (ASCII '.').
++            int vk_code = key == '.' ? 190 : key;
+             if (key >= 'a' && key <= 'z')
+             {
+                 vk_code = key - 32;  // Convert to uppercase for virtual key code
+@@ -515,7 +516,8 @@ void GdBrowserView::keyPress(int key,
+     {
+         // For letters, windows_key_code uses uppercase (VK_A=65 to VK_Z=90)
+         // Lowercase letters (97-122) need to be converted to uppercase (65-90)
+-        int vk_code = key;
++        // Keep the typed character separate from its Windows virtual key.
++        int vk_code = key == '.' ? 190 : key;
+         if (key >= 'a' && key <= 'z')
+         {
+             vk_code = key - 32;  // Convert to uppercase for virtual key code

@@ -188,6 +188,6 @@ and clean shutdown under Xvfb:
 nix shell nixpkgs#python3 nixpkgs#xvfb-run --command nix develop --command python tests/run_browser_smoke.py
 ```
 
-The punctuation regression currently fails with the prebuilt gdCEF extension.
-To check the remaining interaction tests separately, prefix the command with
-`TEST_SKIP_KNOWN_PUNCTUATION_BUG=1`; this does not fix or test punctuation.
+The Nix package rebuilds the gdCEF Godot extension with a period-key mapping
+fix, retaining the pinned upstream CEF runtime and render subprocess. The
+browser integration test includes punctuation input without exclusions.
