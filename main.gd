@@ -7,6 +7,7 @@ const BrowserInput = preload("res://scripts/browser_input.gd")
 const REFRESH_SECONDS := 60.0
 const BROWSER_FRAME_RATE := 120
 const BOARD_REACH := 12.0
+const OFFICE_ORIGIN := Vector3(250, 0, 0)
 
 @export_range(60.0, 110.0, 1.0) var horizontal_fov := 90.0
 @export_range(0.0, 50.0, 1.0) var look_smoothing := 25.0
@@ -49,6 +50,7 @@ var horizontal_velocity := Vector3.ZERO
 var flying := false
 var last_space_press := -1000
 const EYE_HEIGHT := 1.7
+const PLAYER_HEIGHT := EYE_HEIGHT + 0.2
 
 
 func _ready() -> void:
@@ -113,7 +115,7 @@ func _move_camera(delta: float) -> void:
 	var right := Vector3(cos(camera.rotation.y), 0, -sin(camera.rotation.y))
 	var input := RoomInput.movement()
 	var movement := right * input.x - forward * input.y
-	var speed := 12.0 if Input.is_action_pressed(RoomInput.FAST) else 6.0
+	var speed: float = PlayerMovement.RUN_SPEED if Input.is_action_pressed(RoomInput.FAST) else PlayerMovement.WALK_SPEED
 	_move_player(movement, speed, delta)
 
 
@@ -171,6 +173,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				last_space_press = now
 				_try_jump()
 	elif event.is_action_pressed(RoomInput.INTERACT):
+		if _try_office_door():
+			return
 		var target := _target_board(false)
 		if not target.is_empty():
 			_select_board(target)
@@ -187,7 +191,29 @@ func _unhandled_input(event: InputEvent) -> void:
 				_focus_wall()
 
 
+func _try_office_door() -> bool:
+	var in_office := player.global_position.x > 100.0
+	var door := OFFICE_ORIGIN + Vector3(0, 1.4, 4.9) if in_office else Vector3(-17, 1.4, 29.2)
+	var offset := door - camera.global_position
+	if offset.length() > 3.0 or offset.normalized().dot(-camera.global_basis.z) < 0.94:
+		return false
+	var destination := Vector3(-17, 0, 26.9) if in_office else OFFICE_ORIGIN + Vector3(0, 0, 2.5)
+	player.global_position = destination
+	player.velocity = Vector3.ZERO
+	horizontal_velocity = Vector3.ZERO
+	vertical_speed = 0.0
+	pending_look = Vector2.ZERO
+	player.reset_physics_interpolation()
+	camera.global_position = destination + Vector3.UP * EYE_HEIGHT
+	camera.rotation = Vector3.ZERO
+	last_camera_position = camera.position
+	return true
+
+
 func _target_board(require_reach: bool) -> Dictionary:
+	# The courtyard's infinite-range E shortcut must not reach through office walls.
+	if player.global_position.x > 100.0:
+		return {}
 	var center := get_viewport().get_visible_rect().size / 2.0
 	var closest: Dictionary = {}
 	var closest_distance := INF
@@ -424,6 +450,9 @@ func _build_room() -> void:
 	var landscape := preload("res://scripts/landscape.gd").new()
 	add_child(landscape)
 	boards = landscape.build(wall_brightness, environment_shadows)
+	var office := preload("res://scenes/office_interior.tscn").instantiate() as Node3D
+	office.position = OFFICE_ORIGIN
+	add_child(office)
 	_select_board(boards[0])
 	camera = Camera3D.new()
 	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
@@ -436,10 +465,10 @@ func _build_room() -> void:
 	player.name = "PlayerCollision"
 	var capsule := CapsuleShape3D.new()
 	capsule.radius = 0.3
-	capsule.height = EYE_HEIGHT
+	capsule.height = PLAYER_HEIGHT
 	var shape := CollisionShape3D.new()
 	shape.shape = capsule
-	shape.position.y = EYE_HEIGHT / 2.0
+	shape.position.y = PLAYER_HEIGHT / 2.0
 	player.add_child(shape)
 	add_child(player)
 	last_camera_position = camera.position

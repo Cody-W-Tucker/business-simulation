@@ -1,6 +1,10 @@
 extends RefCounted
 ## Movement math is kept separate from browser interaction and input routing.
 
+const WALK_SPEED := 6.0
+const RUN_SPEED := 12.0
+const FLIGHT_SPEED := RUN_SPEED * 2.0
+
 
 static func is_on_jump_surface(room: Node3D) -> bool:
 	return room.vertical_speed <= 0.0 and (room.player.position.y <= 0.001 or room.player.is_on_floor())
@@ -15,11 +19,10 @@ static func try_jump(room: Node3D) -> bool:
 
 static func move(room: Node3D, movement: Vector3, speed: float, delta: float) -> void:
 	if room.flying or is_on_jump_surface(room):
-		room.horizontal_velocity = movement.normalized() * speed
+		room.horizontal_velocity = movement.normalized() * (FLIGHT_SPEED if room.flying else speed)
 	if room.flying:
 		var vertical_input := Input.get_action_strength("room_jump") - Input.get_action_strength("room_descend")
-		var flight_speed := 12.0 if Input.is_action_pressed("room_fast") else 6.0
-		room.vertical_speed = vertical_input * flight_speed
+		room.vertical_speed = vertical_input * FLIGHT_SPEED
 	else:
 		room.vertical_speed -= 12.0 * delta
 	room.player.velocity = Vector3(room.horizontal_velocity.x, room.vertical_speed, room.horizontal_velocity.z)

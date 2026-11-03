@@ -51,7 +51,28 @@ func _run() -> void:
 	if room.player.position.y < wall_height + 0.5:
 		_fail("Wall jump did not lift the player")
 		return
-	print("PASS: ground jump, airborne momentum, midair restriction, wall landing and wall jump")
+	# Flight uses twice the running speed in both axes, irrespective of Shift.
+	room.player.position = Vector3(0, 10, 0)
+	room.flying = true
+	for fast in [false, true]:
+		if fast:
+			Input.action_press("room_fast")
+		Input.action_press("room_jump")
+		await physics_frame
+		room._move_player(Vector3.RIGHT, 12.0 if fast else 6.0, 1.0 / 60.0)
+		if not is_equal_approx(room.horizontal_velocity.x, 24.0) or not is_equal_approx(room.vertical_speed, 24.0):
+			_fail("Flight speed must be twice running speed with or without Shift")
+			return
+		Input.action_release("room_jump")
+		Input.action_release("room_fast")
+	Input.action_press("room_descend")
+	await physics_frame
+	room._move_player(Vector3.ZERO, 6.0, 1.0 / 60.0)
+	Input.action_release("room_descend")
+	if not is_equal_approx(room.vertical_speed, -24.0):
+		_fail("Flight descent speed must be twice running speed")
+		return
+	print("PASS: ground jump, airborne momentum, wall jump and flight speeds")
 	quit(0)
 
 
