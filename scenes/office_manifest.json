@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "profile": "enterable_building",
+  "asset_name": "office_wings_blockout",
+  "scene": "res://scenes/office_interior.tscn",
+  "units": "meters",
+  "forward": "-Z",
+  "origin": "interior_floor",
+  "footprint_m": [58.2, 36.2],
+  "height_m": 7.2,
+  "interaction_sides": ["interior", "courtyard_transition"],
+  "style_references": [
+    "scripts/landscape.gd: courtyard's light stone and dark board frames",
+    "scripts/build_office.gd: previous reception, placeholder monitors and basic furniture",
+    "assets/polyhaven-landscape/meadow_2_4k.hdr: shared window panorama"
+  ],
+  "controller": {"radius_m": 0.3, "height_m": 1.9},
+  "collision": {"required": true, "strategy": "split_primitives_around_openings"},
+  "construction_junctions": [
+    {"name": "interior_floor_ceiling_walls", "interfaces": ["room_edges", "wing_connections"], "status": "blockout_review_pending"},
+    {"name": "openings", "interfaces": ["courtyard_return", "customer_rooms", "research_spokes", "window"], "status": "blockout_review_pending"}
+  ],
+  "routes": [
+    {"name": "customers", "required": true, "points_local": [[0, 0, 2.5], [0, 0, 0], [8, 0, 0], [8, 0, -3]]},
+    {"name": "project_manager", "required": true, "points_local": [[8, 0, 0], [28, 0, 0], [32, 0, 0]]},
+    {"name": "research", "required": true, "points_local": [[0, 0, 0], [0, 0, -15], [8, 0, -15]]},
+    {"name": "departments", "required": true, "points_local": [[-4, 0, 1], [-14, 1.33, 1], [-14, 2.67, -7], [-4, 4, -7], [19, 4, -20]]},
+    {"name": "ceo", "required": true, "points_local": [[31, 4, -15], [34, 4, -15], [37, 4, -15]]},
+    {"name": "conference", "required": true, "points_local": [[31, 4, 0], [34, 4, 0], [36, 4, 0]]},
+    {"name": "ceo_conference", "required": true, "points_local": [[39, 4, -9], [39, 4, -5]]}
+  ],
+  "budgets": {"nodes": 650, "mesh_instances": 220, "multimesh_instances": 0, "multimesh_elements": 0, "multimesh_invalid_buffers": 0, "multimesh_missing_custom_aabb": 0, "collision_shapes": 150, "concave_collision_shapes": 0, "collision_triangles": 0, "surfaces": 220, "triangles": 350000, "unique_materials": 16, "lights": 20, "particles": 0, "nonuniform_scales": 0},
+  "review": {"required_views": ["entry", "customers", "brokerage", "specialist", "manager_hall", "manager_office", "research", "stairs_lower", "stairs_middle", "stairs_upper", "departments", "bullpen", "cubicle_entry", "cubicle_inside", "department_north", "department_south", "bullpen_manager", "ceo", "conference_glass", "conference_wall", "conference"], "inspect_native_resolution": true},
+  "evidence": {"structural": [], "runtime": ["res://tests/office_smoke.gd: player ascent/descent, doorway and glass collision probes"], "navigation": [], "performance": [], "visual": []},
+  "measured": {},
+  "notes": ["Interior-only layout blockout, not a finished building; no NPC navigation is implemented.", "Second-floor layout extends beyond the smaller ground-floor rooms; no exterior or structural supports are modeled.", "Screens are nonfunctional placeholders. Junction and performance review remain open.", "Node and light budgets are provisional and must be measured before final acceptance."]
+}

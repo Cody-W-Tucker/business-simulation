@@ -269,4 +269,18 @@ func build(brightness: float, shadows: bool = true) -> Array[Dictionary]:
 	_make_board("YOUR IDEAS", "A whiteboard for what's next", Vector3(-29.85, 2.7, 0), PI / 2.0)
 	_make_browser_board("PROJECTS", PROJECTS_URL, Vector3(29.85, 2.7, 0), -PI / 2.0, Vector2(8.0, 4.5))
 	_make_board("COMING SOON", "A space for something new", Vector3(0, 2.5, 29.85), PI, Vector2(8.0, 4.5))
+	var office_door := Node3D.new()
+	office_door.name = "OfficeDoor"
+	# Against the south courtyard edge rather than freestanding in its center.
+	office_door.position = Vector3(-17, 0, 29.4)
+	office_door.rotation.y = PI
+	add_child(office_door)
+	_box(office_door, Vector3(2.1, 2.7, 0.3), Vector3(0, 1.35, 0), Color("c7b79c"))
+	_box(office_door, Vector3(1.65, 2.3, 0.12), Vector3(0, 1.15, 0.2), Color("697888"))
+	var sign := Label3D.new()
+	sign.text = "OFFICE\n[E]"
+	sign.font_size = 42
+	sign.pixel_size = 0.005
+	sign.position = Vector3(0, 1.55, 0.28)
+	office_door.add_child(sign)
 	return boards
