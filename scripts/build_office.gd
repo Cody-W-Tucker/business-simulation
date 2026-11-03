@@ -186,7 +186,7 @@ func _build_wings() -> void:
 	_box(hub, "WindowSill", Vector3(2.12, 0.1, 0.3), Vector3(-3, 1.02, 5), "eae5d9")
 	_box(hub, "WindowHeader", Vector3(2.12, 0.1, 0.3), Vector3(-3, 2.38, 5), "eae5d9")
 	_box(hub, "ExitLintel", Vector3(2, 0.6, 0.2), Vector3(0, 2.7, 5), "ddd9ce", true)
-	_box(hub, "ReturnDoor", Vector3(1.85, 2.35, 0.08), Vector3(0, 1.175, 4.95), "697888")
+	_box(hub, "ReturnDoor", Vector3(1.85, 2.35, 0.08), Vector3(0, 1.175, 4.95), "697888", true)
 	_label(hub, "COURTYARD\n[E]", Vector3(0, 1.6, 4.89), 0.004, PI)
 	for x in [-3.25, 3.25]:
 		_box(hub, "NorthWall", Vector3(3.5, 3, 0.2), Vector3(x, 1.5, -5), "ddd9ce", true)
@@ -449,7 +449,7 @@ func _build() -> void:
 	_box(building, "CustomerDoorOpen", Vector3(1.6, 2.3, 0.08), Vector3(4.85, 1.15, 1.58), "7d8992")
 	_label(building, "BROKERAGE\nSPECIALISTS", Vector3(4.85, 1.6, 1.63), 0.0028)
 	# Door surface teleports back to courtyard; interaction is provided by main.gd.
-	_box(building, "ReturnDoor", Vector3(1.7, 2.35, 0.08), Vector3(0, 1.175, 3.96), "697888")
+	_box(building, "ReturnDoor", Vector3(1.7, 2.35, 0.08), Vector3(0, 1.175, 3.96), "697888", true)
 	_label(building, "COURTYARD\n[E]", Vector3(0, 1.6, 3.9), 0.004, PI)
 	_box(building, "ReceptionDesk", Vector3(2.3, 1.0, 0.8), Vector3(-1.7, 0.5, -1.4), "a38a72", true)
 	_box(building, "ReceptionTop", Vector3(2.45, 0.1, 0.9), Vector3(-1.7, 1.05, -1.4), "e5e0d4")

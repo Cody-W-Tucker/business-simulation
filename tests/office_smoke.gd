@@ -108,6 +108,12 @@ func _run() -> void:
 		if room.player.test_move(Transform3D(Basis.IDENTITY, route[0]), route[1]) != route[2]:
 			_fail("Unexpected wall or opening in route: %s" % [route])
 			return
+	for x in [-0.8, 0.0, 0.8]:
+		for side in [-1.0, 1.0]:
+			var start := Vector3(250 + x, 0, 4.95 + side)
+			if not room.player.test_move(Transform3D(Basis.IDENTITY, start), Vector3(0, 0, -side * 2.0)):
+				_fail("Closed return door permits walking through at %s" % start)
+				return
 	# Jump against the reception ceiling: the near plane must remain below it.
 	room.player.position = Vector3(250, 0, 0)
 	room.vertical_speed = 0.0
