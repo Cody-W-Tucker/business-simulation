@@ -30,6 +30,27 @@ func _mouse_button(position: Vector2, pressed: bool, button := MOUSE_BUTTON_LEFT
 	Input.parse_input_event(event)
 
 
+func _tap_key(keycode: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	event.pressed = true
+	Input.parse_input_event(event)
+	event = event.duplicate()
+	event.pressed = false
+	Input.parse_input_event(event)
+
+
+func _move_player(position: Vector3) -> void:
+	room.player.global_position = position
+	room.player.velocity = Vector3.ZERO
+	room.horizontal_velocity = Vector3.ZERO
+	room.vertical_speed = 0.0
+	room.player.reset_physics_interpolation()
+	await physics_frame
+	await process_frame
+	await process_frame
+
+
 func _aim_at(browser_position: Vector2) -> void:
 	var board_point := Vector3(-4.0 + 8.0 * browser_position.x / 2560.0, 2.25 - 4.5 * browser_position.y / 1440.0, 0.15)
 	room.camera.look_at(room.preview_board.to_global(board_point))
@@ -103,20 +124,14 @@ func _run() -> void:
 		_fail("Projects browser fixture did not load")
 		return
 	room.camera.look_at(project_board.node.global_position)
-	var project_e := InputEventKey.new()
-	project_e.keycode = KEY_E
-	project_e.pressed = true
-	Input.parse_input_event(project_e)
+	_tap_key(KEY_E)
 	await process_frame
 	if not room.browser_focused or room.browser != project_browser or not project_board.view.visible:
 		_fail("E did not open the targeted Projects browser")
 		return
-	var project_escape := InputEventKey.new()
-	project_escape.keycode = KEY_ESCAPE
-	project_escape.pressed = true
-	Input.parse_input_event(project_escape)
+	_tap_key(KEY_ESCAPE)
 	await process_frame
-	room.camera.position = Vector3(19, 2.5, 0)
+	await _move_player(Vector3(19, 0, 0))
 	room.camera.look_at(project_board.node.global_position)
 	var project_center: Vector2 = root.get_visible_rect().size / 2.0
 	_mouse_button(project_center, true)
@@ -133,11 +148,11 @@ func _run() -> void:
 	if browser.call("get_title") != "restored:":
 		_fail("Projects interaction affected the Excalidraw browser")
 		return
-	Input.parse_input_event(project_escape)
+	_tap_key(KEY_ESCAPE)
 	await process_frame
-	room.camera.position = Vector3(0, 2.5, 0)
+	await _move_player(Vector3.ZERO)
 	room.camera.look_at(Vector3(-29.85, 2.7, 0))
-	Input.parse_input_event(project_e)
+	_tap_key(KEY_E)
 	await process_frame
 	if room.browser_focused:
 		_fail("E opened a browser while aiming at a placeholder")
@@ -164,20 +179,14 @@ func _run() -> void:
 	if room.wall_keyboard_focused:
 		_fail("Board could be used from outside its reach")
 		return
-	var far_e := InputEventKey.new()
-	far_e.keycode = KEY_E
-	far_e.pressed = true
-	Input.parse_input_event(far_e)
+	_tap_key(KEY_E)
 	await process_frame
 	if not room.browser_focused or not root.disable_3d:
 		_fail("E did not open the board from outside its reach")
 		return
-	var far_escape := InputEventKey.new()
-	far_escape.keycode = KEY_ESCAPE
-	far_escape.pressed = true
-	Input.parse_input_event(far_escape)
+	_tap_key(KEY_ESCAPE)
 	await process_frame
-	room.camera.position.z = -19.0
+	await _move_player(Vector3(0, 0, -19))
 	_aim_at(Vector2(1280, 720))
 	_mouse_button(center, true)
 	_mouse_button(center, false)
@@ -250,19 +259,13 @@ func _run() -> void:
 		_fail("Right mouse glance did not restore cursor mode")
 		return
 	browser.call("execute_javascript", "document.querySelector('#text').value=''; localStorage.removeItem('test-text');")
-	var escape := InputEventKey.new()
-	escape.keycode = KEY_ESCAPE
-	escape.pressed = true
-	Input.parse_input_event(escape)
+	_tap_key(KEY_ESCAPE)
 	await process_frame
 	if room.wall_keyboard_focused or room.keyboard_hint.visible or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		_fail("Escape did not return keyboard control to the room")
 		return
 	_aim_at(Vector2(1280, 720))
-	var engage := InputEventKey.new()
-	engage.keycode = KEY_E
-	engage.pressed = true
-	Input.parse_input_event(engage)
+	_tap_key(KEY_E)
 	await process_frame
 	if not room.browser_focused or not root.disable_3d:
 		_fail("E did not switch the wall to the full-window browser")
@@ -284,7 +287,7 @@ func _run() -> void:
 	if not await _wait_for(func(): return browser.call("get_title") == "restored:a"):
 		_fail("Persisted browser input was not restored after reload (title: %s)" % browser.call("get_title"))
 		return
-	Input.parse_input_event(escape)
+	_tap_key(KEY_ESCAPE)
 	await process_frame
 	if room.browser_focused or root.disable_3d or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		_fail("Escape did not return focus to the room")
