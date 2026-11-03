@@ -1,7 +1,5 @@
 extends Node3D
 
-# One Godot unit represents one meter. Board sizes and positions live here so
-# new browser walls can be added without changing input or browser management.
 const EXCALIDRAW_URL := "https://draw.homehub.tv/"
 const PROJECTS_URL := "https://opencode.homehub.tv/"
 

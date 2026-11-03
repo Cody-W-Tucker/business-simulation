@@ -59,8 +59,8 @@ editable in Project Settings → Input Map. Movement lives in
 `scripts/player_movement.gd`, interaction modes in `scripts/interaction_state.gd`,
 and browser mouse translation in `scripts/browser_input.gd`. Browser keyboard
 events are forwarded separately, so room shortcuts do not intercept typing.
-The browser-board construction helper lives in `scripts/browser_boards.gd`; the active
-board locations and URLs are configured in `main.gd`. The currently supported
+The browser-board construction helper and URL constants live in
+`scripts/browser_boards.gd`; active board placement is configured in `main.gd`. The currently supported
 board geometry is a vertical rectangle facing local +Z. The `CommunityAssets`
 node in `main.tscn` is an
 editor-visible place to instance models and other scene content without editing
@@ -108,9 +108,9 @@ revenue-per-employee scenarios. It does not represent a financial forecast.
 its own persistent profile under Godot's user data directory; it does not share
 local browser storage or logins with your usual browser. The supplied homepage
 can therefore show a blank canvas. A shareable board or collaboration link may
-provide access to the same drawing; the URL is configured in
-`scripts/browser_boards.gd`. Back up important work: browser-local storage is not the same as a
-NAS-side board database.
+provide access to the same drawing; see [World scale and building on the project](#world-scale-and-building-on-the-project)
+for URL configuration. Back up important work: browser-local storage is not the
+same as a NAS-side board database.
 
 ## Run on Beast
 
@@ -123,9 +123,9 @@ godot --path .
 ```
 
 If you already have an older `nix develop` shell open, exit it and enter a new
-one first. The first build downloads the pinned gdCEF release (about 1 GB) and
-builds a Godot editor with a shared C++ runtime; compiling it can take many
-minutes. The project creates an ignored `cef_artifacts` symlink to the Nix store.
+one first. The first build downloads the pinned gdCEF release (about 1 GB),
+its extension sources and CEF build dependencies, and builds the patched extension
+and a Godot editor with a shared C++ runtime; compiling them can take many minutes. The project creates an ignored `cef_artifacts` symlink to the Nix store.
 It will not overwrite an existing non-managed file or directory at that path.
 
 Use the Godot from this shell, including for the editor (`godot --editor --path .`):
