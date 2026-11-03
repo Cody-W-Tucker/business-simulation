@@ -187,7 +187,6 @@ func _build_wings() -> void:
 	_box(hub, "WindowHeader", Vector3(2.12, 0.1, 0.3), Vector3(-3, 2.38, 5), "eae5d9")
 	_box(hub, "ExitLintel", Vector3(2, 0.6, 0.2), Vector3(0, 2.7, 5), "ddd9ce", true)
 	_box(hub, "ReturnDoor", Vector3(1.85, 2.35, 0.08), Vector3(0, 1.175, 4.95), "697888", true)
-	_label(hub, "COURTYARD\n[E]", Vector3(0, 1.6, 4.89), 0.004, PI)
 	for x in [-3.25, 3.25]:
 		_box(hub, "NorthWall", Vector3(3.5, 3, 0.2), Vector3(x, 1.5, -5), "ddd9ce", true)
 	_box(hub, "NorthLintel", Vector3(3, 0.6, 0.2), Vector3(0, 2.7, -5), "ddd9ce", true)

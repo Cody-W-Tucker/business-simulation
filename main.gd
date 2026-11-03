@@ -13,7 +13,6 @@ const OFFICE_ORIGIN := Vector3(250, 0, 0)
 @export_range(0.0, 50.0, 1.0) var look_smoothing := 25.0
 @export_range(0.5, 1.0, 0.01) var wall_brightness := 0.88
 @export_range(1.0, 20.0, 0.5) var jump_speed := 11.0
-@export var environment_shadows := true
 
 var camera: Camera3D
 var player: CharacterBody3D
@@ -173,8 +172,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				last_space_press = now
 				_try_jump()
 	elif event.is_action_pressed(RoomInput.INTERACT):
-		if _try_office_door():
-			return
 		var target := _target_board(false)
 		if not target.is_empty():
 			_select_board(target)
@@ -191,29 +188,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				_focus_wall()
 
 
-func _try_office_door() -> bool:
-	var in_office := player.global_position.x > 100.0
-	var door := OFFICE_ORIGIN + Vector3(0, 1.4, 4.9) if in_office else Vector3(-17, 1.4, 29.2)
-	var offset := door - camera.global_position
-	if offset.length() > 3.0 or offset.normalized().dot(-camera.global_basis.z) < 0.94:
-		return false
-	var destination := Vector3(-17, 0, 26.9) if in_office else OFFICE_ORIGIN + Vector3(0, 0, 2.5)
-	player.global_position = destination
-	player.velocity = Vector3.ZERO
-	horizontal_velocity = Vector3.ZERO
-	vertical_speed = 0.0
-	pending_look = Vector2.ZERO
-	player.reset_physics_interpolation()
-	camera.global_position = destination + Vector3.UP * EYE_HEIGHT
-	camera.rotation = Vector3.ZERO
-	last_camera_position = camera.position
-	return true
-
-
 func _target_board(require_reach: bool) -> Dictionary:
-	# The courtyard's infinite-range E shortcut must not reach through office walls.
-	if player.global_position.x > 100.0:
-		return {}
 	var center := get_viewport().get_visible_rect().size / 2.0
 	var closest: Dictionary = {}
 	var closest_distance := INF
@@ -447,16 +422,37 @@ func _resize_browser(instance: Node, view: TextureRect) -> void:
 
 
 func _build_room() -> void:
-	var landscape := preload("res://scripts/landscape.gd").new()
-	add_child(landscape)
-	boards = landscape.build(wall_brightness, environment_shadows)
 	var office := preload("res://scenes/office_interior.tscn").instantiate() as Node3D
 	office.position = OFFICE_ORIGIN
 	add_child(office)
+	var environment := WorldEnvironment.new()
+	environment.environment = Environment.new()
+	environment.environment.background_mode = Environment.BG_COLOR
+	environment.environment.background_color = Color("171e2b")
+	environment.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	environment.environment.ambient_light_color = Color("d9e2ed")
+	environment.environment.ambient_light_energy = 0.65
+	add_child(environment)
+	var board_builder := preload("res://scripts/browser_boards.gd").new()
+	board_builder.name = "BrowserBoards"
+	add_child(board_builder)
+	board_builder.wall_brightness = wall_brightness
+	for spec in [[0, "EXCALIDRAW", board_builder.EXCALIDRAW_URL], [2, "PROJECTS", board_builder.PROJECTS_URL]]:
+		var wall: Node3D = office.get_node("ProjectsResearchWing/OctagonWall%d" % spec[0])
+		for child in wall.get_children():
+			if child.name in ["ResearchScreen", "ResearchPlaceholder"] or child is Label3D:
+				child.visible = false
+		var inward := signf(wall.basis.z.dot(Vector3(0, 0, -15) - wall.position))
+		board_builder._make_browser_board(spec[1], spec[2], Vector3.ZERO, 0.0, Vector2(3.0, 1.6875))
+		var board: Node3D = board_builder.boards.back().node
+		board.reparent(wall, false)
+		board.position = Vector3(0, 1.65, inward * 0.16)
+		board.rotation.y = 0.0 if inward > 0 else PI
+	boards = board_builder.boards
 	_select_board(boards[0])
 	camera = Camera3D.new()
 	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
-	camera.position = Vector3(0, EYE_HEIGHT, 0)
+	camera.position = OFFICE_ORIGIN + Vector3(0, EYE_HEIGHT, 2.5)
 	camera.current = true
 	camera.keep_aspect = Camera3D.KEEP_WIDTH
 	camera.fov = horizontal_fov
@@ -471,6 +467,7 @@ func _build_room() -> void:
 	shape.position.y = PLAYER_HEIGHT / 2.0
 	player.add_child(shape)
 	add_child(player)
+	player.position = OFFICE_ORIGIN + Vector3(0, 0, 2.5)
 	last_camera_position = camera.position
 
 
