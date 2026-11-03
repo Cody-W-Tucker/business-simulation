@@ -24,9 +24,9 @@ mountain geometry. Asset sources and licensing are recorded in
   since E is sent to the browser in wall mode.
 - In the courtyard, approach the **Office** door and press **E** to enter. The
   office's **Courtyard** door returns you. The entry connects to the Specialists,
-  Departments, and Projects / Research wings. The account manager's office, with
-  Brokerage Specialists context, is first on the left; the project manager is at the end of
-  the corridor. Screens and manager figures are nonfunctional placeholders.
+  Departments, and Projects / Research wings. Specialist offices are organized
+  around duties, with the account manager first on the left and the project
+  manager at the end of the corridor. Screens and manager figures are nonfunctional placeholders.
 - Outside the board, **Esc** releases the mouse cursor; press Esc again or click
   the room to capture it.
 

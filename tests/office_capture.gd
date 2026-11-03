@@ -28,7 +28,7 @@ func _run() -> void:
 	for view in [
 		["entry", Vector3(0, 1.7, 2.5), Vector3(0, 1.6, -4)],
 		["customers", Vector3(6, 1.7, 0), Vector3(25, 1.6, 0)],
-		["brokerage", Vector3(8, 1.7, -2.8), Vector3(8.5, 1.4, -6.4)],
+		["account_manager", Vector3(8, 1.7, -2.8), Vector3(8.5, 1.4, -6.4)],
 		["manager_hall", Vector3(24, 1.7, 0), Vector3(32, 1.6, 0)],
 		["manager_office", Vector3(30, 1.7, 0), Vector3(35.5, 1.45, 0)],
 		["research", Vector3(0, 1.7, -9), Vector3(0, 1.6, -16)],

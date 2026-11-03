@@ -230,7 +230,7 @@ func _build_wings() -> void:
 			_light(customers, Vector3(x, 2.75, side * 4.5))
 	for x in [9.0, 21.0]:
 		_light(customers, Vector3(x, 2.75, 0))
-	# Brokerage: three wall boards, desk and files on the right, account manager on the left.
+	# Account manager: three wall boards, desk and files on the right, account manager on the left.
 	_box(customers, "CustomerDesk", Vector3(0.9, 0.12, 2.6), Vector3(10.15, 0.75, -5.1), "c5b29c", true)
 	for z in [-6.2, -4.0]:
 		_box(customers, "CustomerDeskLeg", Vector3(0.12, 0.7, 0.12), Vector3(10.15, 0.35, z), "737e87")
@@ -399,78 +399,6 @@ func _build_wings() -> void:
 			_box(departments, "ConferenceChair", Vector3(0.55, 0.48, 0.55), Vector3(x, 0.24, z), "96a3a4")
 	_light(departments, Vector3(39, 2.75, -7))
 	_light(departments, Vector3(39, 2.75, -14))
-	var packed := PackedScene.new()
-	if packed.pack(building) != OK or ResourceSaver.save(packed, "res://scenes/office_interior.tscn") != OK:
-		push_error("Office scene save failed")
-		quit(1)
-		return
-	print("OFFICE_BUILD_COMPLETE")
-	building.free()
-	quit(0)
-
-
-func _build() -> void:
-	building = Node3D.new()
-	building.name = "OfficeInterior"
-	# Entry: x -4..4; customer room: x 4..12. Floor level is y=0.
-	_box(building, "Floor", Vector3(16, 0.2, 8), Vector3(4, -0.1, 0), "b4b2a9", true)
-	_box(building, "Ceiling", Vector3(16, 0.2, 8), Vector3(4, 3.1, 0), "ebe9df", true)
-	# Two windows expose the existing panorama; their sills and lintels retain collision.
-	for wall in [[-3.5, 1.0], [6.0, 12.0]]:
-		_box(building, "NorthWall", Vector3(wall[1], 3, 0.2), Vector3(wall[0], 1.5, -4), "ddd9ce", true)
-	for window in [[-1.5, 3.0]]:
-		var center: float = window[0]
-		var width: float = window[1]
-		_box(building, "WindowSillWall", Vector3(width, 1.0, 0.2), Vector3(center, 0.5, -4), "ddd9ce", true)
-		_box(building, "WindowHeadWall", Vector3(width, 0.6, 0.2), Vector3(center, 2.7, -4), "ddd9ce", true)
-		_box(building, "WindowPane", Vector3(width, 1.4, 0.04), Vector3(center, 1.7, -4), "a5c6d1", true)
-		_box(building, "WindowSill", Vector3(width + 0.12, 0.1, 0.3), Vector3(center, 1.02, -4), "eae5d9")
-		_box(building, "WindowHeader", Vector3(width + 0.12, 0.1, 0.3), Vector3(center, 2.38, -4), "eae5d9")
-	_box(building, "SouthWallLeft", Vector3(3.1, 3, 0.2), Vector3(-2.45, 1.5, 4), "ddd9ce", true)
-	_box(building, "SouthWallRight", Vector3(5.1, 3, 0.2), Vector3(3.45, 1.5, 4), "ddd9ce", true)
-	_box(building, "SouthWallEnd", Vector3(1.5, 3, 0.2), Vector3(11.25, 1.5, 4), "ddd9ce", true)
-	_box(building, "CustomerWindowSillWall", Vector3(4.5, 1, 0.2), Vector3(8.25, 0.5, 4), "ddd9ce", true)
-	_box(building, "CustomerWindowHeadWall", Vector3(4.5, 0.6, 0.2), Vector3(8.25, 2.7, 4), "ddd9ce", true)
-	_box(building, "CustomerWindowPane", Vector3(4.5, 1.4, 0.04), Vector3(8.25, 1.7, 4), "a5c6d1", true)
-	_box(building, "CustomerWindowSill", Vector3(4.62, 0.1, 0.3), Vector3(8.25, 1.02, 4), "eae5d9")
-	_box(building, "CustomerWindowHeader", Vector3(4.62, 0.1, 0.3), Vector3(8.25, 2.38, 4), "eae5d9")
-	_box(building, "ExitLintel", Vector3(1.8, 0.6, 0.2), Vector3(0, 2.7, 4), "ddd9ce", true)
-	_box(building, "WestWall", Vector3(0.2, 3, 8), Vector3(-4, 1.5, 0), "ddd9ce", true)
-	_box(building, "EastWall", Vector3(0.2, 3, 8), Vector3(12, 1.5, 0), "ddd9ce", true)
-	# Customer door at x=4, z=-1.2; keep the opening clear for the player.
-	_box(building, "PartitionFront", Vector3(0.2, 3, 3.7), Vector3(4, 1.5, -2.15), "ddd9ce", true)
-	_box(building, "PartitionRear", Vector3(0.2, 3, 2.5), Vector3(4, 1.5, 2.75), "ddd9ce", true)
-	_box(building, "PartitionLintel", Vector3(0.2, 0.6, 1.8), Vector3(4, 2.7, 0.6), "ddd9ce", true)
-	for z in [-0.32, 1.52]:
-		_box(building, "DoorTrim", Vector3(0.28, 2.4, 0.1), Vector3(4, 1.2, z), "5a6570")
-	_box(building, "DoorHeader", Vector3(0.28, 0.12, 1.95), Vector3(4, 2.42, 0.6), "5a6570")
-	_label(building, "BROKERAGE SPECIALISTS", Vector3(3.86, 2.68, 0.6), 0.003, -PI / 2)
-	# The customer door is held open for the first version, leaving the route clear.
-	_box(building, "CustomerDoorOpen", Vector3(1.6, 2.3, 0.08), Vector3(4.85, 1.15, 1.58), "7d8992")
-	_label(building, "BROKERAGE\nSPECIALISTS", Vector3(4.85, 1.6, 1.63), 0.0028)
-	# Door surface teleports back to courtyard; interaction is provided by main.gd.
-	_box(building, "ReturnDoor", Vector3(1.7, 2.35, 0.08), Vector3(0, 1.175, 3.96), "697888", true)
-	_label(building, "COURTYARD\n[E]", Vector3(0, 1.6, 3.9), 0.004, PI)
-	_box(building, "ReceptionDesk", Vector3(2.3, 1.0, 0.8), Vector3(-1.7, 0.5, -1.4), "a38a72", true)
-	_box(building, "ReceptionTop", Vector3(2.45, 0.1, 0.9), Vector3(-1.7, 1.05, -1.4), "e5e0d4")
-	_label(building, "RECEPTION", Vector3(-1.7, 0.65, -0.94), 0.004)
-	_box(building, "Worktop", Vector3(5.2, 0.12, 0.9), Vector3(8, 0.75, -3.35), "c5b29c", true)
-	for x in [5.6, 10.4]:
-		_box(building, "DeskLeg", Vector3(0.12, 0.7, 0.75), Vector3(x, 0.35, -3.35), "737e87")
-	for i in range(3):
-		var x := 6.5 + i * 1.5
-		_box(building, "Monitor%d" % (i + 1), Vector3(1.18, 0.7, 0.09), Vector3(x, 1.38, -3.78), "303b48")
-		_box(building, "Screen%d" % (i + 1), Vector3(1.08, 0.6, 0.02), Vector3(x, 1.38, -3.72), "e5e9e9")
-		_label(building, "PLACEHOLDER %d" % (i + 1), Vector3(x, 1.38, -3.70), 0.0025)
-		_box(building, "MonitorStand", Vector3(0.08, 0.28, 0.08), Vector3(x, 0.92, -3.68), "303b48")
-	_box(building, "Bench", Vector3(1.8, 0.5, 0.65), Vector3(9.6, 0.25, 2.5), "96a3a4", true)
-	for x in [-1.5, 8.0]:
-		var light := OmniLight3D.new()
-		light.position = Vector3(x, 2.75, 0)
-		light.light_energy = 0.7
-		light.omni_range = 9.0
-		building.add_child(light)
-		light.owner = building
 	var packed := PackedScene.new()
 	if packed.pack(building) != OK or ResourceSaver.save(packed, "res://scenes/office_interior.tscn") != OK:
 		push_error("Office scene save failed")
