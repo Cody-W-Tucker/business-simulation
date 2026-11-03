@@ -1,0 +1,10 @@
+{
+  "schema_version": 2, "profile": "landmark", "asset_name": "replace_me",
+  "scene": "res://replace_me.tscn", "units": "meters", "forward": "-Z",
+  "origin": "terrain_contact", "footprint_m": [30.0, 30.0], "height_m": 24.0,
+  "interaction_sides": ["approach"], "style_references": [],
+  "collision": {"required": true, "strategy": "reachable_surfaces_only"}, "routes": [],
+  "budgets": {"nodes": 300, "mesh_instances": 100, "multimesh_instances": 24, "multimesh_elements": 1500, "multimesh_invalid_buffers": 0, "multimesh_missing_custom_aabb": 0, "collision_shapes": 56, "concave_collision_shapes": 0, "collision_triangles": 0, "surfaces": 180, "triangles": 650000, "unique_materials": 24, "lights": 8, "particles": 4, "nonuniform_scales": 0},
+  "review": {"required_views": ["front", "back", "left", "right", "near", "mid", "far", "source_location", "context"]},
+  "evidence": {"structural": [], "runtime": [], "navigation": [], "performance": [], "visual": []}, "measured": {}, "notes": []
+}

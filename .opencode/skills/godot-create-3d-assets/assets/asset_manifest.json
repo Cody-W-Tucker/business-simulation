@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "profile": "prop",
+  "asset_name": "example_asset",
+  "scene": "res://world/generated/example_asset.tscn",
+  "builder": "res://tools/build_example_asset.gd",
+  "units": "meters",
+  "forward": "-Z",
+  "origin": "ground_center",
+  "footprint_m": [2.0, 1.0],
+  "height_m": 1.0,
+  "interaction_sides": ["front"],
+  "style_references": [],
+  "collision": {"required": true, "strategy": "primitive_shapes"},
+  "routes": [],
+  "budgets": {
+    "nodes": 40, "mesh_instances": 16, "multimesh_instances": 0,
+    "multimesh_elements": 0, "multimesh_invalid_buffers": 0,
+    "multimesh_missing_custom_aabb": 0, "collision_shapes": 4,
+    "concave_collision_shapes": 0, "collision_triangles": 0,
+    "surfaces": 12, "triangles": 12000, "unique_materials": 4,
+    "lights": 0, "particles": 0, "nonuniform_scales": 0
+  },
+  "review": {
+    "center": [0.0, 0.5, 0.0], "radius": 4.0, "camera_height": 1.25,
+    "required_views": ["front", "back", "left", "right", "context"]
+  },
+  "evidence": {"structural": [], "runtime": [], "performance": [], "visual": []},
+  "source": {"kind": "godot_native", "license": "project-native"},
+  "measured": {},
+  "notes": []
+}

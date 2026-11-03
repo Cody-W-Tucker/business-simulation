@@ -1,0 +1,4 @@
+interface:
+  display_name: "Godot MCP 3D Asset Builder"
+  short_description: "Build and prove Godot-native 3D assets"
+  default_prompt: "Use $godot-create-3d-assets to build a Godot-only 3D asset through the MCP, integrate its packed scene, and prove style, traversal, performance, and multi-angle quality."

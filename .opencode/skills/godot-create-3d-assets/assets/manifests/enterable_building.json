@@ -1,0 +1,23 @@
+{
+  "schema_version": 2, "profile": "enterable_building", "asset_name": "replace_me",
+  "scene": "res://replace_me.tscn", "units": "meters", "forward": "-Z",
+  "origin": "terrain_contact", "footprint_m": [12.0, 10.0], "height_m": 8.0,
+  "interaction_sides": ["front", "interior"], "style_references": [],
+  "controller": {"radius_m": 0.45, "height_m": 1.8},
+  "collision": {"required": true, "strategy": "split_primitives_around_openings"},
+  "construction_junctions": [
+    {"name": "roof_envelope", "interfaces": ["ridge", "left_gable", "right_gable", "front_eave", "rear_eave", "penetrations"], "status": "unreviewed"},
+    {"name": "wall_foundation", "interfaces": ["all_exterior_edges"], "status": "unreviewed"},
+    {"name": "openings", "interfaces": ["each_unique_opening_exterior", "each_unique_opening_interior"], "status": "unreviewed"},
+    {"name": "revealable_shell", "interfaces": ["visible", "hidden"], "status": "unreviewed"}
+  ],
+  "routes": [{"name": "main_entry", "required": true, "points_local": []}, {"name": "reverse_exit", "required": true, "points_local": []}],
+  "budgets": {"nodes": 220, "mesh_instances": 80, "multimesh_instances": 12, "multimesh_elements": 400, "multimesh_invalid_buffers": 0, "multimesh_missing_custom_aabb": 0, "collision_shapes": 36, "concave_collision_shapes": 0, "collision_triangles": 0, "surfaces": 120, "triangles": 350000, "unique_materials": 16, "lights": 6, "particles": 2, "nonuniform_scales": 0},
+  "review": {
+    "required_views": ["front", "back", "left", "right", "front_left", "back_right", "approach", "roof_gable_closeups", "each_opening_exterior_closeup", "each_opening_interior_closeup", "roof_reveal_visible", "roof_reveal_hidden", "each_interior_room", "context"],
+    "inspect_native_resolution": true,
+    "reject_visible_background_slivers": true,
+    "reject_raw_opening_edges": true
+  },
+  "evidence": {"structural": [], "runtime": [], "navigation": [], "performance": [], "visual": []}, "measured": {}, "notes": []
+}

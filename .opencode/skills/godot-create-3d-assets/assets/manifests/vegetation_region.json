@@ -1,0 +1,11 @@
+{
+  "schema_version": 2, "profile": "vegetation_region", "asset_name": "replace_me",
+  "scene": "res://replace_me.tscn", "units": "meters", "forward": "-Z",
+  "origin": "terrain_contact", "footprint_m": [100.0, 100.0], "height_m": 30.0,
+  "interaction_sides": ["edge", "interior"], "style_references": [],
+  "collision": {"required": true, "strategy": "primary_obstacles_near_routes"}, "routes": [],
+  "distribution": {"seed": 1, "partition_size_m": 24.0, "clearings": [], "exclusions": []},
+  "budgets": {"nodes": 160, "mesh_instances": 40, "multimesh_instances": 100, "multimesh_elements": 5000, "multimesh_invalid_buffers": 0, "multimesh_missing_custom_aabb": 0, "collision_shapes": 64, "concave_collision_shapes": 0, "collision_triangles": 0, "surfaces": 120, "triangles": 600000, "unique_materials": 24, "lights": 0, "particles": 4, "nonuniform_scales": 0},
+  "review": {"required_views": ["overhead", "north_edge", "south_edge", "east_edge", "west_edge", "interior", "clearing", "far_context"]},
+  "evidence": {"structural": [], "runtime": [], "navigation": [], "performance": [], "visual": []}, "measured": {}, "notes": []
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2, "profile": "terrain_feature", "asset_name": "replace_me",
+  "scene": "res://replace_me.tscn", "units": "meters", "forward": "route_direction",
+  "origin": "terrain_contact", "footprint_m": [20.0, 4.0], "height_m": 0.2,
+  "interaction_sides": ["both_approaches"], "style_references": [],
+  "collision": {"required": false, "strategy": "terrain_or_route_surface"},
+  "terrain": {"height_provider": "replace_me", "sample_spacing_m": 2.0, "authoritative_route": []},
+  "routes": [{"name": "forward", "required": true, "points_local": []}, {"name": "reverse", "required": true, "points_local": []}],
+  "budgets": {"nodes": 80, "mesh_instances": 16, "multimesh_instances": 8, "multimesh_elements": 500, "multimesh_invalid_buffers": 0, "multimesh_missing_custom_aabb": 0, "collision_shapes": 12, "concave_collision_shapes": 0, "collision_triangles": 0, "surfaces": 24, "triangles": 50000, "unique_materials": 8, "lights": 0, "particles": 0, "nonuniform_scales": 0},
+  "review": {"required_views": ["overhead", "start", "end", "left_grazing", "right_grazing", "player_forward", "player_reverse", "context"]},
+  "evidence": {"structural": [], "runtime": [], "navigation": [], "performance": [], "visual": []}, "measured": {}, "notes": []
+}
