@@ -96,7 +96,7 @@ func _person_placeholder(parent: Node3D, node_name: String, title: String, pos: 
 
 
 func _department(parent: Node3D, title: String, center: Vector3, angle: float, roles: Array, width: float = 8.0) -> void:
-	# Small rooms sized for the one or two people actually assigned here.
+	# Room width can expand for larger teams while retaining paired workstations.
 	var department := Node3D.new()
 	department.name = title.replace(" ", "")
 	department.position = center
@@ -203,7 +203,7 @@ func _build_wings() -> void:
 	_label(hub, "SPECIALISTS", Vector3(4.88, 2.65, 0), 0.004, -PI / 2)
 	_label(hub, "DEPARTMENTS", Vector3(-4.88, 2.65, 0), 0.004, PI / 2)
 	_light(hub, Vector3(0, 2.75, 0))
-	# Four rooms on each side of a long corridor. First north room is the customer.
+	# The first north room has the account manager's distinct furnishings.
 	_slab(customers, "Customers", Vector3(17, 0, 0), Vector2(24, 16))
 	for z in [-8.0, 8.0]:
 		_box(customers, "OuterWall", Vector3(24, 3, 0.2), Vector3(17, 1.5, z), "ddd9ce", true)
@@ -313,7 +313,7 @@ func _build_wings() -> void:
 	_box(stairs, "FloorEdge", Vector3(0.2, 0.6, 2), Vector3(-5, 3.5, 1), "ddd9ce", true)
 	_box(stairs, "StairCeiling", Vector3(10, 0.2, 10), Vector3(-10, 7.1, -3), "ebe9df", true)
 	_light(stairs, Vector3(-12, 5.5, -3))
-	# Three offices north, four south, and a shorter shared bullpen.
+	# The wider product/engineering/operations office occupies two room widths.
 	departments.position.y = 4.0
 	_slab(departments, "DepartmentsCommon", Vector3(15, 0, -7), Vector2(40, 24))
 	_department(departments, "Sales and Support Managers", Vector3(-1, 0, -22), 0.0, ["SALES MANAGER", "CUSTOMER SUPPORT MANAGER"])

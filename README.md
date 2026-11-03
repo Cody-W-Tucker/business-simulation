@@ -2,7 +2,8 @@
 
 A Godot 4 open landscape with four freestanding whiteboards. The middle board loads
 Excalidraw at https://draw.homehub.tv/ and the Projects wall loads OpenCode at
-https://opencode.homehub.tv/. The other two boards are placeholders.
+https://opencode.homehub.tv/. The other two boards are placeholders. An explorable knowledge-products office
+adds reception, specialist workspaces, upstairs departments, and a conference room.
 The surrounding scene uses a photographic outdoor sky, a stone-paved courtyard,
 a grassy meadow and a border of trees, with fog for distance. The horizon is a panorama, not walkable
 mountain geometry. Asset sources and licensing are recorded in
@@ -26,7 +27,7 @@ mountain geometry. Asset sources and licensing are recorded in
   office's **Courtyard** door returns you. The entry connects to the Specialists,
   Departments, and Projects / Research wings. Specialist offices are organized
   around duties, with the account manager first on the left and the project
-  manager at the end of the corridor. Screens and manager figures are nonfunctional placeholders.
+  manager at the end of the corridor.
 - Outside the board, **Esc** releases the mouse cursor; press Esc again or click
   the room to capture it.
 
@@ -184,8 +185,8 @@ For a non-graphical smoke test:
 nix develop .#preview --command bash scripts/verify.sh
 ```
 
-This imports the project, checks GDScript files, runs the room and movement
-smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
+This imports the project, checks GDScript files, runs the room, movement,
+input-state, and office smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
 replace an interactive visual check. The project uses GDScript and Godot 4.7.2
 stable, pinned through `flake.lock`.
 

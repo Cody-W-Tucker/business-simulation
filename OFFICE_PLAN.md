@@ -15,16 +15,8 @@ The same headcount is not assumed viable across the whole $2–10 million range.
 | Projects / research | 0 | Shared whiteboard space, not assigned staff |
 | **Total** | **30** | All counts are people, not additional seats or shifts |
 
-People, monitors and boards are noninteractive placeholders. This adds two sales
-staff and a CEO to the prior 27-person scenario; the CFO and COO are renamed
-existing finance and operations manager roles. The eight
-specialist offices include the existing account manager; seven other specialists
-replace the former eight research figures, with roles revised for the corridor.
-Each specialist has a desk, and the project manager retains the office at the end.
-Upstairs, sales/support managers, IT, HR/legal, and product/engineering/
-operations occupy one side. Marketing and adjacent CFO and COO offices occupy
-the other. Shared offices have paired desks and bullpen-facing data boards. The
-CEO office has entrances from the bullpen and the adjacent conference room.
+For the explorable layout and placeholder interaction limits, see
+[README.md](README.md#world-scale-and-building-on-the-project).
 At this scale some specialist functions could instead be part-time, shared, or
 outsourced; the distinct departments are a visual organization, not a hiring rule.
 
