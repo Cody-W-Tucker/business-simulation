@@ -94,7 +94,7 @@ For each user-visible or gameplay claim, record one primary evidence source:
 
 | Claim type | Primary evidence |
 | --- | --- |
-| Structure exists and is reusable | `inspect_scene` plus packed-scene path |
+| Structure exists and is reusable | Loaded-scene inspection or audit runner plus packed-scene path |
 | Scale and style belong to the project | named references plus contextual screenshots |
 | Player can traverse | real-controller runtime route |
 | NPC can reach | NavigationServer path result |

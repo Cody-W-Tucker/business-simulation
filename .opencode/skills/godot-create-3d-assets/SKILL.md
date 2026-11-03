@@ -1,6 +1,6 @@
 ---
 name: godot-create-3d-assets
-description: Create, rebuild, optimize, integrate, and visually validate stylized Godot 4 3D assets and environments through the Godot MCP. Use for props, enterable buildings, landmarks, vegetation regions, terrain features, roads, modular environments, procedural meshes, materials, collisions, navigation, performance audits, and multi-angle in-world review without Blender or online asset generators.
+description: Create, rebuild, optimize, integrate, and visually validate stylized Godot 4 3D assets and environments using Godot MCP and safe owned jobs. Use for props, enterable buildings, landmarks, vegetation regions, terrain features, roads, modular environments, procedural meshes, materials, collisions, navigation, performance audits, and multi-angle in-world review without Blender or online asset generators.
 ---
 
 # Godot-native 3D Asset Builder V2.2
@@ -18,10 +18,10 @@ Create game-ready assets using the agent, the project's existing resources, Godo
 
 1. Read repository instructions and inspect existing Godot processes without stopping them.
 2. Inventory the exposed Godot MCP tools, then call `get_capabilities` or its semantic equivalent when available. Build a capability matrix instead of depending on exact tool names.
-3. Require project binding, loaded-scene structural inspection, and owned bounded headless jobs for all asset work. Also require off-desktop rendering and silent audio for pixel review. Verify claimed safety behavior with a small smoke job before relying on it.
-4. Adapt around missing optional features. Project-side runners may replace runtime-tree, input, direct-screenshot, MultiMesh-detail, and performance-monitor tools when owned jobs remain available. Missing scene-editing tools are not a blocker because deterministic builders can author scenes.
+3. Require project binding, loaded-scene structural inspection, and owned bounded headless jobs for asset work. Jobs can be launched through an MCP tool or the harness shell when it meets the same safety contract. Also require off-desktop rendering and silent audio for pixel review. Verify claimed safety behavior with a small smoke job before relying on it.
+4. Adapt around missing optional features. Project-side runners launched by owned jobs may replace runtime-tree, input, direct-screenshot, MultiMesh-detail, and performance-monitor tools. Missing scene-editing tools are not a blocker because deterministic builders can author scenes.
 5. If a required capability is absent, stop the affected workflow and provide a remediation report. Never modify, install, rebuild, or reconfigure the user's MCP without explicit authorization. When authorized and source is available, implement only the smallest missing capability, test it, build it, and explain that the MCP client must restart before the new tool exists.
-6. Use version, project-info, and scene-inspection tools to confirm the project, neighboring scenes, real bounds, materials, collision structure, MultiMesh state, and current errors. Use the owned job tool for builders, tests, probes, benchmarks, and captures.
+6. Use the available session, editor and scene tools or a loaded-scene runner to confirm the project, neighboring scenes, real bounds, materials, collision structure, MultiMesh state, and current errors. Use owned bounded jobs for builders, tests, probes, benchmarks, and captures.
 
 Read `references/mcp-compatibility.md` for capability negotiation and the permission-gated extension workflow. Read `references/mcp-and-cli.md` for the safe job contract.
 
@@ -65,7 +65,7 @@ Copy each runner `.tscn` together with its same-named `.gd`; their relative reso
 
 ## Validate before visual review
 
-1. Reload the saved scene and run `inspect_scene`. Reject missing meshes, empty bounds, lost MultiMesh buffers, missing authored bounds, excessive materials, or budget regressions.
+1. Reload and inspect the saved scene through available editor tools or a loaded-scene audit runner. Reject missing meshes, empty bounds, lost MultiMesh buffers, missing authored bounds, excessive materials, or budget regressions.
 2. Run `assets/asset_contract_test.tscn` with the target and manifest. Retain its JSON audit.
 3. Assert authored interface dimensions when the builder owns them: opening versus trim extents, pane overlap behind trim, paired roof endpoints, and foundation overlap. Reject zero-margin coplanar joins and unexplained background-visible gaps.
 4. For required routes, move the real project player or a manifest-matched body through the complete approach and interior. Use `assets/route_probe.tscn` only when the real controller cannot be isolated.
@@ -76,7 +76,7 @@ Read `references/performance-and-imports.md` when setting budgets, using MultiMe
 
 ## Review and iterate from pixels
 
-Capture both isolated and honest in-world views through MCP render jobs. Save timestamps, scene modification time, framing, and luminance diagnostics in `review_report.json`. Inspect every accepted image yourself at native resolution; image statistics only detect broken captures.
+Capture both isolated and honest in-world views through safe owned render jobs. Save timestamps, scene modification time, framing, and luminance diagnostics in `review_report.json`. Inspect every accepted image yourself at native resolution; image statistics only detect broken captures.
 
 For buildings and layered props, run a construction-junction pass after the composition pass. Capture tight diagnostic views of roof ridge/eaves/gables and penetrations, wall/foundation contact, every unique door or window from outside and inside, and revealable shells both visible and hidden. Reject background-colored slivers, light leaks, raw wall openings, floating panes, trim that does not meet plaster, or a gap concealed by foliage or shadow. Read `references/visual-review.md` for the junction matrix and acceptance rules.
 
@@ -87,7 +87,7 @@ Fix the highest-impact defect first, then recapture every affected angle and rer
 - Keep audio on the Dummy driver and render windows off-desktop.
 - Never launch an editor unless the user explicitly asks.
 - Never capture or lock the mouse.
-- Never call a broad process stop. Let `run_godot_job` terminate only its own child on timeout.
+- Never call a broad process stop. Timeouts and cleanup must target only the owned job and its children, never the user's editor or game.
 - Treat stale screenshots, missing expected-output markers, engine errors, and a frame-limit exit as failures.
 
 ## Complete only with evidence
