@@ -95,7 +95,7 @@ func _person_placeholder(parent: Node3D, node_name: String, title: String, pos: 
 	_label(person, title + "\nPLACEHOLDER", label_pos, 0.0025, label_angle)
 
 
-func _department(parent: Node3D, title: String, center: Vector3, angle: float, roles: Array, width: float = 8.0) -> void:
+func _department(parent: Node3D, title: String, center: Vector3, angle: float, roles: Array, width: float = 8.0, make_slab: bool = true, make_board: bool = true) -> void:
 	# Room width can expand for larger teams while retaining paired workstations.
 	var department := Node3D.new()
 	department.name = title.replace(" ", "")
@@ -103,7 +103,8 @@ func _department(parent: Node3D, title: String, center: Vector3, angle: float, r
 	department.rotation.y = angle
 	parent.add_child(department)
 	department.owner = building
-	_slab(department, "Department", Vector3.ZERO, Vector2(width, 6))
+	if make_slab:
+		_slab(department, "Department", Vector3.ZERO, Vector2(width, 6))
 	_box(department, "FarWall", Vector3(width, 3, 0.2), Vector3(0, 1.5, -3), "ddd9ce", true)
 	for x in [-width / 2.0, width / 2.0]:
 		_box(department, "SideWall", Vector3(0.2, 3, 6), Vector3(x, 1.5, 0), "ddd9ce", true)
@@ -112,18 +113,20 @@ func _department(parent: Node3D, title: String, center: Vector3, angle: float, r
 		_box(department, "EntryWall", Vector3(pier_width, 3, 0.2), Vector3(x, 1.5, 3), "ddd9ce", true)
 	_box(department, "EntryLintel", Vector3(3, 0.6, 0.2), Vector3(0, 2.7, 3), "ddd9ce", true)
 	_label(department, title.to_upper(), Vector3(0, 2.68, 3.13), 0.003, 0.0)
-	var board_x := -(width / 2.0 + 1.5) / 2.0
-	_box(department, "WhiteboardFrame", Vector3(1.8, 1.0, 0.08), Vector3(board_x, 1.65, 3.16), "303b48")
-	_box(department, "WhiteboardPlaceholder", Vector3(1.65, 0.85, 0.03), Vector3(board_x, 1.65, 3.22), "e5e9e9")
-	_label(department, "DATA PLACEHOLDER", Vector3(board_x, 1.65, 3.25), 0.0022)
+	if make_board:
+		var board_x := -(width / 2.0 + 1.5) / 2.0
+		_box(department, "WhiteboardFrame", Vector3(1.8, 1.0, 0.08), Vector3(board_x, 1.65, 3.16), "303b48")
+		_box(department, "WhiteboardPlaceholder", Vector3(1.65, 0.85, 0.03), Vector3(board_x, 1.65, 3.22), "e5e9e9")
+		_label(department, "DATA PLACEHOLDER", Vector3(board_x, 1.65, 3.25), 0.0022)
+	var pair_count := ceili(roles.size() / 2.0)
 	if roles.size() > 1:
 		for pair in range(roles.size() / 2):
-			var pair_x := (pair - (roles.size() / 2.0 - 1.0) / 2.0) * 8.0
+			var pair_x := (pair - (pair_count - 1.0) / 2.0) * 8.0
 			_box(department, "WorkstationDivider%d" % (pair + 1), Vector3(0.12, 1.55, 2.3), Vector3(pair_x, 0.775, -1.6), "96a3a4", true)
 		if roles.size() > 2:
 			_box(department, "PairBackDivider", Vector3(0.12, 1.55, 2.3), Vector3(0, 0.775, -1.6), "96a3a4", true)
 	for i in range(roles.size()):
-		var pair_x := (floori(i / 2.0) - (roles.size() / 2.0 - 1.0) / 2.0) * 8.0 if roles.size() > 1 else 0.0
+		var pair_x := (floori(i / 2.0) - (pair_count - 1.0) / 2.0) * 8.0 if roles.size() > 1 else 0.0
 		var side := -1.0 if i % 2 == 0 else 1.0
 		var desk_x := pair_x + side * 0.65 if roles.size() > 1 else -1.2
 		var person_x := pair_x + side * 2.1 if roles.size() > 1 else -2.7
@@ -152,19 +155,28 @@ func _stair_flight(parent: Node3D, flight_name: String, start: Vector3, end: Vec
 	heading.add_child(flight)
 	flight.owner = building
 	var length := direction.length()
-	_box(flight, "WalkingSurface", Vector3(length + 0.1, 0.12, 1.8), Vector3(0, -0.06, 0), "a38a72", true)
-	# Inner guards prevent a fall into the open center while leaving both
-	# quarter-turn landings open to the next flight.
-	_box(flight, "InnerGuard", Vector3(length - 0.15, 0.9, 0.1), Vector3(0, 0.51, 0.97), "96a3a4", true)
+	# The enclosed stairwell provides the side protection; keep the whole
+	# three-metre passage usable rather than adding freestanding rails.
+	_box(flight, "WalkingSurface", Vector3(length + 0.1, 0.12, 2.9), Vector3(0, -0.06, 0), "a38a72", true)
+	# Trim only the visible ramp: the full-length collision still meets the
+	# landing smoothly, while the dark ramp no longer protrudes above it.
+	var walking_surface := flight.get_node("WalkingSurface") as MeshInstance3D
+	(walking_surface.mesh as BoxMesh).size.x = length - 0.2
 	var steps := ceili(length / 0.5)
-	for i in range(steps):
+	# The landing occupies the final tread's run.
+	for i in range(steps - 1):
 		var tread := Node3D.new()
 		tread.name = "Tread"
-		tread.position = Vector3(-length / 2 + (i + 0.5) * length / steps, 0.015, 0)
+		var along := -length / 2 + (i + 0.5) * length / steps
+		tread.position = Vector3(along, 0.015, 0)
+		# Keep every visible rise equal, with the landing as the final rise.
+		var current_top := (start.y + end.y) / 2.0 + along * sin(flight.rotation.z) + 0.015 * cos(flight.rotation.z) + 0.06
+		var target_top := start.y + (i + 1.0) * direction.y / steps - 0.005
+		tread.position += Vector3(0, target_top - current_top, 0).rotated(Vector3.BACK, -flight.rotation.z)
 		tread.rotation.z = -flight.rotation.z
 		flight.add_child(tread)
 		tread.owner = building
-		_box(tread, "Step", Vector3(length / steps, 0.12, 1.8), Vector3(0, 0, 0), "c5b29c")
+		_box(tread, "Step", Vector3(length / steps, 0.12, 3.02), Vector3(0, 0, 0), "c5b29c")
 
 
 func _build_wings() -> void:
@@ -190,76 +202,46 @@ func _build_wings() -> void:
 	for x in [-3.25, 3.25]:
 		_box(hub, "NorthWall", Vector3(3.5, 3, 0.2), Vector3(x, 1.5, -5), "ddd9ce", true)
 	_box(hub, "NorthLintel", Vector3(3, 0.6, 0.2), Vector3(0, 2.7, -5), "ddd9ce", true)
-	for x in [-5.0, 5.0]:
-		for z in [-3.5, 3.5]:
-			_box(hub, "SideWall", Vector3(0.2, 3, 3), Vector3(x, 1.5, z), "ddd9ce", true)
-		_box(hub, "SideLintel", Vector3(0.2, 0.6, 4), Vector3(x, 2.7, 0), "ddd9ce", true)
+	for z in [-3.5, 3.5]:
+		_box(hub, "SideWall", Vector3(0.2, 3, 3), Vector3(5, 1.5, z), "ddd9ce", true)
+	_box(hub, "SideLintel", Vector3(0.2, 0.6, 4), Vector3(5, 2.7, 0), "ddd9ce", true)
+	# A three-metre opening, matching the research doorway, leads to the stairs.
+	_box(hub, "DepartmentWallNorth", Vector3(0.2, 3, 6.5), Vector3(-5, 1.5, -1.75), "ddd9ce", true)
+	_box(hub, "DepartmentWallSouth", Vector3(0.2, 3, 0.5), Vector3(-5, 1.5, 4.75), "ddd9ce", true)
+	_box(hub, "DepartmentLintel", Vector3(0.2, 0.6, 3), Vector3(-5, 2.7, 3), "ddd9ce", true)
 	_box(hub, "ReceptionDesk", Vector3(2.2, 1, 0.8), Vector3(-2.6, 0.5, -2.8), "a38a72", true)
 	_box(hub, "ReceptionTop", Vector3(2.35, 0.1, 0.9), Vector3(-2.6, 1.05, -2.8), "e5e0d4")
 	_label(hub, "RECEPTION", Vector3(-2.6, 0.65, -2.34), 0.004)
 	_person_placeholder(hub, "ReceptionistPlaceholder", "RECEPTIONIST", Vector3(-2.6, 0, -3.8), 0.0)
 	_label(hub, "PROJECTS / RESEARCH", Vector3(0, 2.65, -4.88), 0.003)
 	_label(hub, "SPECIALISTS", Vector3(4.88, 2.65, 0), 0.004, -PI / 2)
-	_label(hub, "DEPARTMENTS", Vector3(-4.88, 2.65, 0), 0.004, PI / 2)
+	_label(hub, "DEPARTMENTS", Vector3(-4.88, 2.65, 3), 0.004, PI / 2)
 	_light(hub, Vector3(0, 2.75, 0))
-	# The first north room has the account manager's distinct furnishings.
+	# Specialist offices reuse the upstairs office module and its workstations.
 	_slab(customers, "Customers", Vector3(17, 0, 0), Vector2(24, 16))
 	for z in [-8.0, 8.0]:
 		_box(customers, "OuterWall", Vector3(24, 3, 0.2), Vector3(17, 1.5, z), "ddd9ce", true)
 	# The corridor terminates in the project manager's office, with a clear doorway.
-	for z in [-4.75, 4.75]:
-		_box(customers, "CorridorEnd", Vector3(0.2, 3, 6.5), Vector3(29, 1.5, z), "ddd9ce", true)
-	_box(customers, "ManagerEntranceLintel", Vector3(0.2, 0.6, 3), Vector3(29, 2.7, 0), "ddd9ce", true)
-	_label(customers, "PROJECT MANAGER", Vector3(28.87, 2.68, 0), 0.003, -PI / 2)
-	for side in [-1.0, 1.0]:
-		for x in [5.0, 11.0, 17.0, 23.0, 29.0]:
-			_box(customers, "RoomDivider", Vector3(0.2, 3, 6), Vector3(x, 1.5, side * 5), "ddd9ce", true)
-		for i in range(4):
-			var x := 8.0 + i * 6.0
-			for dx in [-2.025, 2.025]:
-				_box(customers, "CorridorWall", Vector3(1.95, 3, 0.2), Vector3(x + dx, 1.5, side * 2), "ddd9ce", true)
-			_box(customers, "RoomLintel", Vector3(2.1, 0.6, 0.2), Vector3(x, 2.7, side * 2), "ddd9ce", true)
-			var titles := ["ACCOUNT MANAGER", "WEBSITE DEVELOPER", "CONTENT WRITER", "CONSULTANT"] if side < 0 else ["DEVELOPER", "DEVELOPER", "DELIVERY LEAD", "KNOWLEDGE SPECIALIST"]
-			var title: String = titles[i]
-			_label(customers, title, Vector3(x, 2.68, side * 1.87), 0.0028, 0.0 if side < 0 else PI)
-			if not (side < 0 and i == 0):
-				_box(customers, "SpecialistDesk", Vector3(2, 0.12, 0.7), Vector3(x, 0.75, side * 6.8), "c5b29c", true)
-				_box(customers, "SpecialistBoard", Vector3(2, 1, 0.08), Vector3(x, 1.8, side * 7.8), "e5e9e9")
-				_person_placeholder(customers, "StaffPlaceholder%s%d" % ["North" if side < 0 else "South", i], title, Vector3(x, 0, side * 5.3), 0.0 if side < 0 else PI)
-			_light(customers, Vector3(x, 2.75, side * 4.5))
+	for z in [-6.0, 6.0]:
+		_box(customers, "CorridorEnd", Vector3(0.2, 3, 4), Vector3(29, 1.5, z), "ddd9ce", true)
+	_department(customers, "Account Manager and Delivery Lead", Vector3(9, 0, -5), 0.0, ["ACCOUNT MANAGER", "DELIVERY LEAD"], 8.0, false)
+	_department(customers, "Web Development and Content Design", Vector3(21, 0, -5), 0.0, ["WEBSITE DEVELOPER", "CONTENT AND DESIGN"], 16.0, false)
+	_department(customers, "Consultant and Knowledge Specialist", Vector3(9, 0, 5), PI, ["CONSULTANT", "KNOWLEDGE SPECIALIST"], 8.0, false)
+	_department(customers, "Developers", Vector3(21, 0, 5), PI, ["DEVELOPER", "DEVELOPER"], 16.0, false)
 	for x in [9.0, 21.0]:
 		_light(customers, Vector3(x, 2.75, 0))
-	# Account manager: three wall boards, desk and files on the right, account manager on the left.
-	_box(customers, "CustomerDesk", Vector3(0.9, 0.12, 2.6), Vector3(10.15, 0.75, -5.1), "c5b29c", true)
-	for z in [-6.2, -4.0]:
-		_box(customers, "CustomerDeskLeg", Vector3(0.12, 0.7, 0.12), Vector3(10.15, 0.35, z), "737e87")
-	_box(customers, "CustomerFiles", Vector3(0.65, 1.15, 0.75), Vector3(10.45, 0.575, -7.2), "96a3a4", true)
-	_label(customers, "FILES", Vector3(10.45, 1.05, -6.81), 0.0025)
-	_person_placeholder(customers, "AccountManagerPlaceholder", "ACCOUNT MANAGER", Vector3(6.6, 0, -5.25), 0.0)
-	for i in range(3):
-		var x := 6.6 + i * 1.4
-		_box(customers, "Monitor%d" % (i + 1), Vector3(1.2, 0.85, 0.09), Vector3(x, 1.65, -7.82), "303b48")
-		_box(customers, "Screen%d" % (i + 1), Vector3(1.1, 0.75, 0.02), Vector3(x, 1.65, -7.76), "e5e9e9")
-		_label(customers, "WHITEBOARD %d" % (i + 1), Vector3(x, 1.65, -7.74), 0.0025)
-	# A distinct room beyond the corridor. Its three browser placeholders sit behind the desk.
-	_slab(customers, "ManagerOffice", Vector3(33, 0, 0), Vector2(8, 8))
-	for z in [-4.0, 4.0]:
-		_box(customers, "ManagerSideWall", Vector3(8, 3, 0.2), Vector3(33, 1.5, z), "ddd9ce", true)
-	_box(customers, "ManagerBackWall", Vector3(0.2, 3, 8), Vector3(37, 1.5, 0), "ddd9ce", true)
-	_box(customers, "ManagerDesk", Vector3(0.9, 0.12, 3.5), Vector3(34.15, 0.75, 0), "c5b29c", true)
-	for z in [-1.55, 1.55]:
-		_box(customers, "ManagerDeskLeg", Vector3(0.12, 0.7, 0.12), Vector3(34.15, 0.35, z), "737e87")
-	_person_placeholder(customers, "ProjectManagerPlaceholder", "PROJECT MANAGER", Vector3(35.25, 0, 2.45), -PI / 2)
-	for i in range(3):
-		var z := -1.4 + i * 1.4
-		_box(customers, "ManagerBrowser%d" % (i + 1), Vector3(0.09, 0.85, 1.2), Vector3(36.82, 1.65, z), "303b48")
-		_box(customers, "ManagerBrowserScreen%d" % (i + 1), Vector3(0.02, 0.75, 1.1), Vector3(36.76, 1.65, z), "e5e9e9")
-		_label(customers, "BROWSER %d" % (i + 1), Vector3(36.74, 1.65, z), 0.0025, -PI / 2)
-	_light(customers, Vector3(33, 2.75, 0))
+	_department(customers, "Project Manager", Vector3(32, 0, 0), -PI / 2.0, ["PROJECT MANAGER"], 8.0, true, false)
+	# Its entrance piers lie beyond the corridor walls; mount the board where it
+	# remains visible from the corridor instead of behind a cross wall.
+	_box(customers, "ProjectManagerBoardFrame", Vector3(1.8, 1.0, 0.08), Vector3(27, 1.65, -1.84), "303b48")
+	_box(customers, "ProjectManagerBoard", Vector3(1.65, 0.85, 0.03), Vector3(27, 1.65, -1.78), "e5e9e9")
+	_label(customers, "DATA PLACEHOLDER", Vector3(27, 1.65, -1.75), 0.0022)
 	# Octagonal research hub: eight equal sides, with a three-metre entry in the south side.
 	_slab(research, "ResearchLink", Vector3(0, 0, -6.5), Vector2(3, 3))
 	for x in [-1.5, 1.5]:
 		_box(research, "LinkWall", Vector3(0.2, 3, 3), Vector3(x, 1.5, -6.5), "ddd9ce", true)
+	# Join the two entrance walls overhead at the doorway lintel height.
+	_box(research, "LinkSoffit", Vector3(3, 0.6, 3), Vector3(0, 2.7, -6.5), "ddd9ce", true)
 	_slab(research, "Research", Vector3(0, 0, -15.25), Vector2(13.9, 14.5))
 	for i in range(8):
 		var a := PI / 8.0 + TAU * i / 8.0
@@ -295,37 +277,41 @@ func _build_wings() -> void:
 		_box(research, "SpokeScreen", Vector3(0.03, 1.3, 3), Vector3(side * 12.73, 1.65, -15), "e5e9e9")
 		_label(research, "RESEARCH PLACEHOLDER", Vector3(side * 12.70, 1.65, -15), 0.003, -side * PI / 2.0)
 		_light(research, Vector3(side * 10, 2.7, -15))
-	# Three flights and two quarter-turn landings connect reception to floor 2.
+	# Enter from reception, turn right up the flight, then right at the top.
 	var stairs := _group("DepartmentStairs")
-	_box(stairs, "StairFloor", Vector3(10, 0.2, 10), Vector3(-10, -0.1, -3), "b4b2a9", true)
-	_stair_flight(stairs, "FirstFlight", Vector3(-5, 0, 1), Vector3(-13, 4.0 / 3, 1))
-	_stair_flight(stairs, "SecondFlight", Vector3(-14, 4.0 / 3, 0), Vector3(-14, 8.0 / 3, -6))
-	_stair_flight(stairs, "ThirdFlight", Vector3(-13, 8.0 / 3, -7), Vector3(-6, 4, -7))
-	_box(stairs, "FirstLanding", Vector3(2.1, 0.2, 2.1), Vector3(-14, 4.0 / 3 - 0.1, 1), "c5b29c", true)
-	_box(stairs, "SecondLanding", Vector3(2.1, 0.2, 2.1), Vector3(-14, 8.0 / 3 - 0.1, -7), "c5b29c", true)
-	_box(stairs, "FinalLanding", Vector3(1.2, 0.2, 2), Vector3(-5.6, 3.9, -7), "c5b29c", true)
-	_box(stairs, "WestWall", Vector3(0.2, 7, 10.2), Vector3(-15, 3.5, -3), "ddd9ce", true)
-	for z in [-8.0, 2.0]:
-		_box(stairs, "StairWall", Vector3(10, 7, 0.2), Vector3(-10, 3.5, z), "ddd9ce", true)
-	_box(stairs, "EastWall", Vector3(0.2, 7, 6), Vector3(-5, 3.5, -3), "ddd9ce", true)
-	_box(stairs, "EastLowerWall", Vector3(0.2, 3.8, 2), Vector3(-5, 1.9, -7), "ddd9ce", true)
-	_box(stairs, "FloorEdge", Vector3(0.2, 0.6, 2), Vector3(-5, 3.5, 1), "ddd9ce", true)
-	_box(stairs, "StairCeiling", Vector3(10, 0.2, 10), Vector3(-10, 7.1, -3), "ebe9df", true)
-	_light(stairs, Vector3(-12, 5.5, -3))
-	# The wider product/engineering/operations office occupies two room widths.
+	_box(stairs, "StairFloor", Vector3(3.2, 0.2, 12.3), Vector3(-6.6, -0.1, -1.65), "b4b2a9", true)
+	_stair_flight(stairs, "StraightFlight", Vector3(-6.6, 0, 1.5), Vector3(-6.6, 4, -4.8))
+	_box(stairs, "UpperLanding", Vector3(3.02, 0.2, 3.44), Vector3(-6.6, 3.9, -6.08), "c5b29c", true)
+	# The ramp supplies collision under the visual extension; keep the landing's
+	# original collision edge so its vertical face cannot block the ascent.
+	var landing_collision := stairs.get_node("UpperLanding/Collision").get_child(0) as CollisionShape3D
+	(landing_collision.shape as BoxShape3D).size.z = 3.0
+	landing_collision.position.z = -0.22
+	# Bridge the wall thickness at the upstairs doorway without overlapping
+	# either floor surface or exposing the lowered wall cap.
+	_box(stairs, "LandingThreshold", Vector3(0.09, 0.2, 3), Vector3(-5.045, 3.9, -6.3), "c5b29c", true)
+	_box(stairs, "WestWall", Vector3(0.2, 7, 12.5), Vector3(-8.2, 3.5, -1.65), "ddd9ce", true)
+	_box(stairs, "NorthWall", Vector3(3.4, 7, 0.2), Vector3(-6.6, 3.5, -7.8), "ddd9ce", true)
+	_box(stairs, "SouthWall", Vector3(3.4, 7, 0.2), Vector3(-6.6, 3.5, 4.5), "ddd9ce", true)
+	# Reception supplies the shared east wall below 3 m; close the rest.
+	_box(stairs, "EastLowerWall", Vector3(0.2, 3, 2.8), Vector3(-5, 1.5, -6.4), "ddd9ce", true)
+	# Keep the wall cap below the adjacent floor to avoid coplanar z-fighting.
+	_box(stairs, "EastMiddleWall", Vector3(0.2, 0.98, 12.3), Vector3(-5, 3.49, -1.65), "ddd9ce", true)
+	_box(stairs, "StairCeiling", Vector3(3.4, 0.2, 12.5), Vector3(-6.6, 7.1, -1.65), "ebe9df", true)
+	_light(stairs, Vector3(-6.6, 6.5, -2))
+	# Four-person offices occupy two room widths.
 	departments.position.y = 4.0
 	_slab(departments, "DepartmentsCommon", Vector3(15, 0, -7), Vector2(40, 24))
-	_department(departments, "Sales and Support Managers", Vector3(-1, 0, -22), 0.0, ["SALES MANAGER", "CUSTOMER SUPPORT MANAGER"])
-	_department(departments, "Information Technology", Vector3(7, 0, -22), 0.0, ["IT"])
-	_department(departments, "People HR and Legal", Vector3(15, 0, -22), 0.0, ["PEOPLE AND HR", "LEGAL AND COMPLIANCE"])
-	_department(departments, "Product Engineering and Operations", Vector3(27, 0, -22), 0.0, ["PRODUCT", "ENGINEER", "ENGINEER", "OPERATIONS"], 16.0)
-	_department(departments, "Marketing", Vector3(-1, 0, 8), PI, ["MARKETING MANAGER", "MARKETING ASSISTANT"])
+	_department(departments, "IT Engineering and Operations", Vector3(7, 0, -22), 0.0, ["IT", "ENGINEER", "ENGINEER", "OPERATIONS"], 24.0)
+	_department(departments, "People HR and Legal", Vector3(23, 0, -22), 0.0, ["PEOPLE AND HR", "LEGAL AND COMPLIANCE"])
+	_box(departments, "CommonNorthWall", Vector3(8, 3, 0.2), Vector3(31, 1.5, -19), "ddd9ce", true)
+	_department(departments, "Sales Support and Marketing", Vector3(3, 0, 8), PI, ["SALES MANAGER", "MARKETING MANAGER", "CUSTOMER SUPPORT MANAGER", "PRODUCT MANAGER"], 16.0)
 	_department(departments, "CFO", Vector3(23, 0, 8), PI, ["CFO"])
 	_department(departments, "COO", Vector3(31, 0, 8), PI, ["COO"])
-	_box(departments, "CommonSouthWall", Vector3(16, 3, 0.2), Vector3(11, 1.5, 5), "ddd9ce", true)
-	for z in [-13.5, -0.5]:
-		_box(departments, "CommonWestWall", Vector3(0.2, 3, 11), Vector3(-5, 1.5, z), "ddd9ce", true)
-	_box(departments, "StairEntryLintel", Vector3(0.2, 0.6, 2), Vector3(-5, 2.7, -7), "ddd9ce", true)
+	_box(departments, "CommonSouthWall", Vector3(8, 3, 0.2), Vector3(15, 1.5, 5), "ddd9ce", true)
+	_box(departments, "CommonWestWallNorth", Vector3(0.2, 3, 11.2), Vector3(-5, 1.5, -13.4), "ddd9ce", true)
+	_box(departments, "CommonWestWallSouth", Vector3(0.2, 3.04, 9.8), Vector3(-5, 1.48, 0.1), "ddd9ce", true)
+	_box(departments, "StairEntryLintel", Vector3(0.2, 0.6, 3), Vector3(-5, 2.7, -6.3), "ddd9ce", true)
 	var teams := ["Sales", "Customer Support"]
 	var team_staff := [4, 2]
 	for i in range(2):

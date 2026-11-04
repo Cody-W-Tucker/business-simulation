@@ -34,27 +34,98 @@ func _count_staff(node: Node) -> int:
 	return count
 
 
+func _has_label(node: Node, text: String) -> bool:
+	if node is Label3D and text in node.text:
+		return true
+	for child in node.get_children():
+		if _has_label(child, text):
+			return true
+	return false
+
+
 func _run() -> void:
 	var room = load("res://main.tscn").instantiate()
 	root.add_child(room)
 	room.set_physics_process(false)
 	await physics_frame
 	var office: Node3D = room.get_node_or_null("OfficeInterior")
-	if office == null or office.get_node_or_null("CustomersWing/Monitor1") == null or office.get_node_or_null("CustomersWing/Monitor2") == null or office.get_node_or_null("CustomersWing/Monitor3") == null or office.get_node_or_null("ProjectsResearchWing") == null or office.get_node_or_null("DepartmentsWing") == null:
+	if office == null or office.get_node_or_null("ProjectsResearchWing") == null or office.get_node_or_null("DepartmentsWing") == null:
 		_fail("Office or placeholder monitors missing")
 		return
-	for node_path in ["CustomersWing/CustomerDesk", "CustomersWing/CustomerFiles", "CustomersWing/AccountManagerPlaceholder", "CustomersWing/ManagerDesk", "CustomersWing/ProjectManagerPlaceholder", "CustomersWing/ManagerBrowser1", "CustomersWing/ManagerBrowser2", "CustomersWing/ManagerBrowser3"]:
-		if office.get_node_or_null(node_path) == null:
-			_fail("Missing customer or project manager room object: " + node_path)
+	var threshold_wall: MeshInstance3D = office.get_node("DepartmentStairs/EastMiddleWall")
+	var upper_floor: MeshInstance3D = office.get_node("DepartmentsWing/DepartmentsCommonFloor")
+	var wall_top := threshold_wall.global_position.y + (threshold_wall.mesh as BoxMesh).size.y / 2.0
+	var floor_top := upper_floor.global_position.y + (upper_floor.mesh as BoxMesh).size.y / 2.0
+	if floor_top - wall_top < 0.01:
+		_fail("Stair threshold wall cap overlaps the upstairs floor surface")
+		return
+	var ramp := office.get_node("DepartmentStairs/StraightFlight").find_child("WalkingSurface", true, false) as MeshInstance3D
+	var landing := office.get_node("DepartmentStairs/UpperLanding") as MeshInstance3D
+	var ramp_bounds: AABB = ramp.global_transform * ramp.get_aabb()
+	var landing_top := landing.global_position.y + (landing.mesh as BoxMesh).size.y / 2.0
+	if ramp_bounds.end.y > landing_top - 0.02:
+		_fail("Visible stair ramp protrudes above the upper landing")
+		return
+	var tread_nodes := office.get_node("DepartmentStairs/StraightFlight").find_children("Step", "MeshInstance3D", true, false)
+	var tread_heights: Array[float] = []
+	var landing_bounds: AABB = landing.global_transform * landing.get_aabb()
+	var top_tread_bounds := AABB()
+	for tread_node in tread_nodes:
+		var tread: MeshInstance3D = tread_node
+		var bounds: AABB = tread.global_transform * tread.get_aabb()
+		tread_heights.append(bounds.end.y)
+		if top_tread_bounds.size == Vector3.ZERO or bounds.end.y > top_tread_bounds.end.y:
+			top_tread_bounds = bounds
+	tread_heights.sort()
+	if tread_heights.size() < 2 or top_tread_bounds.position.z > landing_bounds.end.z + 0.005:
+		_fail("Landing does not reach the top tread: top=%s landing=%s" % [top_tread_bounds, landing_bounds])
+		return
+	var rise := tread_heights[1] - tread_heights[0]
+	if absf(landing_top - top_tread_bounds.end.y - rise - 0.005) > 0.001:
+		_fail("Landing is not one equal rise above the top tread")
+		return
+	var west_wall := office.get_node("DepartmentStairs/WestWall") as MeshInstance3D
+	var east_wall := office.get_node("DepartmentStairs/EastMiddleWall") as MeshInstance3D
+	var west_bounds: AABB = west_wall.global_transform * west_wall.get_aabb()
+	var east_bounds: AABB = east_wall.global_transform * east_wall.get_aabb()
+	if top_tread_bounds.position.x > west_bounds.end.x + 0.001 or top_tread_bounds.end.x < east_bounds.position.x - 0.001:
+		_fail("Stair treads do not reach both enclosure walls")
+		return
+	for i in range(2, tread_heights.size()):
+		if absf(tread_heights[i] - tread_heights[i - 1] - rise) > 0.001:
+			_fail("Stair tread rises are not equal")
 			return
-	for node_path in ["ReceptionHub/ReceptionistPlaceholder", "DepartmentsWing/CFO", "DepartmentsWing/Sales", "DepartmentsWing/Marketing", "DepartmentsWing/ProductEngineeringandOperations", "DepartmentsWing/CustomerSupport", "DepartmentsWing/PeopleHRandLegal", "DepartmentsWing/InformationTechnology", "DepartmentsWing/SalesandSupportManagers", "DepartmentsWing/CEODesk", "DepartmentsWing/ConferenceTable"]:
+	for spec in [["AccountManagerandDeliveryLead", 2], ["WebDevelopmentandContentDesign", 2], ["ConsultantandKnowledgeSpecialist", 2], ["Developers", 2], ["ProjectManager", 1]]:
+		var module: Node = office.get_node_or_null("CustomersWing/" + spec[0])
+		if module == null or _count_staff(module) != spec[1] or (spec[0] != "ProjectManager" and module.get_node_or_null("WhiteboardPlaceholder") == null):
+			_fail("Incorrect specialist office: " + spec[0])
+			return
+		for i in range(spec[1]):
+			if module.get_node_or_null("Desk%d" % (i + 1)) == null:
+				_fail("Missing specialist desk: " + spec[0])
+				return
+		if spec[1] >= 2 and module.get_node_or_null("WorkstationDivider1") == null:
+			_fail("Missing specialist workstation divider: " + spec[0])
+			return
+	if office.get_node_or_null("CustomersWing/ProjectManagerBoard") == null or office.get_node_or_null("CustomersWing/ProjectManager/WhiteboardPlaceholder") != null:
+		_fail("Project manager data board placement is incorrect")
+		return
+	var web_office := office.get_node("CustomersWing/WebDevelopmentandContentDesign")
+	if not _has_label(web_office, "WEBSITE DEVELOPER") or not _has_label(web_office, "CONTENT AND DESIGN"):
+		_fail("Website development and content/design must share an office")
+		return
+	for node_path in ["CustomersWing/UnassignedOffice", "CustomersWing/WebsiteDeveloper", "CustomersWing/ContentWriter", "DepartmentsWing/UnassignedOffice", "DepartmentsWing/InformationTechnology", "DepartmentsWing/ProductEngineeringandOperations"]:
+		if office.get_node_or_null(node_path) != null:
+			_fail("Obsolete office remains: " + node_path)
+			return
+	for node_path in ["ReceptionHub/ReceptionistPlaceholder", "DepartmentsWing/CFO", "DepartmentsWing/Sales", "DepartmentsWing/SalesSupportandMarketing", "DepartmentsWing/ITEngineeringandOperations", "DepartmentsWing/CustomerSupport", "DepartmentsWing/PeopleHRandLegal", "DepartmentsWing/CEODesk", "DepartmentsWing/ConferenceTable"]:
 		if office.get_node_or_null(node_path) == null:
 			_fail("Missing department or reception object: " + node_path)
 			return
-	if _count_staff(office.get_node("DepartmentsWing")) != 20 or _count_staff(office.get_node("ProjectsResearchWing")) != 0 or _count_staff(office.get_node("CustomersWing")) != 7:
+	if _count_staff(office.get_node("DepartmentsWing")) != 19 or _count_staff(office.get_node("ProjectsResearchWing")) != 0 or _count_staff(office.get_node("CustomersWing")) != 9:
 		_fail("Knowledge-office staff placeholder count is incorrect")
 		return
-	for spec in [["CFO", 1], ["Marketing", 2], ["SalesandSupportManagers", 2], ["InformationTechnology", 1], ["PeopleHRandLegal", 2], ["ProductEngineeringandOperations", 4], ["COO", 1]]:
+	for spec in [["CFO", 1], ["SalesSupportandMarketing", 4], ["PeopleHRandLegal", 2], ["ITEngineeringandOperations", 4], ["COO", 1]]:
 		var module := office.get_node("DepartmentsWing/" + spec[0])
 		if _count_staff(module) != spec[1] or module.get_node_or_null("Desk%d" % spec[1]) == null or module.get_node_or_null("Desk%d" % (spec[1] + 1)) != null or module.get_node_or_null("WhiteboardPlaceholder") == null:
 			_fail("Incorrect private office staffing or furnishings: " + spec[0])
@@ -65,6 +136,20 @@ func _run() -> void:
 		if module.get_node("WhiteboardPlaceholder").position.z <= 3.0:
 			_fail("Office data board must face the bullpen: " + spec[0])
 			return
+	for spec in [["SalesSupportandMarketing/StaffPlaceholder2", "MARKETING MANAGER\nPLACEHOLDER"], ["SalesSupportandMarketing/StaffPlaceholder3", "CUSTOMER SUPPORT MANAGER\nPLACEHOLDER"], ["SalesSupportandMarketing/StaffPlaceholder4", "PRODUCT MANAGER\nPLACEHOLDER"], ["ITEngineeringandOperations/StaffPlaceholder1", "IT\nPLACEHOLDER"]]:
+		var labels := office.get_node("DepartmentsWing/" + spec[0]).find_children("*", "Label3D", true, false)
+		if labels.size() != 1 or (labels[0] as Label3D).text != spec[1]:
+			_fail("Incorrect reassigned staff placeholder: " + spec[0])
+			return
+	var it_room := office.get_node("DepartmentsWing/ITEngineeringandOperations") as Node3D
+	var first_staff := it_room.get_node("StaffPlaceholder1") as Node3D
+	var last_staff := it_room.get_node("StaffPlaceholder4") as Node3D
+	if absf(first_staff.position.x + last_staff.position.x) > 0.001:
+		_fail("IT office workstations are not centered")
+		return
+	if _wall_present(room, Vector3(259, 5.7, -23.5), Vector3(263, 5.7, -23.5)):
+		_fail("Former IT office partition still divides the combined room")
+		return
 	for spec in [["Sales", 4], ["CustomerSupport", 2]]:
 		var team := office.get_node("DepartmentsWing/" + spec[0])
 		if _count_staff(team) != spec[1]:
@@ -81,12 +166,25 @@ func _run() -> void:
 		_fail("Player did not spawn in reception")
 		return
 	await physics_frame
+	if _wall_present(room, Vector3(277, 1.65, 0), Vector3(277, 1.65, -1.7)):
+		_fail("Project manager data board is obscured from the corridor")
+		return
+	# The 3 m reception opening has clear walking space and walls on both sides.
+	for spec in [[2.0, false], [3.0, false], [4.0, false], [0.8, true], [4.9, true]]:
+		var start := Vector3(246, 0, spec[0])
+		if room.player.test_move(Transform3D(Basis.IDENTITY, start), Vector3(-2, 0, 0)) != spec[1]:
+			_fail("Reception stair opening or side wall failed at z=%s" % spec[0])
+			return
+	for z in [-9.0, -11.0, -14.0, -17.0]:
+		if not _wall_present(room, Vector3(244, 2.5, z), Vector3(244, 3.5, z)):
+			_fail("Research ceiling remains open at z=%s" % z)
+			return
 	# Check openings and adjacent solid walls, using the actual player capsule.
 	for route in [
 		[Vector3(254, 0, 0), Vector3(2, 0, 0), false],
 		[Vector3(250, 0, -4), Vector3(0, 0, -2), false],
-		[Vector3(258, 0, -1), Vector3(0, 0, -2), false],
-		[Vector3(260, 0, -1), Vector3(0, 0, -2), true],
+		[Vector3(259, 0, -1), Vector3(0, 0, -2), false],
+		[Vector3(262, 0, -1), Vector3(0, 0, -2), true],
 		[Vector3(250, 0, -7), Vector3(0, 0, -2), false],
 		[Vector3(256, 0, 0), Vector3(21, 0, 0), false],
 		[Vector3(277, 0, 0), Vector3(-21, 0, 0), false],
@@ -94,7 +192,7 @@ func _run() -> void:
 		[Vector3(282, 0, 0), Vector3(-5, 0, 0), false],
 		[Vector3(277, 0, 3), Vector3(4, 0, 0), true],
 		[Vector3(282, 0, 0), Vector3(4, 0, 0), true],
-		[Vector3(258, 0, -3), Vector3(0, 0, 2), false],
+		[Vector3(259, 0, -3), Vector3(0, 0, 2), false],
 		[Vector3(250, 0, -10), Vector3(0, 0, 3), false],
 		[Vector3(244.5, 0, -15), Vector3(-3, 0, 0), false],
 		[Vector3(255.5, 0, -15), Vector3(3, 0, 0), false],
@@ -129,17 +227,22 @@ func _run() -> void:
 	if not hit_ceiling:
 		_fail("Office ceiling was not encountered during jump")
 		return
-	# Walk all three flights and both turns with the actual player controller.
-	room.player.position = Vector3(246.0, 0, 1)
+	# Walk the single flight in both directions with the actual player controller.
+	room.player.position = Vector3(246.0, 0, 3)
 	room.vertical_speed = 0.0
 	room.horizontal_velocity = Vector3.ZERO
-	for target in [Vector3(236, 0, 1), Vector3(236, 0, -7), Vector3(246, 0, -7)]:
+	for target in [Vector3(243.4, 0, 3), Vector3(243.4, 0, -6.3), Vector3(247, 0, -6.3)]:
 		if not await _walk_to(room, target):
 			_fail("Could not walk upstairs toward %s; player at %s" % [target, room.player.position])
 			return
 	if room.player.position.y < 3.8:
 		_fail("Staircase did not reach second floor: %s" % room.player.position)
 		return
+	for side in [-1.0, 1.0]:
+		var start := Vector3(243.4, 2.0, -1.65)
+		if not room.player.test_move(Transform3D(Basis.IDENTITY, start), Vector3(side * 2.0, 0, 0)):
+			_fail("Stair flight wall is open on side %s" % side)
+			return
 	# Each bullpen desk has a walk-in opening and a tall, solid panel beside it.
 	for team_path in ["Sales", "CustomerSupport"]:
 		var team: Node3D = office.get_node("DepartmentsWing/" + team_path)
@@ -160,8 +263,8 @@ func _run() -> void:
 					if not _wall_present(room, inside, inside + delta):
 						_fail("Bullpen cubicle side or rear is open: %s" % team_path)
 						return
-	# The six private offices retain their open entries and solid outer walls.
-	for path in ["CFO", "Marketing", "SalesandSupportManagers", "InformationTechnology", "PeopleHRandLegal", "ProductEngineeringandOperations", "COO"]:
+	# Private offices retain their open entries and solid outer walls.
+	for path in ["CFO", "SalesSupportandMarketing", "PeopleHRandLegal", "ITEngineeringandOperations", "COO"]:
 		var module: Node3D = office.get_node("DepartmentsWing/" + path)
 		for dx in [0.0, 3.0]:
 			var start: Vector3 = module.global_transform * Vector3(dx, 0, 4.0)
@@ -190,14 +293,14 @@ func _run() -> void:
 	# Sweep rays at head height over the complete upper exterior perimeter,
 	# including room junctions, instead of sampling just a few wall centers.
 	for x in range(-4, 35):
-		for z in ([-25.0, 5.0 if x >= 3 and x < 19 else 11.0]):
+		for z in ([-19.0 if x >= 27 else -25.0, 5.0 if x >= 11 and x < 19 else 11.0]):
 			if not _wall_present(room, Vector3(250 + x, 5.5, z - 0.6), Vector3(250 + x, 5.5, z + 0.6)):
 				_fail("Exterior wall gap at x=%d z=%s" % [x, z])
 				return
 	for z in range(-18, 5):
 		for x in [-5.0, 35.0]:
-			# The intentional upstairs entry at x=-5, z=-7 is not an exterior wall.
-			if x == -5.0 and z in [-8, -7, -6]:
+			# The upstairs stair entry is not an exterior wall.
+			if x == -5.0 and z in [-8, -7, -6, -5]:
 				continue
 			if x == 35.0 and z in [-16, -15, -14, -1, 0, 1]:
 				continue
@@ -213,16 +316,7 @@ func _run() -> void:
 			if not _wall_present(room, Vector3(250 + x, 5.5, z - 0.6), Vector3(250 + x, 5.5, z + 0.6)):
 				_fail("Conference side wall gap at %s, %s" % [x, z])
 				return
-	for route in [
-		[Vector3(236, 2.67, -7), Vector3(-2, 0, 0)],
-		[Vector3(236, 2.67, -7), Vector3(0, 0, -2)],
-		[Vector3(236, 1.33, 1), Vector3(-2, 0, 0)],
-		[Vector3(236, 1.33, 1), Vector3(0, 0, 2)],
-	]:
-		if not room.player.test_move(Transform3D(Basis.IDENTITY, route[0]), route[1]):
-			_fail("Stairwell perimeter is open: %s" % [route])
-			return
-	for target in [Vector3(236, 0, -7), Vector3(236, 0, 1), Vector3(246, 0, 1)]:
+	for target in [Vector3(243.4, 0, -6.3), Vector3(243.4, 0, 3), Vector3(246, 0, 3)]:
 		if not await _walk_to(room, target):
 			_fail("Could not walk downstairs toward %s; player at %s" % [target, room.player.position])
 			return
