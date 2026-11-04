@@ -22,10 +22,10 @@ outsourced; the distinct departments are a visual organization, not a hiring rul
 
 ## Productivity and affordability
 
-Revenue per employee is annual revenue divided by employee count. For 30 people,
-it is approximately $67,000 at $2 million, $167,000 at $5 million, and $333,000
+Revenue per employee is annual revenue divided by employee count. For 29 people,
+it is approximately $69,000 at $2 million, $172,000 at $5 million, and $345,000
 at $10 million. These are arithmetic scenarios, not forecasts. In particular,
-$2 million may be difficult for 30 people once pay and overhead are included.
+$2 million may be difficult for 29 people once pay and overhead are included.
 Check actual billable utilization, rates, labor costs, contractor costs, and
 other expenses before treating any staffing level as financially workable.
 

@@ -74,7 +74,8 @@ developer and content/design specialist, and the two developers. The project
 manager has an individual office. These use the same workstation
 layout as the upstairs offices.
 Projects / Research is an unstaffed octagonal hub with two open spokes, live
-browser screens and additional placeholders. A single flight with landings at each end leads from reception to the second-floor
+browser screens and additional placeholders. An enclosed, three-metre-wide stair
+route with a single flight and landings leads from reception to the second-floor
 Departments. Sales and Customer Support share the bullpen in tall, single-entry
 cubicles. Sales and support managers share a four-person office with marketing and
 the product manager. IT, engineering and operations share an expanded office on
