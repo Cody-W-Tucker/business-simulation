@@ -44,11 +44,13 @@ func _box(parent: Node3D, label: String, size: Vector3, pos: Vector3, color: Str
 		collision.owner = building
 
 
-func _label(parent: Node3D, text: String, pos: Vector3, size := 0.004, angle := 0.0) -> void:
+func _label(parent: Node3D, text: String, pos: Vector3, size := 0.004, angle := 0.0, billboard := false) -> void:
 	var label := Label3D.new()
 	label.text = text
 	label.position = pos
 	label.rotation.y = angle
+	if billboard:
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.font_size = 42
 	label.pixel_size = size
 	label.modulate = Color("344454")
@@ -332,7 +334,7 @@ func _build_wings() -> void:
 		team.position = Vector3(3 + i * 10, 0, -4)
 		departments.add_child(team)
 		team.owner = building
-		_label(team, teams[i].to_upper(), Vector3(0, 2.3, 0), 0.003)
+		_label(team, teams[i].to_upper(), Vector3(0, 2.3, 0), 0.003, 0.0, true)
 		var filled := 0
 		for x in [-1.6, 1.6]:
 			for side in [-1.0, 1.0]:

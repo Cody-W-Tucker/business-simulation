@@ -26,8 +26,19 @@ func _run() -> void:
 			_fail("Employee lookup or room assignment failed: " + str(employee.id))
 			return
 		var labels := character.find_children("*", "Label3D", true, false)
+		if employee.room == "bullpen":
+			if not labels.is_empty():
+				_fail("Bullpen employee should not have an individual label: " + str(employee.id))
+				return
+			continue
 		if labels.size() != 1 or labels[0].text != String(employee.display_name).to_upper() or labels[0].billboard != BaseMaterial3D.BILLBOARD_ENABLED:
 			_fail("Employee label must show the role and face the camera: " + str(employee.id))
+			return
+	for spec in [["Sales", "SALES"], ["CustomerSupport", "CUSTOMER SUPPORT"]]:
+		var team: Node = world.get_node("OfficeInterior/DepartmentsWing/" + spec[0])
+		var team_labels := team.find_children("*", "Label3D", false, false)
+		if team_labels.size() != 1 or team_labels[0].text != spec[1] or team_labels[0].billboard != BaseMaterial3D.BILLBOARD_ENABLED:
+			_fail("Bullpen team label must face the camera: " + spec[0])
 			return
 	if directory.get_employee(17).department != directory.get_employee(24).department or directory.get_employee(17).room == directory.get_employee(24).room or directory.get_employee(24).department == directory.get_employee(28).department or directory.get_employee(24).room != directory.get_employee(28).room:
 		_fail("Department and room must be independent")

@@ -103,6 +103,8 @@ func _make_placeholder(employee: Dictionary) -> Node3D:
 		part.mesh = mesh
 		part.position = spec[2]
 		person.add_child(part)
+	if employee.room == "bullpen":
+		return person
 	var label := Label3D.new()
 	label.text = String(employee.display_name).to_upper()
 	label.position = Vector3(0, 2.2, 0)
