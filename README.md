@@ -90,6 +90,30 @@ Interiors A archive has not been adopted into this scene.
 `OFFICE_PLAN.md` records the hypothetical knowledge-business headcount and
 revenue-per-employee scenarios. It does not represent a financial forecast.
 
+### Employees and locations
+
+`data/employee_roster.tres` is the editable list of 29 fictional employees.
+Each record has a numeric `id`, display name, description, department, and room.
+IDs identify employees and their future agents: never change or reuse an ID for
+another employee. Department identifies peers; room determines where someone
+works. They are independent, so colleagues can work in different rooms and a room
+can contain several departments.
+
+The office builder tags each desk marker with a `room` and a unique `desk_number`
+within that room. Regenerate the office with
+`godot --headless --path . --script res://scripts/build_office.gd` inside the
+preview shell after changing its builder.
+
+At startup `EmployeeDirectory` assigns employees in numeric ID order to desks
+in desk-number order within their room. If a room runs out of desks, a warning
+identifies each unplaced employee; other employees still spawn and all remain in
+the roster. Assignments can change when the roster or desks change.
+`get_employee(id)` returns a definition and `get_character(id)` returns the live
+node; its `global_position` is the current world position. Unknown or unplaced
+characters return null. `roster.desired_agents()` returns every employee ID in
+numeric order, independent of roster order. This is an inventory only: no AI
+backend, communication rules, movement, or employee-state persistence exists yet.
+
 ### Add a community asset or plugin
 
 1. Try candidates in ignored `assets/_scratch/`. Follow `assets/README.md` to

@@ -136,7 +136,7 @@ func _run() -> void:
 		if module.get_node("WhiteboardPlaceholder").position.z <= 3.0:
 			_fail("Office data board must face the bullpen: " + spec[0])
 			return
-	for spec in [["SalesSupportandMarketing/StaffPlaceholder2", "MARKETING MANAGER\nPLACEHOLDER"], ["SalesSupportandMarketing/StaffPlaceholder3", "CUSTOMER SUPPORT MANAGER\nPLACEHOLDER"], ["SalesSupportandMarketing/StaffPlaceholder4", "PRODUCT MANAGER\nPLACEHOLDER"], ["ITEngineeringandOperations/StaffPlaceholder1", "IT\nPLACEHOLDER"]]:
+	for spec in [["SalesSupportandMarketing/StaffPlaceholder2", "MARKETING MANAGER"], ["SalesSupportandMarketing/StaffPlaceholder3", "CUSTOMER SUPPORT MANAGER"], ["SalesSupportandMarketing/StaffPlaceholder4", "PRODUCT MANAGER"], ["ITEngineeringandOperations/StaffPlaceholder1", "IT"]]:
 		var labels := office.get_node("DepartmentsWing/" + spec[0]).find_children("*", "Label3D", true, false)
 		if labels.size() != 1 or (labels[0] as Label3D).text != spec[1]:
 			_fail("Incorrect reassigned staff placeholder: " + spec[0])

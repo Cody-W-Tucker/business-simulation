@@ -79,20 +79,32 @@ func _light(parent: Node3D, pos: Vector3) -> void:
 
 
 func _person_placeholder(parent: Node3D, node_name: String, title: String, pos: Vector3, label_angle: float) -> void:
-	# A deliberately abstract, noninteractive stand-in, not a working NPC.
-	var person := Node3D.new()
-	person.name = node_name
-	person.position = pos
-	parent.add_child(person)
-	person.owner = building
-	_box(person, "Base", Vector3(0.8, 0.12, 0.8), Vector3(0, 0.06, 0), "737e87")
-	for x in [-0.16, 0.16]:
-		_box(person, "Leg", Vector3(0.17, 0.3, 0.22), Vector3(x, 0.26, 0), "737e87")
-	_box(person, "Body", Vector3(0.55, 1.0, 0.35), Vector3(0, 0.9, 0), "96a3a4")
-	_box(person, "Head", Vector3(0.4, 0.4, 0.4), Vector3(0, 1.6, 0), "c5b29c")
-	var label_pos := Vector3(0, 2.2, 0)
-	label_pos += Vector3(sin(label_angle), 0, cos(label_angle)) * 0.25
-	_label(person, title + "\nPLACEHOLDER", label_pos, 0.0025, label_angle)
+	# Room and desk order describe available seats, not assigned employees.
+	var marker := Marker3D.new()
+	marker.name = node_name
+	marker.position = pos
+	var rooms := {
+		"ReceptionHub": "reception", "AccountManagerandDeliveryLead": "account_delivery",
+		"WebDevelopmentandContentDesign": "web_content", "ConsultantandKnowledgeSpecialist": "consulting_knowledge",
+		"Developers": "developers", "ProjectManager": "project_manager",
+		"ITEngineeringandOperations": "it_engineering_operations", "PeopleHRandLegal": "hr_legal",
+		"SalesSupportandMarketing": "management_office", "CFO": "cfo_office", "COO": "coo_office",
+		"DepartmentsWing": "ceo_office"
+	}
+	var room := String(rooms.get(String(parent.name), ""))
+	var desk_number := int(node_name.trim_prefix("StaffPlaceholder"))
+	if String(parent.name).begins_with("Cubicle"):
+		room = "bullpen"
+		desk_number = int(String(parent.name).trim_prefix("Cubicle"))
+		if parent.get_parent().name == "CustomerSupport":
+			desk_number += 4
+	elif desk_number == 0:
+		desk_number = 1
+	marker.set_meta("room", room)
+	marker.set_meta("desk_number", desk_number)
+	marker.set_meta("label_angle", label_angle)
+	parent.add_child(marker)
+	marker.owner = building
 
 
 func _department(parent: Node3D, title: String, center: Vector3, angle: float, roles: Array, width: float = 8.0, make_slab: bool = true, make_board: bool = true) -> void:
