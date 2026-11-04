@@ -2,18 +2,18 @@
 
 This is a fictional, single-shift layout scenario for a consulting, marketing,
 and development business, not an industry benchmark or financial forecast.
-It uses **30 employees** as a visual planning point near $5 million annual revenue.
+It uses **29 employees** as a visual planning point near $5 million annual revenue.
 The same headcount is not assumed viable across the whole $2–10 million range.
 
 | Area | People | Roles represented |
 | --- | ---: | --- |
 | Sales / support bullpen | 6 | Sales 4, customer support 2 |
-| Shared and private offices | 13 | CFO 1, marketing 2, sales and support managers 2, IT 1, HR and legal 2, product / engineering / operations 4, COO 1 |
+| Shared and private offices | 12 | CFO 1, marketing 1, sales and support managers 2, product manager 1, IT / engineering / operations 4, HR and legal 2, COO 1 |
 | CEO office | 1 | CEO 1 |
-| Specialist corridor | 9 | Account manager 1, website developer 1, content writer 1, consultant 1, developers 2, delivery lead 1, knowledge specialist 1, project manager 1 |
+| Specialist corridor | 9 | Account manager 1, website developer 1, content and design 1, consultant 1, developers 2, delivery lead 1, knowledge specialist 1, project manager 1 |
 | Reception | 1 | Receptionist 1 |
 | Projects / research | 0 | Shared whiteboard space, not assigned staff |
-| **Total** | **30** | All counts are people, not additional seats or shifts |
+| **Total** | **29** | All counts are people, not additional seats or shifts |
 
 For the explorable layout and placeholder interaction limits, see
 [README.md](README.md#world-scale-and-building-on-the-project).
