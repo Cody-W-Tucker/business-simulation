@@ -99,6 +99,10 @@ another employee. Department identifies peers; room determines where someone
 works. They are independent, so colleagues can work in different rooms and a room
 can contain several departments.
 
+Individual labels show display names and face the camera, without a
+PLACEHOLDER suffix. In the sales and customer support bullpens, only the central
+team labels are shown; these also face the camera.
+
 The office builder tags each desk marker with a `room` and a unique `desk_number`
 within that room. Regenerate the office with
 `godot --headless --path . --script res://scripts/build_office.gd` inside the
@@ -205,7 +209,7 @@ nix develop .#preview --command bash scripts/verify.sh
 ```
 
 This imports the project, checks GDScript files, runs the room, movement,
-input-state, and office smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
+input-state, employee, and office smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
 replace an interactive visual check. The project uses GDScript and Godot 4.7.2
 stable, pinned through `flake.lock`.
 
