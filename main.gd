@@ -31,6 +31,7 @@ var embedded_active := false
 var crosshair_layer: CanvasLayer
 var keyboard_hint: Label
 var interaction := InteractionState.new()
+var employee_directory: Node
 var browser_focused: bool:
 	get: return interaction.mode == InteractionState.Mode.FULL_WINDOW
 var wall_keyboard_focused: bool:
@@ -425,6 +426,10 @@ func _build_room() -> void:
 	var office := preload("res://scenes/office_interior.tscn").instantiate() as Node3D
 	office.position = OFFICE_ORIGIN
 	add_child(office)
+	employee_directory = preload("res://scripts/employee_directory.gd").new()
+	employee_directory.name = "EmployeeDirectory"
+	add_child(employee_directory)
+	employee_directory.initialize(office, preload("res://data/employee_roster.tres"))
 	var environment := WorldEnvironment.new()
 	environment.environment = Environment.new()
 	environment.environment.background_mode = Environment.BG_COLOR
