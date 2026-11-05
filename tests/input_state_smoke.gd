@@ -5,6 +5,10 @@ const State = preload("res://scripts/interaction_state.gd")
 
 class FakeBrowser extends Node:
 	var keys: Array = []
+	var frame_rate := 1
+
+	func set_frame_rate(rate: int) -> void:
+		frame_rate = rate
 
 	func set_key_pressed(code: int, pressed: bool, shift: bool, alt: bool, command: bool) -> void:
 		keys.append([code, pressed, shift, alt, command])
@@ -37,7 +41,7 @@ func _run() -> void:
 	room.add_child(fake_browser)
 	room.browser = fake_browser
 	room._focus_wall()
-	if room.interaction.mode != State.Mode.WALL or not room.wall_keyboard_focused or room.browser_focused:
+	if room.interaction.mode != State.Mode.WALL or not room.wall_keyboard_focused or room.browser_focused or fake_browser.frame_rate != room.ACTIVE_BROWSER_FRAME_RATE:
 		_fail("Wall focus state is inconsistent")
 		return
 	var typed := InputEventKey.new()
@@ -66,7 +70,7 @@ func _run() -> void:
 		_fail("Wall look state was not released")
 		return
 	room._leave_wall()
-	if room.interaction.mode != State.Mode.NAVIGATION or room.wall_keyboard_focused:
+	if room.interaction.mode != State.Mode.NAVIGATION or room.wall_keyboard_focused or fake_browser.frame_rate != room.BROWSER_FRAME_RATE:
 		_fail("Navigation state was not restored")
 		return
 	room.browser_layer = CanvasLayer.new()
@@ -75,14 +79,14 @@ func _run() -> void:
 	room.browser_view.focus_mode = Control.FOCUS_ALL
 	room.browser_layer.add_child(room.browser_view)
 	room._open_board()
-	if room.interaction.mode != State.Mode.FULL_WINDOW or not room.browser_focused or room.wall_keyboard_focused:
+	if room.interaction.mode != State.Mode.FULL_WINDOW or not room.browser_focused or room.wall_keyboard_focused or fake_browser.frame_rate != room.ACTIVE_BROWSER_FRAME_RATE:
 		_fail("Full-window state is inconsistent")
 		return
 	var cancel := InputEventKey.new()
 	cancel.keycode = KEY_ESCAPE
 	cancel.pressed = true
 	room._input(cancel)
-	if room.interaction.mode != State.Mode.NAVIGATION or room.browser_focused:
+	if room.interaction.mode != State.Mode.NAVIGATION or room.browser_focused or fake_browser.frame_rate != room.BROWSER_FRAME_RATE:
 		_fail("Full-window cancel did not restore navigation")
 		return
 	print("PASS: input bindings and interaction modes")

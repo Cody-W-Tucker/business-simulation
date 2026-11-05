@@ -14,7 +14,7 @@ func _run() -> void:
 		push_error("Reception spawn or community asset container is incorrect")
 		quit(1)
 		return
-	if room.boards.size() != 3 or room.boards[0].size != Vector2(3.0, 1.6875):
+	if room.boards.size() != 7 or room.boards[0].size != Vector2(3.0, 1.6875):
 		push_error("Browser board definitions are incorrect")
 		quit(1)
 		return
@@ -22,9 +22,15 @@ func _run() -> void:
 		"OctagonWall5": "https://draw.homehub.tv/",
 		"OctagonWall2": "https://opencode.homehub.tv/",
 		"OctagonWall0": "https://homehub.tv/",
+		"OctagonWall4": "https://homehub.tv/",
+		"OctagonWall6": "https://homehub.tv/",
 	}
 	for board in room.boards:
-		if expected_boards.get(String(board.node.get_parent().name), "") != board.url:
+		var parent_name := String(board.node.get_parent().name)
+		if parent_name == "ProjectsResearchWing":
+			if board.url == "https://homehub.tv/" and is_equal_approx(absf(board.node.position.x), 12.65):
+				continue
+		if expected_boards.get(parent_name, "") != board.url:
 			push_error("Unexpected research board placement or URL: " + board.url)
 			quit(1)
 			return
@@ -43,16 +49,16 @@ func _run() -> void:
 		quit(1)
 		return
 	# Aim from the center of the research hub at each real screen.
-	room.camera.position = Vector3(250, 1.7, -15)
-	room._sync_external_camera_position()
 	for board in room.boards:
+		room.camera.position = board.node.to_global(Vector3(0, 0.05, 3.0))
+		room._sync_external_camera_position()
 		if not String(board.node.get_parent().get_path()).contains("ProjectsResearchWing"):
 			push_error("Browser is not in the research hub")
 			quit(1)
 			return
 		room.camera.look_at(board.node.to_global(Vector3(0, 0, 0.15)))
 		var target: Dictionary = room._target_board(true)
-		if target.is_empty() or target.url != board.url:
+		if target.is_empty() or target.node != board.node:
 			push_error("Research browser could not be targeted: " + board.url)
 			quit(1)
 			return

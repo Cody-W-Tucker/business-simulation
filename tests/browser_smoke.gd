@@ -94,6 +94,18 @@ func _run() -> void:
 	if not await _wait_for(func(): return room.browser != null):
 		_fail("Embedded browser did not initialize")
 		return
+	for board in room.boards:
+		var instance: Node = board.get("browser")
+		if instance == null:
+			_fail("Research browser was not created: " + board.url)
+			return
+		if board.url == "https://homehub.tv/":
+			if not await _wait_for(func(): return str(instance.call("get_title")).to_lower().contains("homehub") and str(instance.call("get_url")).begins_with(board.url), 30.0):
+				_fail("HomeHub browser did not show its expected page (URL: %s, title: %s)" % [instance.call("get_url"), instance.call("get_title")])
+				return
+		elif not await _wait_for(func(): return not str(instance.call("get_title")).is_empty(), 30.0):
+			_fail("Research browser did not report a page title: %s (URL: %s)" % [board.url, instance.call("get_url")])
+			return
 	var browser: Node = room.browser
 	if not await _wait_for(func(): return browser.call("is_loaded") and str(browser.call("get_title")).to_lower().contains("excalidraw"), 30.0):
 		_fail("Self-hosted Excalidraw did not load (URL: %s, title: %s)" % [browser.call("get_url"), browser.call("get_title")])
@@ -132,8 +144,17 @@ func _run() -> void:
 	if not room.browser_focused or room.browser != project_browser or not project_board.view.visible:
 		_fail("E did not open the targeted Projects browser")
 		return
+	if not await _wait_for(func(): return project_browser.call("get_frame_rate") == room.ACTIVE_BROWSER_FRAME_RATE):
+		_fail("Active browser did not receive its higher frame-rate limit")
+		return
+	if browser.call("get_frame_rate") != room.BROWSER_FRAME_RATE:
+		_fail("An inactive browser did not retain its low frame-rate limit")
+		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
+	if not await _wait_for(func(): return project_browser.call("get_frame_rate") == room.BROWSER_FRAME_RATE):
+		_fail("Closing a board did not restore its low frame-rate limit")
+		return
 	await _move_player(project_board.node.to_global(Vector3(0, -1.65, 3)))
 	room.camera.look_at(project_board.node.global_position)
 	var project_center: Vector2 = root.get_visible_rect().size / 2.0
@@ -176,11 +197,11 @@ func _run() -> void:
 	if room.browser_focused or browser.call("get_title") != "restored:":
 		_fail("Shift+E opened a board or changed another browser")
 		return
-	room.camera.look_at(room.get_node("OfficeInterior/ProjectsResearchWing/OctagonWall4/ResearchPlaceholder").global_position)
+	room.camera.look_at(room.camera.global_position + Vector3(0, -1, -1))
 	_tap_key(KEY_E)
 	await process_frame
 	if room.browser_focused:
-		_fail("E opened a browser while aiming at a placeholder")
+		_fail("E opened a browser while aiming away from boards")
 		return
 	room._select_board(room.boards[0])
 	if not await _wait_for(func(): return room.preview_mesh.visible and room.preview_material.albedo_texture != null):
@@ -219,6 +240,9 @@ func _run() -> void:
 	await process_frame
 	if not room.wall_keyboard_focused or Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		_fail("Board click did not enter cursor mode")
+		return
+	if not await _wait_for(func(): return browser.call("get_frame_rate") == room.ACTIVE_BROWSER_FRAME_RATE):
+		_fail("Wall interaction did not raise its frame-rate limit")
 		return
 	_mouse_button(_wall_point(Vector2(50, 50)), true)
 	_mouse_button(_wall_point(Vector2(50, 50)), false)
@@ -288,6 +312,9 @@ func _run() -> void:
 	await process_frame
 	if room.wall_keyboard_focused or room.keyboard_hint.visible or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		_fail("Escape did not return keyboard control to the room")
+		return
+	if not await _wait_for(func(): return browser.call("get_frame_rate") == room.BROWSER_FRAME_RATE):
+		_fail("Leaving the wall did not restore its low frame-rate limit")
 		return
 	_aim_at(Vector2(1280, 720))
 	_tap_key(KEY_E)

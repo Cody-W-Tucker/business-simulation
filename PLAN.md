@@ -18,10 +18,9 @@ punctuation regression check.
 
 - [ ] Measure actual browser paint rates and room frame times, plus CPU/GPU load,
   with pages idle and active, before choosing higher refresh limits. Compare the
-  two-browser setup with a useful baseline on Beast's 240 Hz display.
-- [ ] Expose Chromium's runtime windowless frame-rate setting through the patched
-  gdCEF extension. Change the limit without reloading the page, losing session
-  state, or interrupting input.
+  three-board baseline against the seven-board setup on Beast's 240 Hz display.
+- [x] Expose Chromium's runtime windowless frame-rate setting through the patched
+  gdCEF extension and switch between active and idle rates without reloading.
 - [ ] Implement and test a per-board policy. Initial values to evaluate:
   - Distant or behind the player: 1 FPS.
   - Nearby and visible, but not being used: 30 FPS.
@@ -49,9 +48,9 @@ punctuation regression check.
 
 ## Current constraints
 
-- The browser requests up to 120 paint updates per second at all distances;
-  distance-based throttling is not implemented.
+- Inactive browsers request up to one paint update per second; the active board
+  requests up to 120. Actual paint rates and desktop performance remain to be measured.
 - Full-window mode disables the room's 3D rendering, but does not pause the
-  other browser.
+  other browsers.
 - Browser storage is separate from the user's regular browser profile. The
   embedded browsers share the gdCEF profile but use normal per-origin storage.

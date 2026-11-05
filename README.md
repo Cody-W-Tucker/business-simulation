@@ -2,9 +2,9 @@
 
 A Godot 4 explorable knowledge-products office with reception, specialist
 workspaces, upstairs departments, and a conference room. The Projects / Research
-hub has three live screens: Excalidraw at https://draw.homehub.tv/ on the central
-wall opposite the entrance, HomeHub at https://homehub.tv/ on the former
-Excalidraw wall, and OpenCode at https://opencode.homehub.tv/. The former
+hub has seven live screens: Excalidraw at https://draw.homehub.tv/ on the central
+wall opposite the entrance, OpenCode at https://opencode.homehub.tv/, and five
+HomeHub boards at https://homehub.tv/ including the two side alcoves. The former
 courtyard is no longer part of the active world.
 
 ## Controls
@@ -32,11 +32,11 @@ courtyard is no longer part of the active world.
 
 The 3D board displays the same embedded browser as the full-window view. The
 viewport is configured for 2560×1440. Each browser board has its own live page.
-The embedded browser requests up to 120 updates per second; actual update and
-game frame rates depend on rendering load and display synchronization. Adjust
-`BROWSER_FRAME_RATE` near the top of `main.gd` if needed. The current gdCEF
-version cannot change this limit at runtime, so distant boards are not yet
-throttled to 1 FPS. The 3D viewport is disabled while the full-window view is open.
+Idle browsers request up to one update per second; the board being used requests
+up to 120. Switching rates does not reload the page. Actual update rates depend
+on CEF and rendering load. Adjust `BROWSER_FRAME_RATE` and
+`ACTIVE_BROWSER_FRAME_RATE` near the top of `main.gd` if needed. The 3D viewport
+is disabled while the full-window view is open.
 
 ## Comfort settings
 

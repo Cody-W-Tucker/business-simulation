@@ -21,3 +21,40 @@ diff --git a/gdcef/browser/src/browser_io.cpp b/gdcef/browser/src/browser_io.cpp
          if (key >= 'a' && key <= 'z')
          {
              vk_code = key - 32;  // Convert to uppercase for virtual key code
+diff --git a/gdcef/browser/src/gdbrowser.hpp b/gdcef/browser/src/gdbrowser.hpp
+--- a/gdcef/browser/src/gdbrowser.hpp
++++ b/gdcef/browser/src/gdbrowser.hpp
+@@ -673,6 +673,20 @@ public:
+     //! been loaded in the browser.
+     // -------------------------------------------------------------------------
+     bool loaded() const;
++
++    // Called from Godot's main thread, which also pumps the CEF UI thread.
++    void setFrameRate(int rate)
++    {
++        if (rate > 0 && m_browser && m_browser->GetHost())
++            m_browser->GetHost()->SetWindowlessFrameRate(rate);
++    }
++
++    int getFrameRate() const
++    {
++        if (!m_browser || !m_browser->GetHost())
++            return 0;
++        return m_browser->GetHost()->GetWindowlessFrameRate();
++    }
+ 
+     // -------------------------------------------------------------------------
+     //! \brief Exported method to Godot script. Stop loading the page.
+diff --git a/gdcef/browser/src/gdbrowser.cpp b/gdcef/browser/src/gdbrowser.cpp
+--- a/gdcef/browser/src/gdbrowser.cpp
++++ b/gdcef/browser/src/gdbrowser.cpp
+@@ -261,6 +261,9 @@ void GdBrowserView::_bind_methods()
+     ClassDB::bind_method(D_METHOD("id"), &GdBrowserView::id);
+     ClassDB::bind_method(D_METHOD("get_error"), &GdBrowserView::getError);
+     ClassDB::bind_method(D_METHOD("is_valid"), &GdBrowserView::isValid);
++    ClassDB::bind_method(D_METHOD("set_frame_rate", "rate"),
++                         &GdBrowserView::setFrameRate);
++    ClassDB::bind_method(D_METHOD("get_frame_rate"), &GdBrowserView::getFrameRate);
+     ClassDB::bind_method(D_METHOD("set_texture", "texture"),
+                          &GdBrowserView::setTexture);
+     ClassDB::bind_method(D_METHOD("get_texture"), &GdBrowserView::getTexture);

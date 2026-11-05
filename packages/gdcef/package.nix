@@ -4,8 +4,8 @@
 , cmake, ninja, scons, python3, patchelf }:
 
 let
-  # Rebuild only the Godot extension to fix native period input; keep the
-  # matching CEF runtime and render subprocess from the upstream release.
+  # Rebuild the Godot extension for native period input and dynamic frame rates;
+  # keep the matching CEF runtime and render subprocess from upstream.
   browser = stdenv.mkDerivation {
     pname = "gdcef-browser";
     version = "0.21.0";

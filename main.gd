@@ -5,7 +5,8 @@ const InteractionState = preload("res://scripts/interaction_state.gd")
 const PlayerMovement = preload("res://scripts/player_movement.gd")
 const BrowserInput = preload("res://scripts/browser_input.gd")
 const REFRESH_SECONDS := 60.0
-const BROWSER_FRAME_RATE := 120
+const BROWSER_FRAME_RATE := 1
+const ACTIVE_BROWSER_FRAME_RATE := 120
 const BOARD_REACH := 12.0
 const OFFICE_ORIGIN := Vector3(250, 0, 0)
 
@@ -245,6 +246,7 @@ func _focus_wall() -> void:
 	if browser == null:
 		OS.shell_open(active_board.url)
 		return
+	browser.call("set_frame_rate", ACTIVE_BROWSER_FRAME_RATE)
 	interaction.mode = InteractionState.Mode.WALL
 	pending_look = Vector2.ZERO
 	keyboard_hint.visible = true
@@ -258,6 +260,8 @@ func _focus_wall() -> void:
 
 func _leave_wall() -> void:
 	_release_wall_button()
+	if browser != null:
+		browser.call("set_frame_rate", BROWSER_FRAME_RATE)
 	pending_look = Vector2.ZERO
 	interaction.mode = InteractionState.Mode.NAVIGATION
 	keyboard_hint.visible = false
@@ -271,6 +275,7 @@ func _open_board() -> void:
 	if browser == null:
 		OS.shell_open(active_board.url)
 		return
+	browser.call("set_frame_rate", ACTIVE_BROWSER_FRAME_RATE)
 	_release_wall_button()
 	pending_look = Vector2.ZERO
 	keyboard_hint.visible = false
@@ -285,6 +290,8 @@ func _open_board() -> void:
 
 func _close_board() -> void:
 	_release_wall_button()
+	if browser != null:
+		browser.call("set_frame_rate", BROWSER_FRAME_RATE)
 	interaction.mode = InteractionState.Mode.NAVIGATION
 	get_viewport().disable_3d = false
 	wall_button = 0
@@ -448,7 +455,7 @@ func _build_room() -> void:
 	board_builder.name = "BrowserBoards"
 	add_child(board_builder)
 	board_builder.wall_brightness = wall_brightness
-	for spec in [[5, "EXCALIDRAW", board_builder.EXCALIDRAW_URL], [2, "PROJECTS", board_builder.PROJECTS_URL], [0, "HOMEHUB", board_builder.HOMEHUB_URL]]:
+	for spec in [[5, "EXCALIDRAW", board_builder.EXCALIDRAW_URL], [2, "PROJECTS", board_builder.PROJECTS_URL], [0, "HOMEHUB", board_builder.HOMEHUB_URL], [4, "HOMEHUB", board_builder.HOMEHUB_URL], [6, "HOMEHUB", board_builder.HOMEHUB_URL]]:
 		var wall: Node3D = office.get_node("ProjectsResearchWing/OctagonWall%d" % spec[0])
 		for child in wall.get_children():
 			if child.name in ["ResearchScreen", "ResearchPlaceholder"] or child is Label3D:
@@ -459,6 +466,13 @@ func _build_room() -> void:
 		board.reparent(wall, false)
 		board.position = Vector3(0, 1.65, inward * 0.16)
 		board.rotation.y = 0.0 if inward > 0 else PI
+	var research: Node3D = office.get_node("ProjectsResearchWing")
+	for side in [-1.0, 1.0]:
+		board_builder._make_browser_board("HOMEHUB", board_builder.HOMEHUB_URL, Vector3.ZERO, 0.0, Vector2(3.0, 1.6875))
+		var board: Node3D = board_builder.boards.back().node
+		board.reparent(research, false)
+		board.position = Vector3(side * 12.65, 1.65, -15)
+		board.rotation.y = -side * PI / 2.0
 	boards = board_builder.boards
 	_select_board(boards[0])
 	camera = Camera3D.new()
