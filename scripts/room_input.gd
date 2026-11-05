@@ -10,6 +10,7 @@ const FAST := &"room_fast"
 const JUMP := &"room_jump"
 const DESCEND := &"room_descend"
 const INTERACT := &"room_interact"
+const BOARD_HOME := &"room_board_home"
 const CANCEL := &"room_cancel"
 
 

@@ -14,10 +14,20 @@ func _run() -> void:
 		push_error("Reception spawn or community asset container is incorrect")
 		quit(1)
 		return
-	if room.boards.size() != 2 or room.boards[0].size != Vector2(3.0, 1.6875):
+	if room.boards.size() != 3 or room.boards[0].size != Vector2(3.0, 1.6875):
 		push_error("Browser board definitions are incorrect")
 		quit(1)
 		return
+	var expected_boards := {
+		"OctagonWall5": "https://draw.homehub.tv/",
+		"OctagonWall2": "https://opencode.homehub.tv/",
+		"OctagonWall0": "https://homehub.tv/",
+	}
+	for board in room.boards:
+		if expected_boards.get(String(board.node.get_parent().name), "") != board.url:
+			push_error("Unexpected research board placement or URL: " + board.url)
+			quit(1)
+			return
 	if room.find_child("StoneCourtyard", true, false) != null:
 		push_error("Deprecated courtyard is still active")
 		quit(1)

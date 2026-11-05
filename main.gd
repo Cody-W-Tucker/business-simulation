@@ -172,7 +172,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				last_space_press = now
 				_try_jump()
-	elif event.is_action_pressed(RoomInput.INTERACT):
+	elif event.is_action_pressed(RoomInput.BOARD_HOME, false, true):
+		var target := _target_board(false)
+		if not target.is_empty():
+			var target_browser: Node = target.get("browser")
+			if target_browser != null:
+				target_browser.call("load_url", target.url)
+	elif event.is_action_pressed(RoomInput.INTERACT, false, true):
 		var target := _target_board(false)
 		if not target.is_empty():
 			_select_board(target)
@@ -442,7 +448,7 @@ func _build_room() -> void:
 	board_builder.name = "BrowserBoards"
 	add_child(board_builder)
 	board_builder.wall_brightness = wall_brightness
-	for spec in [[0, "EXCALIDRAW", board_builder.EXCALIDRAW_URL], [2, "PROJECTS", board_builder.PROJECTS_URL]]:
+	for spec in [[5, "EXCALIDRAW", board_builder.EXCALIDRAW_URL], [2, "PROJECTS", board_builder.PROJECTS_URL], [0, "HOMEHUB", board_builder.HOMEHUB_URL]]:
 		var wall: Node3D = office.get_node("ProjectsResearchWing/OctagonWall%d" % spec[0])
 		for child in wall.get_children():
 			if child.name in ["ResearchScreen", "ResearchPlaceholder"] or child is Label3D:

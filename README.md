@@ -2,8 +2,10 @@
 
 A Godot 4 explorable knowledge-products office with reception, specialist
 workspaces, upstairs departments, and a conference room. The Projects / Research
-hub has two live screens: Excalidraw at https://draw.homehub.tv/ and OpenCode at
-https://opencode.homehub.tv/. The former courtyard is no longer part of the active world.
+hub has three live screens: Excalidraw at https://draw.homehub.tv/ on the central
+wall opposite the entrance, HomeHub at https://homehub.tv/ on the former
+Excalidraw wall, and OpenCode at https://opencode.homehub.tv/. The former
+courtyard is no longer part of the active world.
 
 ## Controls
 
@@ -18,6 +20,9 @@ https://opencode.homehub.tv/. The former courtyard is no longer part of the acti
 - While navigating, aim at a browser board and press **E** from anywhere in the room for its full-window
   view; **Esc** returns to the room. Press Esc before E if already using the wall,
   since E is sent to the browser in wall mode.
+- While navigating, aim at a browser board and press **Shift+E** to return it to
+  its default URL. Press Esc first if the browser has focus; Shift+E remains normal
+  text input there. This navigates away from the current page and may discard unsaved work.
 - You start in reception, which connects to the Specialists,
   Departments, and Projects / Research wings. Specialist offices are organized
   around duties, with the account manager first on the left and the project

@@ -24,6 +24,13 @@ func _run() -> void:
 		if not event.is_action_pressed(binding[0]):
 			_fail("Missing default binding: %s" % binding[0])
 			return
+	var home := InputEventKey.new()
+	home.keycode = KEY_E
+	home.shift_pressed = true
+	home.pressed = true
+	if not home.is_action_pressed(Actions.BOARD_HOME, false, true) or home.is_action_pressed(Actions.INTERACT, false, true):
+		_fail("Board home shortcut conflicts with opening a board")
+		return
 	var room = load("res://main.tscn").instantiate()
 	root.add_child(room)
 	var fake_browser := FakeBrowser.new()
@@ -40,6 +47,11 @@ func _run() -> void:
 	room._input(typed)
 	if fake_browser.keys.size() != 1 or fake_browser.keys[0][0] != KEY_E or room.interaction.mode != State.Mode.WALL:
 		_fail("Room shortcut was not forwarded to the focused browser")
+		return
+	typed.shift_pressed = true
+	room._input(typed)
+	if fake_browser.keys.size() != 2 or not fake_browser.keys[1][2]:
+		_fail("Shift+E was not forwarded as text to the focused browser")
 		return
 	var glance := InputEventMouseButton.new()
 	glance.button_index = MOUSE_BUTTON_RIGHT

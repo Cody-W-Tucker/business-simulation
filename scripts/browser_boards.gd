@@ -2,6 +2,7 @@ extends Node3D
 
 const EXCALIDRAW_URL := "https://draw.homehub.tv/"
 const PROJECTS_URL := "https://opencode.homehub.tv/"
+const HOMEHUB_URL := "https://homehub.tv/"
 
 var boards: Array[Dictionary] = []
 var wall_brightness := 0.88

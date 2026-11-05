@@ -154,6 +154,28 @@ func _run() -> void:
 	_tap_key(KEY_ESCAPE)
 	await process_frame
 	await _move_player(Vector3(250, 0, -15))
+	project_browser.call("load_url", fixture + "?away=1")
+	if not await _wait_for(func(): return str(project_browser.call("get_url")).ends_with("?away=1")):
+		_fail("Projects browser did not navigate away from its home page")
+		return
+	var original_url: String = project_board.url
+	project_board.url = fixture
+	room.camera.look_at(project_board.node.global_position)
+	var home_key := InputEventKey.new()
+	home_key.keycode = KEY_E
+	home_key.shift_pressed = true
+	home_key.pressed = true
+	Input.parse_input_event(home_key)
+	home_key = home_key.duplicate()
+	home_key.pressed = false
+	Input.parse_input_event(home_key)
+	if not await _wait_for(func(): return str(project_browser.call("get_url")) == fixture):
+		_fail("Shift+E did not return the targeted board to its default URL")
+		return
+	project_board.url = original_url
+	if room.browser_focused or browser.call("get_title") != "restored:":
+		_fail("Shift+E opened a board or changed another browser")
+		return
 	room.camera.look_at(room.get_node("OfficeInterior/ProjectsResearchWing/OctagonWall4/ResearchPlaceholder").global_position)
 	_tap_key(KEY_E)
 	await process_frame
