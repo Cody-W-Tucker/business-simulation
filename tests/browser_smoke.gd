@@ -52,15 +52,15 @@ func _move_player(position: Vector3) -> void:
 
 
 func _aim_at(browser_position: Vector2) -> void:
-	var size: Vector2 = room.active_board.size
+	var size: Vector2 = room.browser_interaction.active_board.size
 	var board_point := Vector3(size.x * (browser_position.x / 2560.0 - 0.5), size.y * (0.5 - browser_position.y / 1440.0), 0.15)
-	room.camera.look_at(room.preview_board.to_global(board_point))
+	room.camera.look_at(room.browser_interaction.active_board.node.to_global(board_point))
 
 
 func _wall_point(browser_position: Vector2) -> Vector2:
-	var size: Vector2 = room.active_board.size
+	var size: Vector2 = room.browser_interaction.active_board.size
 	var point := Vector3(size.x * (browser_position.x / 2560.0 - 0.5), size.y * (0.5 - browser_position.y / 1440.0), 0.15)
-	return room.camera.unproject_position(room.preview_board.to_global(point))
+	return room.camera.unproject_position(room.browser_interaction.active_board.node.to_global(point))
 
 
 func _run() -> void:
@@ -91,10 +91,10 @@ func _run() -> void:
 		return
 	room.pending_look = Vector2.ZERO
 	room.camera.rotation.y = 0.0
-	if not await _wait_for(func(): return room.browser != null):
+	if not await _wait_for(func(): return room.browser_interaction.browser != null):
 		_fail("Embedded browser did not initialize")
 		return
-	for board in room.boards:
+	for board in room.browser_interaction.boards:
 		var instance: Node = board.get("browser")
 		if instance == null:
 			_fail("Research browser was not created: " + board.url)
@@ -106,7 +106,7 @@ func _run() -> void:
 		elif not await _wait_for(func(): return not str(instance.call("get_title")).is_empty(), 30.0):
 			_fail("Research browser did not report a page title: %s (URL: %s)" % [board.url, instance.call("get_url")])
 			return
-	var browser: Node = room.browser
+	var browser: Node = room.browser_interaction.browser
 	if not await _wait_for(func(): return browser.call("is_loaded") and str(browser.call("get_title")).to_lower().contains("excalidraw"), 30.0):
 		_fail("Self-hosted Excalidraw did not load (URL: %s, title: %s)" % [browser.call("get_url"), browser.call("get_title")])
 		return
@@ -125,7 +125,7 @@ func _run() -> void:
 	if not await _wait_for(func(): return browser.call("get_title") == "restored:"):
 		_fail("Browser fixture did not load")
 		return
-	var project_board: Dictionary = room.boards[1]
+	var project_board: Dictionary = room.browser_interaction.boards[1]
 	var project_browser: Node = project_board.get("browser")
 	if project_browser == null or project_board.url != "https://opencode.homehub.tv/":
 		_fail("Projects browser was not created with its URL")
@@ -141,18 +141,18 @@ func _run() -> void:
 	room.camera.look_at(project_board.node.global_position)
 	_tap_key(KEY_E)
 	await process_frame
-	if not room.browser_focused or room.browser != project_browser or not project_board.view.visible:
+	if not room.browser_interaction.browser_focused or room.browser_interaction.browser != project_browser or not project_board.view.visible:
 		_fail("E did not open the targeted Projects browser")
 		return
-	if not await _wait_for(func(): return project_browser.call("get_frame_rate") == room.ACTIVE_BROWSER_FRAME_RATE):
+	if not await _wait_for(func(): return project_browser.call("get_frame_rate") == room.browser_interaction.ACTIVE_BROWSER_FRAME_RATE):
 		_fail("Active browser did not receive its higher frame-rate limit")
 		return
-	if browser.call("get_frame_rate") != room.BROWSER_FRAME_RATE:
+	if browser.call("get_frame_rate") != room.browser_interaction.BROWSER_FRAME_RATE:
 		_fail("An inactive browser did not retain its low frame-rate limit")
 		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	if not await _wait_for(func(): return project_browser.call("get_frame_rate") == room.BROWSER_FRAME_RATE):
+	if not await _wait_for(func(): return project_browser.call("get_frame_rate") == room.browser_interaction.BROWSER_FRAME_RATE):
 		_fail("Closing a board did not restore its low frame-rate limit")
 		return
 	await _move_player(project_board.node.to_global(Vector3(0, -1.65, 3)))
@@ -161,7 +161,7 @@ func _run() -> void:
 	_mouse_button(project_center, true)
 	_mouse_button(project_center, false)
 	await process_frame
-	if not room.wall_keyboard_focused or room.browser != project_browser:
+	if not room.browser_interaction.wall_keyboard_focused or room.browser_interaction.browser != project_browser:
 		_fail("Projects wall did not receive focus")
 		return
 	_mouse_button(_wall_point(Vector2(50, 50)), true)
@@ -194,54 +194,54 @@ func _run() -> void:
 		_fail("Shift+E did not return the targeted board to its default URL")
 		return
 	project_board.url = original_url
-	if room.browser_focused or browser.call("get_title") != "restored:":
+	if room.browser_interaction.browser_focused or browser.call("get_title") != "restored:":
 		_fail("Shift+E opened a board or changed another browser")
 		return
 	room.camera.look_at(room.camera.global_position + Vector3(0, -1, -1))
 	_tap_key(KEY_E)
 	await process_frame
-	if room.browser_focused:
+	if room.browser_interaction.browser_focused:
 		_fail("E opened a browser while aiming away from boards")
 		return
-	room._select_board(room.boards[0])
-	if not await _wait_for(func(): return room.preview_mesh.visible and room.preview_material.albedo_texture != null):
+	room.browser_interaction._select_board(room.browser_interaction.boards[0])
+	if not await _wait_for(func(): return room.browser_interaction.active_board.mesh.visible and room.browser_interaction.active_board.material.albedo_texture != null):
 		_fail("Browser texture was not displayed on the board")
 		return
 	if not await _wait_for(func():
-		var frame: Image = room.preview_material.albedo_texture.get_image()
+		var frame: Image = room.browser_interaction.active_board.material.albedo_texture.get_image()
 		return frame != null and not frame.is_empty() and frame.get_pixel(400, 300).r >= 0.9
 	):
 		_fail("Browser fixture did not paint its white background")
 		return
-	var image: Image = room.preview_material.albedo_texture.get_image()
+	var image: Image = room.browser_interaction.active_board.material.albedo_texture.get_image()
 	if image.get_size() != Vector2i(2560, 1440):
 		_fail("Browser texture is not 2560×1440: %s" % image.get_size())
 		return
 	var center: Vector2 = root.get_visible_rect().size / 2.0
-	await _move_player(room.preview_board.to_global(Vector3(0, -1.65, 14)))
+	await _move_player(room.browser_interaction.active_board.node.to_global(Vector3(0, -1.65, 14)))
 	_aim_at(Vector2(1280, 720))
 	_mouse_button(center, true)
 	_mouse_button(center, false)
 	await process_frame
-	if room.wall_keyboard_focused:
+	if room.browser_interaction.wall_keyboard_focused:
 		_fail("Board could be used from outside its reach")
 		return
 	_tap_key(KEY_E)
 	await process_frame
-	if not room.browser_focused or not root.disable_3d:
+	if not room.browser_interaction.browser_focused or not root.disable_3d:
 		_fail("E did not open the board from outside its reach")
 		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	await _move_player(room.preview_board.to_global(Vector3(0, -1.65, 3)))
+	await _move_player(room.browser_interaction.active_board.node.to_global(Vector3(0, -1.65, 3)))
 	_aim_at(Vector2(1280, 720))
 	_mouse_button(center, true)
 	_mouse_button(center, false)
 	await process_frame
-	if not room.wall_keyboard_focused or Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+	if not room.browser_interaction.wall_keyboard_focused or Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		_fail("Board click did not enter cursor mode")
 		return
-	if not await _wait_for(func(): return browser.call("get_frame_rate") == room.ACTIVE_BROWSER_FRAME_RATE):
+	if not await _wait_for(func(): return browser.call("get_frame_rate") == room.browser_interaction.ACTIVE_BROWSER_FRAME_RATE):
 		_fail("Wall interaction did not raise its frame-rate limit")
 		return
 	_mouse_button(_wall_point(Vector2(50, 50)), true)
@@ -265,7 +265,7 @@ func _run() -> void:
 	if not await _wait_for(func(): return browser.call("get_title") == "dragged"):
 		_fail("Mouse dragging did not reach browser through the wall")
 		return
-	if not room.wall_keyboard_focused or not room.keyboard_hint.visible:
+	if not room.browser_interaction.wall_keyboard_focused or not room.browser_interaction.keyboard_hint.visible:
 		_fail("Wall interaction did not capture keyboard focus")
 		return
 	_mouse_button(_wall_point(Vector2(50, 120)), true)
@@ -281,7 +281,7 @@ func _run() -> void:
 	if not await _wait_for(func(): return browser.call("get_title") == "e"):
 		_fail("Typing E did not reach the wall browser")
 		return
-	if room.browser_focused:
+	if room.browser_interaction.browser_focused:
 		_fail("Typing E unexpectedly opened the full-window view")
 		return
 	for character in ".,!?:;@":
@@ -310,16 +310,16 @@ func _run() -> void:
 	browser.call("execute_javascript", "document.querySelector('#text').value=''; localStorage.removeItem('test-text');")
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	if room.wall_keyboard_focused or room.keyboard_hint.visible or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if room.browser_interaction.wall_keyboard_focused or room.browser_interaction.keyboard_hint.visible or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		_fail("Escape did not return keyboard control to the room")
 		return
-	if not await _wait_for(func(): return browser.call("get_frame_rate") == room.BROWSER_FRAME_RATE):
+	if not await _wait_for(func(): return browser.call("get_frame_rate") == room.browser_interaction.BROWSER_FRAME_RATE):
 		_fail("Leaving the wall did not restore its low frame-rate limit")
 		return
 	_aim_at(Vector2(1280, 720))
 	_tap_key(KEY_E)
 	await process_frame
-	if not room.browser_focused or not root.disable_3d:
+	if not room.browser_interaction.browser_focused or not root.disable_3d:
 		_fail("E did not switch the wall to the full-window browser")
 		return
 	_mouse_button(Vector2(50, 120), true)
@@ -341,7 +341,7 @@ func _run() -> void:
 		return
 	_tap_key(KEY_ESCAPE)
 	await process_frame
-	if room.browser_focused or root.disable_3d or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if room.browser_interaction.browser_focused or root.disable_3d or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		_fail("Escape did not return focus to the room")
 		return
 	print("PASS: browser loads, paints, receives mouse and keyboard, persists, and closes focus")

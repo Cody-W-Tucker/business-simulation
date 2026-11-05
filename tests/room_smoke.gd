@@ -14,7 +14,7 @@ func _run() -> void:
 		push_error("Reception spawn or community asset container is incorrect")
 		quit(1)
 		return
-	if room.boards.size() != 7 or room.boards[0].size != Vector2(3.0, 1.6875):
+	if room.browser_interaction.boards.size() != 7 or room.browser_interaction.boards[0].size != Vector2(3.0, 1.6875):
 		push_error("Browser board definitions are incorrect")
 		quit(1)
 		return
@@ -25,7 +25,7 @@ func _run() -> void:
 		"OctagonWall4": "https://homehub.tv/",
 		"OctagonWall6": "https://homehub.tv/",
 	}
-	for board in room.boards:
+	for board in room.browser_interaction.boards:
 		var parent_name := String(board.node.get_parent().name)
 		if parent_name == "ProjectsResearchWing":
 			if board.url == "https://homehub.tv/" and is_equal_approx(absf(board.node.position.x), 12.65):
@@ -49,7 +49,7 @@ func _run() -> void:
 		quit(1)
 		return
 	# Aim from the center of the research hub at each real screen.
-	for board in room.boards:
+	for board in room.browser_interaction.boards:
 		room.camera.position = board.node.to_global(Vector3(0, 0.05, 3.0))
 		room._sync_external_camera_position()
 		if not String(board.node.get_parent().get_path()).contains("ProjectsResearchWing"):
@@ -57,12 +57,12 @@ func _run() -> void:
 			quit(1)
 			return
 		room.camera.look_at(board.node.to_global(Vector3(0, 0, 0.15)))
-		var target: Dictionary = room._target_board(true)
+		var target: Dictionary = room.browser_interaction._target_board(true)
 		if target.is_empty() or target.node != board.node:
 			push_error("Research browser could not be targeted: " + board.url)
 			quit(1)
 			return
-		var hit: Dictionary = room._board_hit(root.get_visible_rect().size / 2.0, board, false, true)
+		var hit: Dictionary = room.browser_interaction._board_hit(root.get_visible_rect().size / 2.0, board, false, true)
 		if hit.is_empty() or hit.coordinates.distance_to(Vector2(1280, 720)) > 1.0:
 			push_error("Browser center coordinates are incorrect")
 			quit(1)

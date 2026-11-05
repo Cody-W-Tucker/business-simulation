@@ -47,8 +47,8 @@ func _make_board(title: String, subtitle: String, position: Vector3, angle: floa
 	return board
 
 
-func _make_browser_board(title: String, url: String, position: Vector3, angle: float, size: Vector2) -> void:
-	var node := _make_board(title, "Loading browser...", position, angle, size)
+func make_browser_board(title: String, url: String, size: Vector2) -> Node3D:
+	var node := _make_board(title, "Loading browser...", Vector3.ZERO, 0.0, size)
 	var mesh := MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = size
@@ -61,3 +61,4 @@ func _make_browser_board(title: String, url: String, position: Vector3, angle: f
 	mesh.visible = false
 	node.add_child(mesh)
 	boards.append({"node": node, "size": size, "mesh": mesh, "material": material, "url": url})
+	return node

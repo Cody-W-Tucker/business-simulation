@@ -10,6 +10,7 @@ while IFS= read -r -d '' script; do
 done < <(find ./main.gd ./scripts ./tests -type f -name '*.gd' -print0)
 
 godot --headless --path . --script res://tests/room_smoke.gd
+godot --headless --path . --script res://tests/office_browser_layout_smoke.gd
 godot --headless --path . --script res://tests/movement_smoke.gd
 godot --headless --path . --script res://tests/input_state_smoke.gd
 godot --headless --path . --script res://tests/employee_smoke.gd
