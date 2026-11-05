@@ -26,8 +26,8 @@ var last_space_press := -1000
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color("171e2b"))
-	_build_room()
 	_build_crosshair()
+	_build_room()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
@@ -169,6 +169,9 @@ func _build_room() -> void:
 	browser_interaction = preload("res://scripts/browser/interaction.gd").new()
 	browser_interaction.name = "BrowserInteraction"
 	add_child(browser_interaction)
+	browser_interaction.look_requested.connect(_queue_look)
+	browser_interaction.look_reset_requested.connect(_reset_look)
+	browser_interaction.initialize(board_builder.boards, camera, crosshair_layer)
 
 
 func _build_crosshair() -> void:
@@ -184,6 +187,3 @@ func _build_crosshair() -> void:
 		line.offset_right = bar.end.x
 		line.offset_bottom = bar.end.y
 		crosshair_layer.add_child(line)
-	browser_interaction.look_requested.connect(_queue_look)
-	browser_interaction.look_reset_requested.connect(_reset_look)
-	browser_interaction.initialize(get_node("BrowserBoards").boards, camera, crosshair_layer)

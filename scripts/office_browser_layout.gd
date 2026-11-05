@@ -9,15 +9,13 @@ static func populate(office: Node3D, builder: Node3D) -> void:
 			if child.name in ["ResearchScreen", "ResearchPlaceholder"] or child is Label3D:
 				child.visible = false
 		var inward := signf(wall.basis.z.dot(Vector3(0, 0, -15) - wall.position))
-		builder._make_browser_board(spec[1], spec[2], Vector3.ZERO, 0.0, Vector2(3.0, 1.6875))
-		var board: Node3D = builder.boards.back().node
+		var board: Node3D = builder.make_browser_board(spec[1], spec[2], Vector2(3.0, 1.6875))
 		board.reparent(wall, false)
 		board.position = Vector3(0, 1.65, inward * 0.16)
 		board.rotation.y = 0.0 if inward > 0 else PI
 	var research: Node3D = office.get_node("ProjectsResearchWing")
 	for side in [-1.0, 1.0]:
-		builder._make_browser_board("HOMEHUB", builder.HOMEHUB_URL, Vector3.ZERO, 0.0, Vector2(3.0, 1.6875))
-		var board: Node3D = builder.boards.back().node
+		var board: Node3D = builder.make_browser_board("HOMEHUB", builder.HOMEHUB_URL, Vector2(3.0, 1.6875))
 		board.reparent(research, false)
 		board.position = Vector3(side * 12.65, 1.65, -15)
 		board.rotation.y = -side * PI / 2.0
