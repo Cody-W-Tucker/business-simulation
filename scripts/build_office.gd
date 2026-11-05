@@ -86,9 +86,8 @@ func _person_placeholder(parent: Node3D, node_name: String, title: String, pos: 
 	marker.name = node_name
 	marker.position = pos
 	var rooms := {
-		"ReceptionHub": "reception", "AccountManagerandDeliveryLead": "account_delivery",
-		"WebDevelopmentandContentDesign": "web_content", "ConsultantandKnowledgeSpecialist": "consulting_knowledge",
-		"Developers": "developers", "ProjectManager": "project_manager",
+		"ReceptionHub": "reception", "DeliverySpecialists": "delivery_specialists",
+		"WebDevelopmentandContentDesign": "web_content", "ServiceDelivery": "service_delivery",
 		"ITEngineeringandOperations": "it_engineering_operations", "PeopleHRandLegal": "hr_legal",
 		"SalesSupportandMarketing": "management_office", "CFO": "cfo_office", "COO": "coo_office",
 		"DepartmentsWing": "ceo_office"
@@ -98,7 +97,7 @@ func _person_placeholder(parent: Node3D, node_name: String, title: String, pos: 
 	if String(parent.name).begins_with("Cubicle"):
 		room = "bullpen"
 		desk_number = int(String(parent.name).trim_prefix("Cubicle"))
-		if parent.get_parent().name == "CustomerSupport":
+		if parent.get_parent().name == "ClientServices":
 			desk_number += 4
 	elif desk_number == 0:
 		desk_number = 1
@@ -216,8 +215,7 @@ func _build_wings() -> void:
 	for x in [-3.25, 3.25]:
 		_box(hub, "NorthWall", Vector3(3.5, 3, 0.2), Vector3(x, 1.5, -5), "ddd9ce", true)
 	_box(hub, "NorthLintel", Vector3(3, 0.6, 0.2), Vector3(0, 2.7, -5), "ddd9ce", true)
-	for z in [-3.5, 3.5]:
-		_box(hub, "SideWall", Vector3(0.2, 3, 3), Vector3(5, 1.5, z), "ddd9ce", true)
+	_box(hub, "SideWall", Vector3(0.2, 3, 3), Vector3(5, 1.5, -3.5), "ddd9ce", true)
 	_box(hub, "SideLintel", Vector3(0.2, 0.6, 4), Vector3(5, 2.7, 0), "ddd9ce", true)
 	# A three-metre opening, matching the research doorway, leads to the stairs.
 	_box(hub, "DepartmentWallNorth", Vector3(0.2, 3, 6.5), Vector3(-5, 1.5, -1.75), "ddd9ce", true)
@@ -235,16 +233,50 @@ func _build_wings() -> void:
 	_slab(customers, "Customers", Vector3(17, 0, 0), Vector2(24, 16))
 	for z in [-8.0, 8.0]:
 		_box(customers, "OuterWall", Vector3(24, 3, 0.2), Vector3(17, 1.5, z), "ddd9ce", true)
-	# The corridor terminates in the project manager's office, with a clear doorway.
+	# The corridor terminates in the service delivery office, with a clear doorway.
 	for z in [-6.0, 6.0]:
 		_box(customers, "CorridorEnd", Vector3(0.2, 3, 4), Vector3(29, 1.5, z), "ddd9ce", true)
-	_department(customers, "Account Manager and Delivery Lead", Vector3(9, 0, -5), 0.0, ["ACCOUNT MANAGER", "DELIVERY LEAD"], 8.0, false)
-	_department(customers, "Web Development and Content Design", Vector3(21, 0, -5), 0.0, ["WEBSITE DEVELOPER", "CONTENT AND DESIGN"], 16.0, false)
-	_department(customers, "Consultant and Knowledge Specialist", Vector3(9, 0, 5), PI, ["CONSULTANT", "KNOWLEDGE SPECIALIST"], 8.0, false)
-	_department(customers, "Developers", Vector3(21, 0, 5), PI, ["DEVELOPER", "DEVELOPER"], 16.0, false)
+	_department(customers, "Delivery Specialists", Vector3(11, 0, -5), 0.0, ["CONSULTANT", "KNOWLEDGE SPECIALIST"], 12.0, false)
+	_department(customers, "Web Development and Content Design", Vector3(23, 0, -5), 0.0, ["WEBSITE DEVELOPER", "CONTENT AND DESIGN"], 12.0, false)
+	var conference := Node3D.new()
+	conference.name = "SpecialistConference"
+	conference.position = Vector3(21, 0, 5)
+	customers.add_child(conference)
+	conference.owner = building
+	# A two-metre opening connects reception directly to the conference room.
+	# The common outer wall and corridor end already enclose the back and east.
+	_box(conference, "ReceptionGlassNorth", Vector3(0.08, 2.4, 0.58), Vector3(-16, 1.2, -2.75), "a5c6d1", true)
+	# Extend the exterior wall to the edge of the reception opening.
+	_box(conference, "WestExteriorWall", Vector3(0.2, 3, 3.5), Vector3(-16, 1.5, 1.25), "ddd9ce", true)
+	for z in [-3.0, -2.5, -0.5]:
+		_box(conference, "ReceptionGlassPost", Vector3(0.16, 2.4, 0.12), Vector3(-16, 1.2, z), "737e87")
+	_box(conference, "ReceptionGlassTopRail", Vector3(0.16, 0.06, 2.62), Vector3(-16, 2.37, -1.75), "737e87")
+	_box(conference, "ReceptionGlassNorthRail", Vector3(0.16, 0.06, 0.62), Vector3(-16, 0.03, -2.75), "737e87")
+	_box(conference, "ReceptionDoorLintel", Vector3(0.2, 0.6, 2.5), Vector3(-16, 2.7, -1.75), "ddd9ce", true)
+	_box(conference, "EastWall", Vector3(0.2, 3, 2), Vector3(8, 1.5, -2), "ddd9ce", true)
+	_box(conference, "GlassLeft", Vector3(14.58, 3, 0.08), Vector3(-8.75, 1.5, -3), "a5c6d1", true)
+	_box(conference, "GlassRight", Vector3(6.58, 3, 0.08), Vector3(4.75, 1.5, -3), "a5c6d1", true)
+	# Trim each pane separately so the floor rail never crosses the entrance.
+	for segment in [[-8.75, 14.5], [4.75, 6.5]]:
+		for y in [0.03, 2.97]:
+			_box(conference, "GlassEdgeRail%s%s" % ["Left" if segment[0] < 0 else "Right", "Bottom" if y < 1 else "Top"], Vector3(segment[1], 0.06, 0.16), Vector3(segment[0], y, -3), "737e87")
+	for x in [-16.0, -1.5, 1.5]:
+		var height := 2.4 if x == -16.0 else 3.0
+		_box(conference, "Frame", Vector3(0.12, height, 0.16), Vector3(x, height / 2.0, -3), "737e87")
+	_box(conference, "GlassWallEndFrame", Vector3(0.2, 3, 0.24), Vector3(7.86, 1.5, -3), "737e87")
+	_box(conference, "EntryLintel", Vector3(3, 0.6, 0.2), Vector3(0, 2.7, -3), "ddd9ce", true)
+	_box(conference, "Table", Vector3(12, 0.12, 1.6), Vector3(-4, 0.75, 0), "c5b29c", true)
+	for x in [-9.5, -4.0, 1.5]:
+		for z in [-0.55, 0.55]:
+			_box(conference, "TableLeg", Vector3(0.12, 0.7, 0.12), Vector3(x, 0.35, z), "737e87")
+	for x in [-8.0, -6.0, -4.0, -2.0, 0.0]:
+		for z in [-1.3, 1.3]:
+			_box(conference, "Chair", Vector3(0.55, 0.48, 0.55), Vector3(x, 0.24, z), "96a3a4")
+	_label(conference, "CONFERENCE", Vector3(0, 2.65, -3.15), 0.003, PI)
+	_light(conference, Vector3(0, 2.75, 0))
 	for x in [9.0, 21.0]:
 		_light(customers, Vector3(x, 2.75, 0))
-	_department(customers, "Project Manager", Vector3(32, 0, 0), -PI / 2.0, ["PROJECT MANAGER"], 8.0, true, false)
+	_department(customers, "Service Delivery", Vector3(32, 0, 0), -PI / 2.0, ["SERVICE DELIVERY MANAGER", "PROJECT MANAGER"], 8.0, true, false)
 	# Its entrance piers lie beyond the corridor walls; mount the board where it
 	# remains visible from the corridor instead of behind a cross wall.
 	_box(customers, "ProjectManagerBoardFrame", Vector3(1.8, 1.0, 0.08), Vector3(27, 1.65, -1.84), "303b48")
@@ -319,14 +351,14 @@ func _build_wings() -> void:
 	_department(departments, "IT Engineering and Operations", Vector3(7, 0, -22), 0.0, ["IT", "ENGINEER", "ENGINEER", "OPERATIONS"], 24.0)
 	_department(departments, "People HR and Legal", Vector3(23, 0, -22), 0.0, ["PEOPLE AND HR", "LEGAL AND COMPLIANCE"])
 	_box(departments, "CommonNorthWall", Vector3(8, 3, 0.2), Vector3(31, 1.5, -19), "ddd9ce", true)
-	_department(departments, "Sales Support and Marketing", Vector3(3, 0, 8), PI, ["SALES MANAGER", "MARKETING MANAGER", "CUSTOMER SUPPORT MANAGER", "PRODUCT MANAGER"], 16.0)
+	_department(departments, "Sales Support and Marketing", Vector3(3, 0, 8), PI, ["SALES MANAGER", "MARKETING MANAGER", "CLIENT SERVICES MANAGER", "PRODUCT MANAGER"], 16.0)
 	_department(departments, "CFO", Vector3(23, 0, 8), PI, ["CFO"])
 	_department(departments, "COO", Vector3(31, 0, 8), PI, ["COO"])
 	_box(departments, "CommonSouthWall", Vector3(8, 3, 0.2), Vector3(15, 1.5, 5), "ddd9ce", true)
 	_box(departments, "CommonWestWallNorth", Vector3(0.2, 3, 11.2), Vector3(-5, 1.5, -13.4), "ddd9ce", true)
 	_box(departments, "CommonWestWallSouth", Vector3(0.2, 3.04, 9.8), Vector3(-5, 1.48, 0.1), "ddd9ce", true)
 	_box(departments, "StairEntryLintel", Vector3(0.2, 0.6, 3), Vector3(-5, 2.7, -6.3), "ddd9ce", true)
-	var teams := ["Sales", "Customer Support"]
+	var teams := ["Sales", "Client Services"]
 	var team_staff := [4, 2]
 	for i in range(2):
 		var team := Node3D.new()
@@ -373,8 +405,12 @@ func _build_wings() -> void:
 		_box(departments, "CEOWall", Vector3(0.2, 3, segment[1]), Vector3(35, 1.5, segment[0]), "ddd9ce", true)
 	for segment in [[-4.0, 6.0], [3.0, 4.0]]:
 		_box(departments, "ConferenceGlass", Vector3(0.08, 3, segment[1]), Vector3(35, 1.5, segment[0]), "a5c6d1", true)
-	for z in [-19.0, -16.0, -14.0, -7.0, -1.0, 1.0, 5.0]:
+		for y in [0.03, 2.97]:
+			_box(departments, "ConferenceGlassEdgeRail%s%s" % ["North" if segment[0] < 0 else "South", "Bottom" if y < 1 else "Top"], Vector3(0.16, 0.06, segment[1]), Vector3(35, y, segment[0]), "737e87")
+	for z in [-19.0, -16.0, -14.0, -1.0, 1.0]:
 		_box(departments, "ConferenceFrame", Vector3(0.16, 3, 0.12), Vector3(35, 1.5, z), "737e87")
+	for edge in [["North", -6.88], ["South", 4.88]]:
+		_box(departments, "ConferenceGlassWallEnd" + edge[0], Vector3(0.24, 3, 0.24), Vector3(35, 1.5, edge[1]), "737e87")
 	_box(departments, "ConferenceLintel", Vector3(0.2, 0.6, 2), Vector3(35, 2.7, -15), "ddd9ce", true)
 	_box(departments, "ConferenceDoorOpen", Vector3(1.7, 2.3, 0.08), Vector3(35.95, 1.15, -13.95), "a5c6d1")
 	_label(departments, "CEO", Vector3(34.87, 2.68, -15), 0.003, -PI / 2)

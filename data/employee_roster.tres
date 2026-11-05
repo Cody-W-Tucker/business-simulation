@@ -5,61 +5,55 @@
 [resource]
 script = ExtResource("1")
 employees = Array[Dictionary]([{
-"id": 1, "display_name": "Receptionist", "description": "Welcomes visitors and manages reception.", "department": "administration", "room": "reception"
+"id": 1, "display_name": "Receptionist", "description": "Welcomes visitors and manages reception.", "department": "administration", "room": "reception", "manager_id": 19
 }, {
-"id": 2, "display_name": "Account Manager", "description": "Manages customer relationships.", "department": "customer_delivery", "room": "account_delivery"
+"id": 2, "display_name": "Service Delivery Manager", "description": "Leads the delivery of customer services.", "department": "customer_delivery", "room": "service_delivery", "manager_id": 19
 }, {
-"id": 3, "display_name": "Delivery Lead", "description": "Coordinates delivery of customer work.", "department": "customer_delivery", "room": "account_delivery"
+"id": 3, "display_name": "Website Developer", "description": "Builds customer websites.", "department": "customer_delivery", "room": "web_content", "manager_id": 2
 }, {
-"id": 4, "display_name": "Website Developer", "description": "Builds customer websites.", "department": "development", "room": "web_content"
+"id": 4, "display_name": "Content and Design", "description": "Creates customer content and designs.", "department": "marketing", "room": "web_content", "manager_id": 15
 }, {
-"id": 5, "display_name": "Content and Design", "description": "Creates customer content and designs.", "department": "marketing", "room": "web_content"
+"id": 5, "display_name": "Consultant", "description": "Examines customer needs and recommends services.", "department": "customer_delivery", "room": "delivery_specialists", "manager_id": 2
 }, {
-"id": 6, "display_name": "Consultant", "description": "Advises customers on their needs.", "department": "consulting", "room": "consulting_knowledge"
+"id": 6, "display_name": "Knowledge Specialist", "description": "Organizes customer, service and delivery knowledge for the team.", "department": "customer_delivery", "room": "delivery_specialists", "manager_id": 2
 }, {
-"id": 7, "display_name": "Knowledge Specialist", "description": "Organizes and shares knowledge for customer work.", "department": "consulting", "room": "consulting_knowledge"
+"id": 7, "display_name": "Project Manager", "description": "Plans and coordinates customer projects.", "department": "customer_delivery", "room": "service_delivery", "manager_id": 2
 }, {
-"id": 8, "display_name": "Developer", "description": "Builds and maintains customer software.", "department": "development", "room": "developers"
+"id": 8, "display_name": "IT", "description": "Supports internal technology and systems.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 11
 }, {
-"id": 9, "display_name": "Developer", "description": "Builds and maintains customer software.", "department": "development", "room": "developers"
+"id": 9, "display_name": "Engineer", "description": "Works on internal systems and approved customer engineering work.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 11
 }, {
-"id": 10, "display_name": "Project Manager", "description": "Plans and coordinates customer projects.", "department": "customer_delivery", "room": "project_manager"
+"id": 10, "display_name": "Engineer", "description": "Works on internal systems and approved customer engineering work.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 11
 }, {
-"id": 11, "display_name": "IT", "description": "Supports internal technology and systems.", "department": "it_engineering_operations", "room": "it_engineering_operations"
+"id": 11, "display_name": "Operations", "description": "Coordinates day-to-day operations and engineering requests.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 19
 }, {
-"id": 12, "display_name": "Engineer", "description": "Builds and maintains internal systems.", "department": "it_engineering_operations", "room": "it_engineering_operations"
+"id": 12, "display_name": "People and HR", "description": "Supports employees and people operations.", "department": "people", "room": "hr_legal", "manager_id": 19
 }, {
-"id": 13, "display_name": "Engineer", "description": "Builds and maintains internal systems.", "department": "it_engineering_operations", "room": "it_engineering_operations"
+"id": 13, "display_name": "Legal and Compliance", "description": "Handles legal and compliance work.", "department": "legal", "room": "hr_legal", "manager_id": 18
 }, {
-"id": 14, "display_name": "Operations", "description": "Coordinates day-to-day operations.", "department": "it_engineering_operations", "room": "it_engineering_operations"
+"id": 14, "display_name": "Sales Manager", "description": "Leads the outside sales team.", "department": "sales", "room": "management_office", "manager_id": 20
 }, {
-"id": 15, "display_name": "People and HR", "description": "Supports employees and people operations.", "department": "people", "room": "hr_legal"
+"id": 15, "display_name": "Marketing Manager", "description": "Leads marketing work.", "department": "marketing", "room": "management_office", "manager_id": 20
 }, {
-"id": 16, "display_name": "Legal and Compliance", "description": "Handles legal and compliance work.", "department": "legal", "room": "hr_legal"
+"id": 16, "display_name": "Client Services Manager", "description": "Leads client services and owns customer relationships.", "department": "client_services", "room": "management_office", "manager_id": 19
 }, {
-"id": 17, "display_name": "Sales Manager", "description": "Leads the sales team.", "department": "sales", "room": "management_office"
+"id": 17, "display_name": "Product Manager", "description": "Guides product priorities and coordinates approved engineering work.", "department": "product", "room": "management_office", "manager_id": 20
 }, {
-"id": 18, "display_name": "Marketing Manager", "description": "Leads marketing work.", "department": "marketing", "room": "management_office"
+"id": 18, "display_name": "CFO", "description": "Leads financial planning and management.", "department": "executive", "room": "cfo_office", "manager_id": 20
 }, {
-"id": 19, "display_name": "Customer Support Manager", "description": "Leads the customer support team.", "department": "customer_support", "room": "management_office"
+"id": 19, "display_name": "COO", "description": "Leads company operations.", "department": "executive", "room": "coo_office", "manager_id": 20
 }, {
-"id": 20, "display_name": "Product Manager", "description": "Guides product priorities and development.", "department": "product", "room": "management_office"
+"id": 20, "display_name": "CEO", "description": "Sets company direction and leads the business.", "department": "executive", "room": "ceo_office", "manager_id": 0
 }, {
-"id": 21, "display_name": "CFO", "description": "Leads financial planning and management.", "department": "executive", "room": "cfo_office"
+"id": 21, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
 }, {
-"id": 22, "display_name": "COO", "description": "Leads company operations.", "department": "executive", "room": "coo_office"
+"id": 22, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
 }, {
-"id": 23, "display_name": "CEO", "description": "Sets company direction and leads the business.", "department": "executive", "room": "ceo_office"
+"id": 23, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
 }, {
-"id": 24, "display_name": "Sales", "description": "Works with prospective customers.", "department": "sales", "room": "bullpen"
+"id": 24, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
 }, {
-"id": 25, "display_name": "Sales", "description": "Works with prospective customers.", "department": "sales", "room": "bullpen"
+"id": 25, "display_name": "Client Services Representative", "description": "Receives customer requests and routes work to the right team.", "department": "client_services", "room": "bullpen", "manager_id": 16
 }, {
-"id": 26, "display_name": "Sales", "description": "Works with prospective customers.", "department": "sales", "room": "bullpen"
-}, {
-"id": 27, "display_name": "Sales", "description": "Works with prospective customers.", "department": "sales", "room": "bullpen"
-}, {
-"id": 28, "display_name": "Customer Support", "description": "Helps customers resolve issues.", "department": "customer_support", "room": "bullpen"
-}, {
-"id": 29, "display_name": "Customer Support", "description": "Helps customers resolve issues.", "department": "customer_support", "room": "bullpen"
+"id": 26, "display_name": "Client Services Representative", "description": "Receives customer requests and routes work to the right team.", "department": "client_services", "room": "bullpen", "manager_id": 16
 }])

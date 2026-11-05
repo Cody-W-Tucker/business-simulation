@@ -41,15 +41,34 @@ func validate(office: Node3D, definitions: Resource) -> bool:
 	_index_desks(office)
 	for room in desks:
 		desks[room].sort_custom(func(a: Marker3D, b: Marker3D) -> bool: return a.get_meta("desk_number") < b.get_meta("desk_number"))
-	var ids := {}
+	var by_id := {}
 	for employee in roster.employees:
 		var id = employee.get("id")
-		if not id is int or id <= 0 or ids.has(id):
+		if not id is int or id <= 0 or by_id.has(id):
 			errors.append("Invalid or duplicate employee ID: " + str(id))
-		ids[id] = true
+		else:
+			by_id[id] = employee
 		for field in ["display_name", "description", "department", "room"]:
 			if not employee.get(field) is String or String(employee.get(field, "")).strip_edges().is_empty():
 				errors.append("Missing %s for employee %s" % [field, str(id)])
+	var roots := 0
+	for employee in roster.employees:
+		var manager = employee.get("manager_id")
+		if not manager is int or manager < 0 or (manager != 0 and not by_id.has(manager)):
+			errors.append("Invalid manager for employee %s" % str(employee.get("id")))
+			continue
+		if manager == 0:
+			roots += 1
+		var seen := {}
+		var current = employee.get("id")
+		while current is int and current != 0 and by_id.has(current):
+			if seen.has(current):
+				errors.append("Reporting cycle involving employee %s" % str(employee.get("id")))
+				break
+			seen[current] = true
+			current = by_id[current].get("manager_id")
+	if roots != 1:
+		errors.append("Roster must have exactly one top-level employee")
 	return errors.is_empty()
 
 
@@ -75,6 +94,15 @@ func get_employee(id: int) -> Dictionary:
 		if employee.get("id") == id:
 			return employee.duplicate(true)
 	return {}
+
+
+func get_direct_reports(manager_id: int) -> Array[Dictionary]:
+	var reports: Array[Dictionary] = []
+	for employee in roster.employees:
+		if employee.get("manager_id") == manager_id:
+			reports.append(employee.duplicate(true))
+	reports.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)
+	return reports
 
 
 func get_character(id: int) -> Node3D:
