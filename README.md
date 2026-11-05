@@ -35,7 +35,7 @@ viewport is configured for 2560×1440. Each browser board has its own live page.
 Idle browsers request up to one update per second; the board being used requests
 up to 120. Switching rates does not reload the page. Actual update rates depend
 on CEF and rendering load. Adjust `BROWSER_FRAME_RATE` and
-`ACTIVE_BROWSER_FRAME_RATE` near the top of `main.gd` if needed. The 3D viewport
+`ACTIVE_BROWSER_FRAME_RATE` in `scripts/browser/interaction.gd` if needed. The 3D viewport
 is disabled while the full-window view is open.
 
 ## Comfort settings
@@ -58,14 +58,17 @@ reaches roughly 5 m above the starting eye position; change `jump_speed` on the
 root node or in `main.gd` to tune it. Flight remains available by double-tapping
 Space. The player collides with the office's walls and furnishings.
 
-`main.gd` coordinates the room, browser lifecycle, and interaction transitions.
+`main.gd` composes the room, player, and browser interaction subsystem.
 Room action names are in `scripts/room_input.gd` and their default bindings are
 editable in Project Settings → Input Map. Movement lives in
-`scripts/player_movement.gd`, interaction modes in `scripts/interaction_state.gd`,
-and browser mouse translation in `scripts/browser_input.gd`. Browser keyboard
+`scripts/player_movement.gd`. Browser targeting, focus and input routing live in
+`scripts/browser/interaction.gd`, with interaction modes and mouse translation
+alongside it in `scripts/browser/`. Browser keyboard
 events are forwarded separately, so room shortcuts do not intercept typing.
 The browser-board construction helper and URL constants live in
-`scripts/browser_boards.gd`; active board placement is configured in `main.gd`. The currently supported
+`scripts/browser/boards.gd`; this office's screen placement is in
+`scripts/office_browser_layout.gd`. `scripts/browser/runtime.gd` owns embedded
+browser creation and shutdown, browser views, and the preview fallback. The currently supported
 board geometry is a vertical rectangle facing local +Z. The `CommunityAssets`
 node in `main.tscn` is an
 editor-visible place to instance models and other scene content without editing
