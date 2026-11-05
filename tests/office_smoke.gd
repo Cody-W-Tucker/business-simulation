@@ -95,34 +95,71 @@ func _run() -> void:
 		if absf(tread_heights[i] - tread_heights[i - 1] - rise) > 0.001:
 			_fail("Stair tread rises are not equal")
 			return
-	for spec in [["AccountManagerandDeliveryLead", 2], ["WebDevelopmentandContentDesign", 2], ["ConsultantandKnowledgeSpecialist", 2], ["Developers", 2], ["ProjectManager", 1]]:
+	for spec in [["DeliverySpecialists", 2], ["WebDevelopmentandContentDesign", 2], ["ServiceDelivery", 2]]:
 		var module: Node = office.get_node_or_null("CustomersWing/" + spec[0])
-		if module == null or _count_staff(module) != spec[1] or (spec[0] != "ProjectManager" and module.get_node_or_null("WhiteboardPlaceholder") == null):
+		if module == null or _count_staff(module) != spec[1] or (spec[0] != "ServiceDelivery" and module.get_node_or_null("WhiteboardPlaceholder") == null):
 			_fail("Incorrect specialist office: " + spec[0])
 			return
 		for i in range(spec[1]):
 			if module.get_node_or_null("Desk%d" % (i + 1)) == null:
 				_fail("Missing specialist desk: " + spec[0])
 				return
-		if spec[1] >= 2 and module.get_node_or_null("WorkstationDivider1") == null:
+		if module.get_node_or_null("Desk%d" % (spec[1] + 1)) != null:
+			_fail("Unexpected vacant specialist desk: " + spec[0])
+			return
+		if spec[1] == 2 and module.get_node_or_null("WorkstationDivider1") == null:
 			_fail("Missing specialist workstation divider: " + spec[0])
 			return
-	if office.get_node_or_null("CustomersWing/ProjectManagerBoard") == null or office.get_node_or_null("CustomersWing/ProjectManager/WhiteboardPlaceholder") != null:
-		_fail("Project manager data board placement is incorrect")
+	var conference := office.get_node_or_null("CustomersWing/SpecialistConference")
+	if conference == null or _count_staff(conference) != 0 or conference.find_children("Glass*", "MeshInstance3D").size() < 2:
+		_fail("Specialist conference room must have glass and no staff desks")
+		return
+	var reception_glass := conference.get_node_or_null("ReceptionGlassNorth") as MeshInstance3D
+	if office.get_node_or_null("CustomersWing/TeamMeeting") != null or reception_glass == null or (reception_glass.mesh.material as StandardMaterial3D).transparency != BaseMaterial3D.TRANSPARENCY_ALPHA or conference.get_node_or_null("ReceptionDoorOpen") != null or conference.get_node_or_null("ReceptionGlassSouth") != null:
+		_fail("Conference must extend to reception with a transparent shared wall")
+		return
+	for child in conference.get_children():
+		if child is MeshInstance3D and (child.name.begins_with("ReceptionGlassPost") or child.name in ["ReceptionGlassNorth", "ReceptionGlassSouth", "ReceptionGlassTopRail"]):
+			if child.position.y + (child.mesh as BoxMesh).size.y / 2.0 > 2.401:
+				_fail("Reception glass and frames must stop below the wall header")
+				return
+	var exterior_wall := conference.get_node_or_null("WestExteriorWall") as MeshInstance3D
+	if exterior_wall == null or (exterior_wall.mesh.material as StandardMaterial3D).transparency != BaseMaterial3D.TRANSPARENCY_DISABLED or (exterior_wall.mesh as BoxMesh).size != Vector3(0.2, 3, 3.5) or exterior_wall.position != Vector3(-16, 1.5, 1.25):
+		_fail("Conference exterior must have an opaque full-height west wall")
+		return
+	var table := conference.get_node_or_null("Table") as MeshInstance3D
+	if conference.find_children("GlassEdgeRail*", "MeshInstance3D").size() != 4 or office.get_node("DepartmentsWing").find_children("ConferenceGlassEdgeRail*", "MeshInstance3D").size() != 4:
+		_fail("Both conference rooms must have top and bottom trim on each glass pane")
+		return
+	for rail in conference.find_children("GlassEdgeRail*", "MeshInstance3D") + office.get_node("DepartmentsWing").find_children("ConferenceGlassEdgeRail*", "MeshInstance3D"):
+		if not is_equal_approx((rail.mesh as BoxMesh).size.y, 0.06):
+			_fail("Conference glass edge rails must be slim")
+			return
+	if conference.get_node_or_null("GlassWallEndFrame") == null or office.get_node_or_null("DepartmentsWing/ConferenceGlassWallEndNorth") == null or office.get_node_or_null("DepartmentsWing/ConferenceGlassWallEndSouth") == null:
+		_fail("Glass-to-wall junctions must have visible end frames")
+		return
+	if conference.get_node_or_null("GlassCornerUpperFrame") != null:
+		_fail("Reception wall corner must not have an offset upper strip")
+		return
+	if table == null or (table.mesh as BoxMesh).size.x != 12.0 or table.position.x != -4.0:
+		_fail("Conference table must extend toward reception while leaving doorway clearance")
+		return
+	if office.get_node_or_null("CustomersWing/ProjectManagerBoard") == null or office.get_node_or_null("CustomersWing/ServiceDelivery/WhiteboardPlaceholder") != null:
+		_fail("Service delivery data board placement is incorrect")
 		return
 	var web_office := office.get_node("CustomersWing/WebDevelopmentandContentDesign")
 	if not _has_label(web_office, "WEBSITE DEVELOPER") or not _has_label(web_office, "CONTENT AND DESIGN"):
 		_fail("Website development and content/design must share an office")
 		return
-	for node_path in ["CustomersWing/UnassignedOffice", "CustomersWing/WebsiteDeveloper", "CustomersWing/ContentWriter", "DepartmentsWing/UnassignedOffice", "DepartmentsWing/InformationTechnology", "DepartmentsWing/ProductEngineeringandOperations"]:
+	for node_path in ["CustomersWing/UnassignedOffice", "CustomersWing/WebsiteDeveloper", "CustomersWing/ContentWriter", "CustomersWing/Developers", "DepartmentsWing/UnassignedOffice", "DepartmentsWing/InformationTechnology", "DepartmentsWing/ProductEngineeringandOperations"]:
 		if office.get_node_or_null(node_path) != null:
 			_fail("Obsolete office remains: " + node_path)
 			return
-	for node_path in ["ReceptionHub/ReceptionistPlaceholder", "DepartmentsWing/CFO", "DepartmentsWing/Sales", "DepartmentsWing/SalesSupportandMarketing", "DepartmentsWing/ITEngineeringandOperations", "DepartmentsWing/CustomerSupport", "DepartmentsWing/PeopleHRandLegal", "DepartmentsWing/CEODesk", "DepartmentsWing/ConferenceTable"]:
+	for node_path in ["ReceptionHub/ReceptionistPlaceholder", "DepartmentsWing/CFO", "DepartmentsWing/Sales", "DepartmentsWing/SalesSupportandMarketing", "DepartmentsWing/ITEngineeringandOperations", "DepartmentsWing/ClientServices", "DepartmentsWing/PeopleHRandLegal", "DepartmentsWing/CEODesk", "DepartmentsWing/ConferenceTable"]:
 		if office.get_node_or_null(node_path) == null:
 			_fail("Missing department or reception object: " + node_path)
 			return
-	if _count_staff(office.get_node("DepartmentsWing")) != 19 or _count_staff(office.get_node("ProjectsResearchWing")) != 0 or _count_staff(office.get_node("CustomersWing")) != 9:
+	if _count_staff(office.get_node("DepartmentsWing")) != 19 or _count_staff(office.get_node("ProjectsResearchWing")) != 0 or _count_staff(office.get_node("CustomersWing")) != 6:
 		_fail("Knowledge-office staff placeholder count is incorrect")
 		return
 	for spec in [["CFO", 1], ["SalesSupportandMarketing", 4], ["PeopleHRandLegal", 2], ["ITEngineeringandOperations", 4], ["COO", 1]]:
@@ -136,7 +173,7 @@ func _run() -> void:
 		if module.get_node("WhiteboardPlaceholder").position.z <= 3.0:
 			_fail("Office data board must face the bullpen: " + spec[0])
 			return
-	for spec in [["SalesSupportandMarketing/StaffPlaceholder2", "MARKETING MANAGER"], ["SalesSupportandMarketing/StaffPlaceholder3", "CUSTOMER SUPPORT MANAGER"], ["SalesSupportandMarketing/StaffPlaceholder4", "PRODUCT MANAGER"], ["ITEngineeringandOperations/StaffPlaceholder1", "IT"]]:
+	for spec in [["SalesSupportandMarketing/StaffPlaceholder2", "MARKETING MANAGER"], ["SalesSupportandMarketing/StaffPlaceholder3", "CLIENT SERVICES MANAGER"], ["SalesSupportandMarketing/StaffPlaceholder4", "PRODUCT MANAGER"], ["ITEngineeringandOperations/StaffPlaceholder1", "IT"]]:
 		var labels := office.get_node("DepartmentsWing/" + spec[0]).find_children("*", "Label3D", true, false)
 		if labels.size() != 1 or (labels[0] as Label3D).text != spec[1]:
 			_fail("Incorrect reassigned staff placeholder: " + spec[0])
@@ -150,7 +187,7 @@ func _run() -> void:
 	if _wall_present(room, Vector3(259, 5.7, -23.5), Vector3(263, 5.7, -23.5)):
 		_fail("Former IT office partition still divides the combined room")
 		return
-	for spec in [["Sales", 4], ["CustomerSupport", 2]]:
+	for spec in [["Sales", 4], ["ClientServices", 2]]:
 		var team := office.get_node("DepartmentsWing/" + spec[0])
 		if _count_staff(team) != spec[1]:
 			_fail("Incorrect bullpen staffing: " + spec[0])
@@ -166,6 +203,15 @@ func _run() -> void:
 		_fail("Player did not spawn in reception")
 		return
 	await physics_frame
+	if _wall_present(room, Vector3(261, 1.5, 5), Vector3(265, 1.5, 5)):
+		_fail("Former meeting room partition still divides the conference room")
+		return
+	if _wall_present(room, Vector3(254, 1.5, 3.5), Vector3(256, 1.5, 3.5)) or not _wall_present(room, Vector3(254, 1.5, 4.8), Vector3(256, 1.5, 4.8)):
+		_fail("Reception doorway must be open and the adjacent wall solid")
+		return
+	if not _wall_present(room, Vector3(254, 1.5, 7), Vector3(256, 1.5, 7)):
+		_fail("Conference exterior wall must block movement")
+		return
 	if _wall_present(room, Vector3(277, 1.65, 0), Vector3(277, 1.65, -1.7)):
 		_fail("Project manager data board is obscured from the corridor")
 		return
@@ -182,9 +228,13 @@ func _run() -> void:
 	# Check openings and adjacent solid walls, using the actual player capsule.
 	for route in [
 		[Vector3(254, 0, 0), Vector3(2, 0, 0), false],
+		[Vector3(254, 0, 3.5), Vector3(2, 0, 0), false],
+		[Vector3(256, 0, 3.5), Vector3(-2, 0, 0), false],
+		[Vector3(260, 0, 7), Vector3(14, 0, 0), false],
+		[Vector3(254, 0, 4.85), Vector3(2, 0, 0), true],
 		[Vector3(250, 0, -4), Vector3(0, 0, -2), false],
-		[Vector3(259, 0, -1), Vector3(0, 0, -2), false],
-		[Vector3(262, 0, -1), Vector3(0, 0, -2), true],
+		[Vector3(261, 0, -1), Vector3(0, 0, -2), false],
+		[Vector3(264, 0, -1), Vector3(0, 0, -2), true],
 		[Vector3(250, 0, -7), Vector3(0, 0, -2), false],
 		[Vector3(256, 0, 0), Vector3(21, 0, 0), false],
 		[Vector3(277, 0, 0), Vector3(-21, 0, 0), false],
@@ -192,7 +242,9 @@ func _run() -> void:
 		[Vector3(282, 0, 0), Vector3(-5, 0, 0), false],
 		[Vector3(277, 0, 3), Vector3(4, 0, 0), true],
 		[Vector3(282, 0, 0), Vector3(4, 0, 0), true],
-		[Vector3(259, 0, -3), Vector3(0, 0, 2), false],
+		[Vector3(261, 0, -3), Vector3(0, 0, 2), false],
+		[Vector3(271, 0, 1), Vector3(0, 0, 2), false],
+		[Vector3(267, 0, 1), Vector3(0, 0, 2), true],
 		[Vector3(250, 0, -10), Vector3(0, 0, 3), false],
 		[Vector3(244.5, 0, -15), Vector3(-3, 0, 0), false],
 		[Vector3(255.5, 0, -15), Vector3(3, 0, 0), false],
@@ -244,7 +296,7 @@ func _run() -> void:
 			_fail("Stair flight wall is open on side %s" % side)
 			return
 	# Each bullpen desk has a walk-in opening and a tall, solid panel beside it.
-	for team_path in ["Sales", "CustomerSupport"]:
+	for team_path in ["Sales", "ClientServices"]:
 		var team: Node3D = office.get_node("DepartmentsWing/" + team_path)
 		for cubicle in team.get_children():
 			if not String(cubicle.name).begins_with("Cubicle"):

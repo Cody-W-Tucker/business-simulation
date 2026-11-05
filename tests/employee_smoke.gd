@@ -16,8 +16,18 @@ func _run() -> void:
 	await process_frame
 	var directory = world.employee_directory
 	var roster = directory.roster
-	if not directory.errors.is_empty() or roster.employees.size() != 29 or directory.characters.size() != 29:
-		_fail("Roster and characters must each contain 29 employees")
+	if not directory.errors.is_empty() or roster.employees.size() != 26 or directory.characters.size() != 26:
+		_fail("Roster and characters must each contain 26 employees")
+		return
+	for relation in [[2, 19], [16, 19], [3, 2], [5, 2], [6, 2], [7, 2], [9, 11], [10, 11], [11, 19], [25, 16], [26, 16]]:
+		if directory.get_employee(relation[0]).manager_id != relation[1]:
+			_fail("Incorrect reporting relationship: " + str(relation))
+			return
+	if directory.get_direct_reports(16).size() != 2 or directory.get_direct_reports(16)[0].id != 25:
+		_fail("Direct reports must be derived from the roster in ID order")
+		return
+	if directory.get_employee(2).room != "service_delivery" or directory.get_employee(7).room != "service_delivery" or directory.assigned_desks[2] == directory.assigned_desks[7] or directory.assigned_desks[2].get_parent() != directory.assigned_desks[7].get_parent():
+		_fail("Service Delivery Manager and Project Manager must share an office with separate desks")
 		return
 	for employee in roster.employees:
 		var character: Node3D = directory.get_character(employee.id)
@@ -34,13 +44,13 @@ func _run() -> void:
 		if labels.size() != 1 or labels[0].text != String(employee.display_name).to_upper() or labels[0].billboard != BaseMaterial3D.BILLBOARD_ENABLED:
 			_fail("Employee label must show the role and face the camera: " + str(employee.id))
 			return
-	for spec in [["Sales", "SALES"], ["CustomerSupport", "CUSTOMER SUPPORT"]]:
+	for spec in [["Sales", "SALES"], ["ClientServices", "CLIENT SERVICES"]]:
 		var team: Node = world.get_node("OfficeInterior/DepartmentsWing/" + spec[0])
 		var team_labels := team.find_children("*", "Label3D", false, false)
 		if team_labels.size() != 1 or team_labels[0].text != spec[1] or team_labels[0].billboard != BaseMaterial3D.BILLBOARD_ENABLED:
 			_fail("Bullpen team label must face the camera: " + spec[0])
 			return
-	if directory.get_employee(17).department != directory.get_employee(24).department or directory.get_employee(17).room == directory.get_employee(24).room or directory.get_employee(24).department == directory.get_employee(28).department or directory.get_employee(24).room != directory.get_employee(28).room:
+	if directory.get_employee(14).department != directory.get_employee(21).department or directory.get_employee(14).room == directory.get_employee(21).room or directory.get_employee(21).department == directory.get_employee(25).department or directory.get_employee(21).room != directory.get_employee(25).room:
 		_fail("Department and room must be independent")
 		return
 	if directory.get_character(999) != null or not directory.get_employee(999).is_empty():
@@ -55,7 +65,7 @@ func _run() -> void:
 	var desired: Array[int] = roster.desired_agents()
 	var reordered = roster.duplicate(true)
 	reordered.employees.reverse()
-	if desired.size() != 29 or desired != reordered.desired_agents():
+	if desired.size() != 26 or desired != reordered.desired_agents() or desired != range(1, 27):
 		_fail("Agent inventory must be complete and independent of roster order")
 		return
 	var office = load("res://scenes/office_interior.tscn").instantiate()
@@ -75,18 +85,30 @@ func _run() -> void:
 	invalid.employees[2]["id"] = "not a number"
 	invalid.employees[3]["room"] = ""
 	invalid.employees[4]["department"] = ""
-	if validator.validate(office, invalid) or validator.errors.size() != 4:
+	if validator.validate(office, invalid) or validator.errors.size() < 4:
 		_fail("Invalid employee IDs, rooms and departments must be rejected")
 		validator.free()
 		return
 	validator.free()
+	var hierarchy_validator = load("res://scripts/employee_directory.gd").new()
+	var broken = roster.duplicate(true)
+	broken.employees[0]["manager_id"] = 999
+	if hierarchy_validator.validate(office, broken):
+		_fail("Unknown managers must be rejected")
+		return
+	broken = roster.duplicate(true)
+	broken.employees[0]["manager_id"] = 1
+	if hierarchy_validator.validate(office, broken):
+		_fail("Reporting cycles must be rejected")
+		return
+	hierarchy_validator.free()
 	var extra = roster.duplicate(true)
-	extra.employees.append({"id": 30, "display_name": "Extra", "description": "Extra employee", "department": "sales", "room": "bullpen"})
+	extra.employees.append({"id": 30, "display_name": "Extra", "description": "Extra employee", "department": "sales", "room": "bullpen", "manager_id": 14})
 	var extra_office = load("res://scenes/office_interior.tscn").instantiate()
 	root.add_child(extra_office)
 	var overflow = load("res://scripts/employee_directory.gd").new()
 	root.add_child(overflow)
-	if not overflow.initialize(extra_office, extra) or overflow.get_character(30) != null or overflow.characters.size() != 29 or extra.desired_agents().size() != 30:
+	if not overflow.initialize(extra_office, extra) or overflow.get_character(30) != null or overflow.characters.size() != 26 or extra.desired_agents().size() != 27:
 		_fail("Desk shortage must leave only the extra employee unplaced and preserve the agent inventory")
 		return
 	print("PASS: simple roster, room allocation and deterministic agent inventory")
