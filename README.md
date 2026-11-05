@@ -24,9 +24,9 @@ courtyard is no longer part of the active world.
   its default URL. Press Esc first if the browser has focus; Shift+E remains normal
   text input there. This navigates away from the current page and may discard unsaved work.
 - You start in reception, which connects to the Specialists,
-  Departments, and Projects / Research wings. Specialist offices are organized
-  around duties, with the account manager first on the left and the project
-  manager at the end of the corridor.
+  Departments, and Projects / Research wings. See
+  [World scale and building on the project](#world-scale-and-building-on-the-project)
+  for the office layout.
 - Outside the board, **Esc** releases the mouse cursor; press Esc again or click
   the room to capture it.
 
@@ -102,8 +102,10 @@ revenue-per-employee scenarios. It does not represent a financial forecast.
 
 `data/employee_roster.tres` is the editable list of 26 fictional employees.
 Each record has a numeric `id`, display name, description, department, room, and
-`manager_id` (zero for the CEO). Managers must exist and reporting cannot form a
-cycle. `get_direct_reports(id)` derives the org chart from the roster.
+`manager_id` (zero for the single top-level employee, currently the CEO).
+Managers must exist and reporting cannot form a cycle.
+`EmployeeDirectory.get_direct_reports(id)` returns roster-derived direct reports
+in numeric ID order.
 IDs identify employees and their future agents: never change or reuse an ID for
 another employee. Department identifies peers; room determines where someone
 works. They are independent, so colleagues can work in different rooms and a room
@@ -132,31 +134,9 @@ report through Operations; Product and Service Delivery must request and obtain
 approval for their work through that chain. This is an organizational policy,
 not an implemented approval or task-routing system.
 
-Current reporting tree (numbers are employee IDs):
-
-```text
-CEO 20
-├── CFO 18
-│   └── Legal and Compliance 13
-├── COO 19
-│   ├── Receptionist 1
-│   ├── Service Delivery Manager 2
-│   │   ├── Website Developer 3
-│   │   ├── Consultant 5
-│   │   ├── Knowledge Specialist 6
-│   │   └── Project Manager 7
-│   ├── Operations 11
-│   │   ├── IT 8
-│   │   └── Engineers 9, 10
-│   ├── People and HR 12
-│   └── Client Services Manager 16
-│       └── Client Services Representatives 25, 26
-├── Sales Manager 14
-│   └── Sales 21–24
-├── Marketing Manager 15
-│   └── Content and Design 4
-└── Product Manager 17
-```
+For current employee IDs and reporting relationships, use the `manager_id`
+records in [`data/employee_roster.tres`](data/employee_roster.tres) rather than a
+separate org chart.
 
 ### Add a community asset or plugin
 
