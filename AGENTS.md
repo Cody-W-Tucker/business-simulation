@@ -1,16 +1,22 @@
 # Project asset workflow
 
-This checkout is shared with Beast over NFS. Edit source files from either host,
-but run all Godot, project Nix shells, direnv reloads, imports and tests on Beast.
-From another host use `ssh beast` and work in `~/Projects/godot-3d-starter`.
-Do not enter a project Nix shell or run Godot against this checkout on the NAS:
-`.godot`, `.direnv` and the `cef_artifacts` link are shared but Nix stores are not.
-Do not run two editors against the checkout at once; do not stop a user's game
-or editor. Use an isolated copy on Beast for checks if the checkout is in use.
+This checkout is shared with Beast over NFS. Edit source files from either host.
+For live development, run Godot, project Nix shells, direnv reloads, imports and
+tests on Beast. From another host use `ssh beast` and work in
+`~/Projects/godot-3d-starter`. Do not run Godot, project Nix shells, direnv
+reloads, imports or tests against the shared checkout on the NAS: `.godot`,
+`.direnv` and the `cef_artifacts` link are shared but Nix stores are not.
+
+For CI-style checks, including headless validation, automated tests and isolated
+render captures, the NAS may run Godot and project Nix shells in a disposable,
+isolated project copy with its own caches and artifacts. An isolated Beast copy
+is also permitted. Do not run two editors against the shared checkout at once or
+stop a user's game or editor; use an isolated copy for checks if it is in use.
 
 The flake lock pins Godot 4.7.2 stable; the project uses GDScript. Use the
 project's Nix shells rather than an unrelated system Godot. After changes, run
-`nix develop .#preview --command bash scripts/verify.sh` from the project root.
+`nix develop .#preview --command bash scripts/verify.sh` from the project root
+on Beast or from an isolated CI-style copy on either host.
 The preview gate does not test gdCEF; use the browser integration test in the
 README for browser changes.
 
