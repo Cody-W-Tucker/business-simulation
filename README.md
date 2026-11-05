@@ -151,7 +151,14 @@ provide access to the same drawing; see [World scale and building on the project
 for URL configuration. Back up important work: browser-local storage is not the
 same as a NAS-side board database.
 
-## Run on Beast
+## Shared checkout and running on Beast
+
+This checkout is shared with the NAS. Edit source from either machine, but run
+Godot, project Nix shells, direnv reloads, imports, and tests on Beast only; from
+the NAS use `ssh beast` first. The shared `.godot`, `.direnv`, and `cef_artifacts`
+are not safe to initialize using a different machine's Nix store. Do not run two
+editors on this checkout at the same time. Use an isolated copy on Beast for
+checks while the checkout is in use.
 
 Open a terminal in your desktop session:
 
@@ -180,8 +187,9 @@ browser fails to initialize and the project falls back to its preview behavior.
 If gdCEF fails to initialize, each board opens its URL in the system browser;
 the Excalidraw board also uses a periodically refreshed screenshot when `chromium`
 is on PATH. For a
-preview-only environment without the custom Godot build, run `nix develop
-.#preview` instead.
+preview-only environment that does not provision gdCEF, run `nix develop
+.#preview` instead. The preview shell uses the same shared-C++ Godot build so
+that an existing gdCEF extension can be discovered safely.
 
 ## Verify
 

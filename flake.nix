@@ -78,7 +78,9 @@
       devShells.${system} = {
         default = mkRoomShell godotWithSharedCpp true;
         gdcef = mkRoomShell godotWithSharedCpp true;
-        preview = mkRoomShell pkgs.godot false;
+        # Godot discovers installed extensions even in preview mode. Use the
+        # same shared C++ runtime so an existing gdCEF link is safe to load.
+        preview = mkRoomShell godotWithSharedCpp false;
       };
     };
 }
