@@ -224,8 +224,8 @@ For a non-graphical smoke test:
 nix develop .#preview --command bash scripts/verify.sh
 ```
 
-This imports the project, checks GDScript files, runs the room, movement,
-input-state, employee, and office smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
+This imports the project, checks GDScript files, runs the room, office browser
+layout, movement, input-state, employee, and office smoke tests, and briefly starts the main scene. It does not exercise gdCEF or
 replace an interactive visual check. The project uses GDScript and Godot 4.7.2
 stable, pinned through `flake.lock`.
 
