@@ -178,10 +178,17 @@ checks while the checkout is in use.
 Open a terminal in your desktop session:
 
 ```sh
-cd ~/Projects/godot-3d-starter
-nix develop
+cd ~/Projects/business-simulation
+direnv allow
 godot --path .
 ```
+
+Direnv must be installed and hooked into your interactive shell; for zsh, add
+`eval "$(direnv hook zsh)"` to `~/.zshrc`. After the one-time `direnv allow`,
+entering the directory loads the default development shell automatically. Check
+`echo "$ROOM_ENABLE_GDCEF"` (expected `1`) and `command -v godot` if it does
+not. Run `direnv reload` after updating the checkout if an older environment is
+still active. Alternatively, use `nix develop` explicitly.
 
 If you already have an older `nix develop` shell open, exit it and enter a new
 one first. The first build downloads the pinned gdCEF release (about 1 GB),

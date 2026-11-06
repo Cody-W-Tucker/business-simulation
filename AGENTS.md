@@ -3,7 +3,7 @@
 This checkout is shared with Beast over NFS. Edit source files from either host.
 For live development, run Godot, project Nix shells, direnv reloads, imports and
 tests on Beast. From another host use `ssh beast` and work in
-`~/Projects/godot-3d-starter`. Do not run Godot, project Nix shells, direnv
+`~/Projects/business-simulation`. Do not run Godot, project Nix shells, direnv
 reloads, imports or tests against the shared checkout on the NAS: `.godot`,
 `.direnv` and the `cef_artifacts` link are shared but Nix stores are not.
 
