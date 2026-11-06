@@ -23,37 +23,28 @@ employees = Array[Dictionary]([{
 }, {
 "id": 9, "display_name": "Engineer", "description": "Works on internal systems and approved customer engineering work.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 11
 }, {
-"id": 10, "display_name": "Engineer", "description": "Works on internal systems and approved customer engineering work.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 11
+"id": 10, "display_name": "Operations", "description": "Coordinates day-to-day operations and engineering requests.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 19
 }, {
-"id": 11, "display_name": "Operations", "description": "Coordinates day-to-day operations and engineering requests.", "department": "it_engineering_operations", "room": "it_engineering_operations", "manager_id": 19
+"id": 11, "display_name": "People and HR", "description": "Supports employees and people operations.", "department": "people", "room": "hr_legal", "manager_id": 19
 }, {
-"id": 12, "display_name": "People and HR", "description": "Supports employees and people operations.", "department": "people", "room": "hr_legal", "manager_id": 19
+"id": 12, "display_name": "Legal and Compliance", "description": "Handles legal and compliance work.", "department": "legal", "room": "hr_legal", "manager_id": 18
 }, {
-"id": 13, "display_name": "Legal and Compliance", "description": "Handles legal and compliance work.", "department": "legal", "room": "hr_legal", "manager_id": 18
+"id": 13, "display_name": "Sales Manager", "description": "Leads the outside sales team.", "department": "sales", "room": "management_office", "manager_id": 20
 }, {
-"id": 14, "display_name": "Sales Manager", "description": "Leads the outside sales team.", "department": "sales", "room": "management_office", "manager_id": 20
+"id": 14, "display_name": "Marketing Manager", "description": "Leads marketing work.", "department": "marketing", "room": "management_office", "manager_id": 20
 }, {
-"id": 15, "display_name": "Marketing Manager", "description": "Leads marketing work.", "department": "marketing", "room": "management_office", "manager_id": 20
+"id": 15, "display_name": "Client Services Manager", "description": "Leads client services and owns customer relationships.", "department": "client_services", "room": "management_office", "manager_id": 19
 }, {
-"id": 16, "display_name": "Client Services Manager", "description": "Leads client services and owns customer relationships.", "department": "client_services", "room": "management_office", "manager_id": 19
+"id": 16, "display_name": "Product Manager", "description": "Guides product priorities and coordinates approved engineering work.", "department": "product", "room": "management_office", "manager_id": 20
 }, {
-"id": 17, "display_name": "Product Manager", "description": "Guides product priorities and coordinates approved engineering work.", "department": "product", "room": "management_office", "manager_id": 20
+"id": 17, "display_name": "CFO", "description": "Leads financial planning and management.", "department": "executive", "room": "cfo_office", "manager_id": 20
 }, {
-"id": 18, "display_name": "CFO", "description": "Leads financial planning and management.", "department": "executive", "room": "cfo_office", "manager_id": 20
+"id": 18, "display_name": "COO", "description": "Leads company operations.", "department": "executive", "room": "coo_office", "manager_id": 20
 }, {
-"id": 19, "display_name": "COO", "description": "Leads company operations.", "department": "executive", "room": "coo_office", "manager_id": 20
+"id": 19, "display_name": "CEO", "description": "Sets company direction and leads the business.", "department": "executive", "room": "ceo_office", "manager_id": 0
 }, {
-"id": 20, "display_name": "CEO", "description": "Sets company direction and leads the business.", "department": "executive", "room": "ceo_office", "manager_id": 0
+"id": 20, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
 }, {
-"id": 21, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
-}, {
-"id": 22, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
-}, {
-"id": 23, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
-}, {
-"id": 24, "display_name": "Sales", "description": "Finds and closes new customer business.", "department": "sales", "room": "bullpen", "manager_id": 14
-}, {
-"id": 25, "display_name": "Client Services Representative", "description": "Receives customer requests and routes work to the right team.", "department": "client_services", "room": "bullpen", "manager_id": 16
-}, {
-"id": 26, "display_name": "Client Services Representative", "description": "Receives customer requests and routes work to the right team.", "department": "client_services", "room": "bullpen", "manager_id": 16
+"id": 21, "display_name": "Client Services Representative", "description": "Receives customer requests and routes work to the right team.", "department": "client_services", "room": "bullpen", "manager_id": 16
 }])
+staffing = {9: [9, 10], 10: [11], 11: [12], 12: [13], 13: [14], 14: [15], 15: [16], 16: [17], 17: [18], 18: [19], 19: [20], 20: [21, 22, 23, 24], 21: [25, 26]}

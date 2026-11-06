@@ -1,0 +1,75 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/tool_roster.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tools = Array[Dictionary]([{
+"id": "phone", "display_name": "Phone", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 0}, {"role_id": 7, "duty_id": 0}]
+}, {
+"id": "email", "display_name": "Email", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 7, "duty_id": 0}, {"role_id": 7, "duty_id": 4}]
+}, {
+"id": "sms", "display_name": "SMS", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 7, "duty_id": 0}]
+}, {
+"id": "video_meetings", "display_name": "Video meetings", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 7, "duty_id": 0}]
+}, {
+"id": "employee_directory", "display_name": "Employee directory", "owner_role_id": 11, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 0}]
+}, {
+"id": "customer_directory", "display_name": "Customer directory", "owner_role_id": 15, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 0}]
+}, {
+"id": "project_tracker", "display_name": "Project tracker", "owner_role_id": 7, "maintainer_role_id": 8, "duties": [{"role_id": 7, "duty_id": 3}]
+}, {
+"id": "shared_documents", "display_name": "Shared documents", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 6, "duty_id": 1}, {"role_id": 7, "duty_id": 3}]
+}, {
+"id": "messaging", "display_name": "Messaging", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 2}, {"role_id": 1, "duty_id": 3}, {"role_id": 2, "duty_id": 2}, {"role_id": 2, "duty_id": 3}, {"role_id": 3, "duty_id": 0}, {"role_id": 3, "duty_id": 4}, {"role_id": 4, "duty_id": 0}, {"role_id": 5, "duty_id": 0}, {"role_id": 5, "duty_id": 3}, {"role_id": 5, "duty_id": 4}, {"role_id": 6, "duty_id": 0}, {"role_id": 7, "duty_id": 3}, {"role_id": 8, "duty_id": 4}, {"role_id": 9, "duty_id": 4}, {"role_id": 10, "duty_id": 4}, {"role_id": 12, "duty_id": 4}, {"role_id": 14, "duty_id": 3}, {"role_id": 15, "duty_id": 3}, {"role_id": 16, "duty_id": 3}, {"role_id": 19, "duty_id": 4}, {"role_id": 20, "duty_id": 1}, {"role_id": 20, "duty_id": 2}, {"role_id": 21, "duty_id": 0}, {"role_id": 21, "duty_id": 1}]
+}, {
+"id": "customer_knowledge", "display_name": "Customer knowledge base", "owner_role_id": 6, "maintainer_role_id": 8, "duties": [{"role_id": 6, "duty_id": 1}]
+}, {
+"id": "knowledge_search", "display_name": "Knowledge search", "owner_role_id": 6, "maintainer_role_id": 8, "duties": [{"role_id": 6, "duty_id": 1}]
+}, {
+"id": "code_editor", "display_name": "Code editor", "owner_role_id": 8, "maintainer_role_id": null, "duties": [{"role_id": 3, "duty_id": 1}]
+}, {
+"id": "project_files", "display_name": "Project files", "owner_role_id": 9, "maintainer_role_id": 8, "duties": [{"role_id": 3, "duty_id": 1}]
+}, {
+"id": "website_preview", "display_name": "Website preview", "owner_role_id": 3, "maintainer_role_id": 8, "duties": [{"role_id": 3, "duty_id": 1}]
+}, {
+"id": "website_testing", "display_name": "Website testing", "owner_role_id": 3, "maintainer_role_id": 8, "duties": [{"role_id": 3, "duty_id": 1}, {"role_id": 3, "duty_id": 3}]
+}, {
+"id": "calendar", "display_name": "Calendar and scheduling", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 4}, {"role_id": 7, "duty_id": 1}]
+}, {
+"id": "visitor_register", "display_name": "Visitor and delivery register", "owner_role_id": 1, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 1}, {"role_id": 1, "duty_id": 5}, {"role_id": 1, "duty_id": 6}]
+}, {
+"id": "company_guidance", "display_name": "Company policies and procedures", "owner_role_id": 18, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 8}, {"role_id": 6, "duty_id": 5}, {"role_id": 10, "duty_id": 3}, {"role_id": 11, "duty_id": 4}, {"role_id": 12, "duty_id": 1}, {"role_id": 12, "duty_id": 4}, {"role_id": 18, "duty_id": 2}]
+}, {
+"id": "document_editor", "display_name": "Document editing and filing", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 1, "duty_id": 7}, {"role_id": 4, "duty_id": 1}, {"role_id": 4, "duty_id": 4}, {"role_id": 5, "duty_id": 2}, {"role_id": 5, "duty_id": 3}, {"role_id": 6, "duty_id": 2}, {"role_id": 7, "duty_id": 5}, {"role_id": 9, "duty_id": 3}, {"role_id": 12, "duty_id": 2}, {"role_id": 12, "duty_id": 3}, {"role_id": 19, "duty_id": 0}, {"role_id": 20, "duty_id": 3}]
+}, {
+"id": "work_coordination", "display_name": "Work and request tracking", "owner_role_id": 10, "maintainer_role_id": 8, "duties": [{"role_id": 2, "duty_id": 0}, {"role_id": 2, "duty_id": 2}, {"role_id": 7, "duty_id": 2}, {"role_id": 8, "duty_id": 0}, {"role_id": 10, "duty_id": 0}, {"role_id": 10, "duty_id": 1}, {"role_id": 10, "duty_id": 2}, {"role_id": 15, "duty_id": 2}, {"role_id": 16, "duty_id": 2}, {"role_id": 18, "duty_id": 1}, {"role_id": 21, "duty_id": 3}, {"role_id": 21, "duty_id": 4}]
+}, {
+"id": "service_records", "display_name": "Service commitments and results", "owner_role_id": 2, "maintainer_role_id": 8, "duties": [{"role_id": 2, "duty_id": 1}, {"role_id": 2, "duty_id": 4}, {"role_id": 15, "duty_id": 4}, {"role_id": 18, "duty_id": 3}]
+}, {
+"id": "customer_records", "display_name": "Customer and prospect records", "owner_role_id": 15, "maintainer_role_id": 8, "duties": [{"role_id": 5, "duty_id": 1}, {"role_id": 15, "duty_id": 1}, {"role_id": 20, "duty_id": 0}, {"role_id": 20, "duty_id": 4}, {"role_id": 21, "duty_id": 2}]
+}, {
+"id": "knowledge_base", "display_name": "Company knowledge base", "owner_role_id": 6, "maintainer_role_id": 8, "duties": [{"role_id": 6, "duty_id": 2}, {"role_id": 6, "duty_id": 3}, {"role_id": 6, "duty_id": 4}]
+}, {
+"id": "design_editor", "display_name": "Visual design and review", "owner_role_id": 4, "maintainer_role_id": 8, "duties": [{"role_id": 3, "duty_id": 2}, {"role_id": 4, "duty_id": 2}, {"role_id": 4, "duty_id": 3}]
+}, {
+"id": "it_support", "display_name": "IT support and device administration", "owner_role_id": 8, "maintainer_role_id": null, "duties": [{"role_id": 8, "duty_id": 1}, {"role_id": 8, "duty_id": 2}]
+}, {
+"id": "access_management", "display_name": "Account and access management", "owner_role_id": 8, "maintainer_role_id": null, "duties": [{"role_id": 6, "duty_id": 5}, {"role_id": 8, "duty_id": 3}]
+}, {
+"id": "development_workspace", "display_name": "Software development and testing", "owner_role_id": 9, "maintainer_role_id": 8, "duties": [{"role_id": 9, "duty_id": 0}, {"role_id": 9, "duty_id": 1}, {"role_id": 9, "duty_id": 2}]
+}, {
+"id": "people_records", "display_name": "Recruitment and employee records", "owner_role_id": 11, "maintainer_role_id": 8, "duties": [{"role_id": 11, "duty_id": 0}, {"role_id": 11, "duty_id": 1}, {"role_id": 11, "duty_id": 2}, {"role_id": 11, "duty_id": 3}]
+}, {
+"id": "legal_reference", "display_name": "Legal and regulatory reference", "owner_role_id": 12, "maintainer_role_id": 8, "duties": [{"role_id": 12, "duty_id": 0}, {"role_id": 12, "duty_id": 3}]
+}, {
+"id": "sales_planning", "display_name": "Sales planning and activity", "owner_role_id": 13, "maintainer_role_id": 8, "duties": [{"role_id": 13, "duty_id": 0}, {"role_id": 13, "duty_id": 1}, {"role_id": 13, "duty_id": 2}, {"role_id": 13, "duty_id": 3}, {"role_id": 13, "duty_id": 4}]
+}, {
+"id": "marketing_planning", "display_name": "Marketing planning and campaigns", "owner_role_id": 14, "maintainer_role_id": 8, "duties": [{"role_id": 14, "duty_id": 0}, {"role_id": 14, "duty_id": 1}, {"role_id": 14, "duty_id": 2}, {"role_id": 14, "duty_id": 4}]
+}, {
+"id": "product_planning", "display_name": "Product planning", "owner_role_id": 16, "maintainer_role_id": 8, "duties": [{"role_id": 16, "duty_id": 0}, {"role_id": 16, "duty_id": 1}, {"role_id": 16, "duty_id": 4}]
+}, {
+"id": "financial_planning", "display_name": "Financial planning and reporting", "owner_role_id": 17, "maintainer_role_id": 8, "duties": [{"role_id": 17, "duty_id": 0}, {"role_id": 17, "duty_id": 1}, {"role_id": 17, "duty_id": 2}, {"role_id": 17, "duty_id": 3}, {"role_id": 17, "duty_id": 4}, {"role_id": 19, "duty_id": 2}]
+}, {
+"id": "leadership_planning", "display_name": "Leadership planning and review", "owner_role_id": 19, "maintainer_role_id": 8, "duties": [{"role_id": 15, "duty_id": 0}, {"role_id": 18, "duty_id": 0}, {"role_id": 18, "duty_id": 4}, {"role_id": 19, "duty_id": 1}, {"role_id": 19, "duty_id": 3}]
+}])

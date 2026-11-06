@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="CaseMaterial"]
+albedo_color = Color(0.19, 0.23, 0.28, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="LightMaterial"]
+albedo_color = Color(0.38, 0.72, 0.68, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="CaseMesh"]
+material = SubResource("CaseMaterial")
+size = Vector3(0.18, 0.42, 0.38)
+
+[sub_resource type="BoxMesh" id="LightMesh"]
+material = SubResource("LightMaterial")
+size = Vector3(0.025, 0.025, 0.01)
+
+[node name="DevelopmentWorkstation" type="Node3D"]
+
+[node name="Tower" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.21, 0)
+mesh = SubResource("CaseMesh")
+
+[node name="Status" type="MeshInstance3D" parent="."]
+position = Vector3(0.055, 0.34, 0.195)
+mesh = SubResource("LightMesh")

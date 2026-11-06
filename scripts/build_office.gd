@@ -80,6 +80,15 @@ func _light(parent: Node3D, pos: Vector3) -> void:
 	light.owner = building
 
 
+func _hardware(parent: Node3D, scene_path: String, node_name: String, pos: Vector3) -> void:
+	var scene := load(scene_path) as PackedScene
+	var instance := scene.instantiate() as Node3D
+	instance.name = node_name
+	instance.position = pos
+	parent.add_child(instance)
+	instance.owner = building
+
+
 func _person_placeholder(parent: Node3D, node_name: String, title: String, pos: Vector3, label_angle: float) -> void:
 	# Room and desk order describe available seats, not assigned employees.
 	var marker := Marker3D.new()
@@ -147,6 +156,10 @@ func _department(parent: Node3D, title: String, center: Vector3, angle: float, r
 		_box(department, "DeskReturn%d" % (i + 1), Vector3(1.5, 0.12, 0.55), Vector3((desk_x + person_x) / 2.0, 0.75, -2.55), "c5b29c")
 		_box(department, "DeskLeg%d" % (i + 1), Vector3(0.1, 0.7, 0.1), Vector3(desk_x, 0.35, -1.3), "737e87")
 		_box(department, "Monitor%d" % (i + 1), Vector3(0.08, 0.5, 0.7), Vector3(desk_x - side * 0.4, 1.15, -1.65), "303b48")
+		if roles[i] in ["WEBSITE DEVELOPER", "ENGINEER"]:
+			_hardware(department, "res://scenes/hardware/development_workstation.tscn", "DevelopmentWorkstation%d" % (i + 1), Vector3(desk_x, 0.0, -2.42))
+		else:
+			_hardware(department, "res://scenes/hardware/thin_client.tscn", "ThinClient%d" % (i + 1), Vector3(desk_x, 0.81, -2.15))
 		_box(department, "Files%d" % (i + 1), Vector3(0.45, 0.3, 0.35), Vector3(person_x, 0.98, -2.55), "737e87")
 		_person_placeholder(department, "StaffPlaceholder%d" % (i + 1), roles[i], Vector3(person_x, 0, -1.4), -side * PI / 2.0)
 	_light(department, Vector3(0, 2.75, 0))
@@ -223,6 +236,8 @@ func _build_wings() -> void:
 	_box(hub, "DepartmentLintel", Vector3(0.2, 0.6, 3), Vector3(-5, 2.7, 3), "ddd9ce", true)
 	_box(hub, "ReceptionDesk", Vector3(2.2, 1, 0.8), Vector3(-2.6, 0.5, -2.8), "a38a72", true)
 	_box(hub, "ReceptionTop", Vector3(2.35, 0.1, 0.9), Vector3(-2.6, 1.05, -2.8), "e5e0d4")
+	_box(hub, "ReceptionMonitor", Vector3(0.65, 0.42, 0.08), Vector3(-2.6, 1.36, -2.96), "303b48")
+	_hardware(hub, "res://scenes/hardware/thin_client.tscn", "ReceptionThinClient", Vector3(-2.0, 1.1, -2.8))
 	_label(hub, "RECEPTION", Vector3(-2.6, 0.65, -2.34), 0.004)
 	_person_placeholder(hub, "ReceptionistPlaceholder", "RECEPTIONIST", Vector3(-2.6, 0, -3.8), 0.0)
 	_label(hub, "PROJECTS / RESEARCH", Vector3(0, 2.65, -4.88), 0.003)
@@ -351,6 +366,27 @@ func _build_wings() -> void:
 	_department(departments, "IT Engineering and Operations", Vector3(7, 0, -22), 0.0, ["IT", "ENGINEER", "ENGINEER", "OPERATIONS"], 24.0)
 	_department(departments, "People HR and Legal", Vector3(23, 0, -22), 0.0, ["PEOPLE AND HR", "LEGAL AND COMPLIANCE"])
 	_box(departments, "CommonNorthWall", Vector3(8, 3, 0.2), Vector3(31, 1.5, -19), "ddd9ce", true)
+	# The closet occupies the unused west end inside the IT/engineering office.
+	var closet := Node3D.new()
+	closet.name = "NetworkCloset"
+	departments.get_node("ITEngineeringandOperations").add_child(closet)
+	closet.owner = building
+	_box(closet, "GlassSide", Vector3(0.08, 3, 3.6), Vector3(-8.7, 1.5, -1.2), "a5c6d1", true)
+	_box(closet, "GlassFrontLeft", Vector3(1.1, 3, 0.08), Vector3(-11.45, 1.5, 0.6), "a5c6d1", true)
+	_box(closet, "GlassFrontRight", Vector3(0.7, 3, 0.08), Vector3(-9.05, 1.5, 0.6), "a5c6d1", true)
+	for x in [-12.0, -10.9, -9.4, -8.7]:
+		# Keep the frame faces clear of the lintel's coplanar front and back.
+		_box(closet, "FrontFrame", Vector3(0.1, 3, 0.14), Vector3(x, 1.5, 0.62), "737e87")
+	for y in [0.03, 2.97]:
+		_box(closet, "SideRail", Vector3(0.14, 0.06, 3.6), Vector3(-8.7, y, -1.2), "737e87")
+		_box(closet, "FrontLeftRail", Vector3(1.1, 0.06, 0.14), Vector3(-11.45, y, 0.6), "737e87")
+		_box(closet, "FrontRightRail", Vector3(0.7, 0.06, 0.14), Vector3(-9.05, y, 0.6), "737e87")
+	_box(closet, "EntryLintel", Vector3(1.5, 0.6, 0.14), Vector3(-10.15, 2.7, 0.6), "ddd9ce", true)
+	_box(closet, "GlassDoorOpen", Vector3(0.08, 2.3, 1.4), Vector3(-9.4, 1.15, -0.1), "a5c6d1")
+	_label(closet, "NETWORK", Vector3(-10.15, 2.65, 0.73), 0.003)
+	_hardware(closet, "res://scenes/hardware/server_rack.tscn", "ServerRack", Vector3(-11.1, 0, -2.45))
+	_box(closet, "NetworkSwitch", Vector3(0.6, 0.18, 0.22), Vector3(-9.15, 1.6, -2.75), "303b48")
+	_light(closet, Vector3(-10.15, 2.7, -1.2))
 	_department(departments, "Sales Support and Marketing", Vector3(3, 0, 8), PI, ["SALES MANAGER", "MARKETING MANAGER", "CLIENT SERVICES MANAGER", "PRODUCT MANAGER"], 16.0)
 	_department(departments, "CFO", Vector3(23, 0, 8), PI, ["CFO"])
 	_department(departments, "COO", Vector3(31, 0, 8), PI, ["COO"])
@@ -388,6 +424,7 @@ func _build_wings() -> void:
 				for leg_x in [-0.7, 0.7]:
 					_box(cubicle, "DeskLeg", Vector3(0.1, 0.7, 0.1), Vector3(leg_x, 0.35, -side * 0.95), "737e87")
 				_box(cubicle, "Monitor", Vector3(0.7, 0.45, 0.08), Vector3(0, 1.15, -side * 1.15), "303b48")
+				_hardware(cubicle, "res://scenes/hardware/thin_client.tscn", "ThinClient", Vector3(0.55, 0.81, -side * 0.95))
 				if filled < team_staff[i]:
 					_person_placeholder(cubicle, "StaffPlaceholder", teams[i].to_upper(), Vector3.ZERO, 0.0 if side > 0 else PI)
 					filled += 1
@@ -422,6 +459,7 @@ func _build_wings() -> void:
 			_box(departments, "CEODeskLeg", Vector3(0.1, 0.7, 0.1), Vector3(39.3 + dx, 0.35, -13 + dz), "737e87")
 	_box(departments, "CEODeskReturn", Vector3(2, 0.12, 0.6), Vector3(40.5, 0.75, -14), "c5b29c")
 	_box(departments, "CEOMonitor", Vector3(0.08, 0.5, 0.8), Vector3(39, 1.15, -13), "303b48")
+	_hardware(departments, "res://scenes/hardware/thin_client.tscn", "CEOThinClient", Vector3(39.3, 0.81, -13.7))
 	_box(departments, "CEOFiles", Vector3(0.5, 0.35, 0.4), Vector3(41.1, 0.98, -14), "737e87")
 	_person_placeholder(departments, "StaffPlaceholderCEO", "CEO", Vector3(41.5, 0, -13), PI / 2.0)
 	_box(departments, "CEOBoard", Vector3(0.08, 1.4, 3), Vector3(42.85, 1.8, -13), "e5e9e9")

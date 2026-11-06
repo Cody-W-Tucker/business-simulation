@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="CaseMaterial"]
+albedo_color = Color(0.19, 0.23, 0.28, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="PanelMaterial"]
+albedo_color = Color(0.45, 0.49, 0.53, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="CabinetMesh"]
+material = SubResource("CaseMaterial")
+size = Vector3(0.7, 1.8, 0.8)
+
+[sub_resource type="BoxMesh" id="PanelMesh"]
+material = SubResource("PanelMaterial")
+size = Vector3(0.58, 0.16, 0.025)
+
+[sub_resource type="BoxShape3D" id="CabinetShape"]
+size = Vector3(0.7, 1.8, 0.8)
+
+[node name="ServerRack" type="StaticBody3D"]
+
+[node name="Cabinet" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.9, 0)
+mesh = SubResource("CabinetMesh")
+
+[node name="Panel1" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.48, 0.41)
+mesh = SubResource("PanelMesh")
+
+[node name="Panel2" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.2, 0.41)
+mesh = SubResource("PanelMesh")
+
+[node name="Panel3" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.92, 0.41)
+mesh = SubResource("PanelMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("CabinetShape")
