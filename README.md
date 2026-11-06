@@ -88,8 +88,9 @@ Departments. Sales and Client Services share the bullpen in tall, single-entry
 cubicles. Sales and client services managers share a four-person office with marketing and
 the product manager. IT, engineering and operations share an expanded office on
 the north row, next to HR/legal; the CFO and COO remain on the opposite
-side of the bullpen. Shared offices have divided workstations and
-bullpen-facing data boards. A smaller
+side of the bullpen. Equipment props and the glass network closet beside IT are
+described in [`scenes/hardware/README.md`](scenes/hardware/README.md).
+Shared offices have divided workstations and bullpen-facing data boards. A smaller
 glass-fronted conference room connects directly to the CEO's private office,
 which also opens into the bullpen. A receptionist placeholder stands behind the
 reception desk. Figures and placeholder monitors do not have their own interaction yet. The
@@ -100,14 +101,18 @@ revenue-per-employee scenarios. It does not represent a financial forecast.
 
 ### Employees and locations
 
-`data/employee_roster.tres` is the editable list of 26 fictional employees.
-Each record has a numeric `id`, display name, description, department, room, and
-`manager_id` (zero for the single top-level employee, currently the CEO).
-Managers must exist and reporting cannot form a cycle.
+`data/employee_roster.tres` defines reusable job roles in `employees` and maps
+role IDs to individual employee IDs in `staffing`. An omitted staffing entry
+defaults to one employee with the role's ID. Each role has a numeric `id`, display
+name, description, department, room, and `manager_id`. The latter references an
+individual employee, not a role (zero for the single top-level employee).
+`roster.staffed_employees()` expands these definitions, returning each employee's
+individual `id` and shared `role_id`. Managers must exist and reporting cannot
+form a cycle.
 `EmployeeDirectory.get_direct_reports(id)` returns roster-derived direct reports
 in numeric ID order.
-IDs identify employees and their future agents: never change or reuse an ID for
-another employee. Department identifies peers; room determines where someone
+Role and employee IDs are separate stable identifiers: never renumber or reuse
+either for another role or employee. Department identifies peers; room determines where someone
 works. They are independent, so colleagues can work in different rooms and a room
 can contain several departments.
 
@@ -128,15 +133,37 @@ the roster. Assignments can change when the roster or desks change.
 node; its `global_position` is the current world position. Unknown or unplaced
 characters return null. `roster.desired_agents()` returns every employee ID in
 numeric order, independent of roster order. This is an inventory only: no AI
-backend, communication rules, movement, or employee-state persistence exists yet.
+backend, automated communication routing, employee movement, or employee-state
+persistence exists yet.
 The COO oversees Operations, Client Services, and Service Delivery. Engineers
 report through Operations; Product and Service Delivery must request and obtain
 approval for their work through that chain. This is an organizational policy,
 not an implemented approval or task-routing system.
 
-For current employee IDs and reporting relationships, use the `manager_id`
-records in [`data/employee_roster.tres`](data/employee_roster.tres) rather than a
-separate org chart.
+For current staffing and reporting relationships, use
+[`data/employee_roster.tres`](data/employee_roster.tres) rather than a separate org
+chart.
+
+### Duties, tools, and planning maps
+
+[`data/duty_roster.tres`](data/duty_roster.tres) contains sourced duty lists keyed
+by `role_id`; its `employees` field contains role entries, not individual staff.
+`duties_for_role(role_id)` returns the shared duties. Duty IDs are stable within
+a role, so references use the pair `(role_id, duty_id)`.
+
+[`data/tool_roster.tres`](data/tool_roster.tres) maps functional tools to supported
+duties and responsible roles; `tools_for_duty(role_id, duty_id)` returns matching
+tools. Ownership and maintenance semantics are defined in
+[`scripts/tool_roster.gd`](scripts/tool_roster.gd).
+[`data/hardware_roster.tres`](data/hardware_roster.tres) records the planned
+shared infrastructure and client allocation by role.
+[`data/communication_roster.tres`](data/communication_roster.tres) records
+exception situations, proposed role handoff paths, and guidance.
+
+These are initial, non-exhaustive planning approximations, not implemented AI
+agents, granted permissions, provisioned services, or live integrations. Tool
+support implies neither mandatory use nor permission; communication paths do not
+execute approvals or routing.
 
 ### Add a community asset or plugin
 

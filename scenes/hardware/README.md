@@ -11,5 +11,6 @@ are placed by that builder; the committed office scene is the generated result.
 
 The upstairs network closet sits inside the west end of the IT and engineering
 office, reusing its floor, ceiling, and exterior walls. Glass partitions enclose
-it, with a 1.5-metre entrance, an open glass door, and a collidable server rack.
+it, with a 1.4-metre clear entrance between frame posts, an open glass door, and
+a collidable server rack.
 The office smoke test checks the equipment counts, doorway, and glass collision.
