@@ -375,13 +375,12 @@ func _build_wings() -> void:
 	_box(closet, "GlassFrontLeft", Vector3(1.1, 3, 0.08), Vector3(-11.45, 1.5, 0.6), "a5c6d1", true)
 	_box(closet, "GlassFrontRight", Vector3(0.7, 3, 0.08), Vector3(-9.05, 1.5, 0.6), "a5c6d1", true)
 	for x in [-12.0, -10.9, -9.4, -8.7]:
-		# Keep the frame faces clear of the lintel's coplanar front and back.
 		_box(closet, "FrontFrame", Vector3(0.1, 3, 0.14), Vector3(x, 1.5, 0.62), "737e87")
 	for y in [0.03, 2.97]:
-		_box(closet, "SideRail", Vector3(0.14, 0.06, 3.6), Vector3(-8.7, y, -1.2), "737e87")
-		_box(closet, "FrontLeftRail", Vector3(1.1, 0.06, 0.14), Vector3(-11.45, y, 0.6), "737e87")
-		_box(closet, "FrontRightRail", Vector3(0.7, 0.06, 0.14), Vector3(-9.05, y, 0.6), "737e87")
-	_box(closet, "EntryLintel", Vector3(1.5, 0.6, 0.14), Vector3(-10.15, 2.7, 0.6), "ddd9ce", true)
+		_box(closet, "SideRail", Vector3(0.14, 0.06, 3.53), Vector3(-8.7, y, -1.235), "737e87")
+		_box(closet, "FrontLeftRail", Vector3(1.0, 0.06, 0.14), Vector3(-11.45, y, 0.6), "737e87")
+		_box(closet, "FrontRightRail", Vector3(0.6, 0.06, 0.14), Vector3(-9.05, y, 0.6), "737e87")
+	_box(closet, "EntryLintel", Vector3(1.4, 0.6, 0.14), Vector3(-10.15, 2.7, 0.6), "ddd9ce", true)
 	_box(closet, "GlassDoorOpen", Vector3(0.08, 2.3, 1.4), Vector3(-9.4, 1.15, -0.1), "a5c6d1")
 	_label(closet, "NETWORK", Vector3(-10.15, 2.65, 0.73), 0.003)
 	_hardware(closet, "res://scenes/hardware/server_rack.tscn", "ServerRack", Vector3(-11.1, 0, -2.45))

@@ -59,13 +59,22 @@ func _run() -> void:
 		_fail("The network closet must contain a collidable server rack and switch")
 		return
 	var closet := office.get_node("DepartmentsWing/ITEngineeringandOperations/NetworkCloset")
-	var closet_frame := closet.get_node("FrontFrame") as MeshInstance3D
-	var closet_lintel := closet.get_node("EntryLintel") as MeshInstance3D
-	var frame_front := closet_frame.position.z + (closet_frame.mesh as BoxMesh).size.z / 2.0
-	var lintel_front := closet_lintel.position.z + (closet_lintel.mesh as BoxMesh).size.z / 2.0
-	if frame_front - lintel_front < 0.01:
-		_fail("Network closet frame and lintel have coplanar faces")
+	var closet_frames: Array[MeshInstance3D] = []
+	var frame_material := (closet.get_node("FrontFrame") as MeshInstance3D).get_active_material(0)
+	for child in closet.get_children():
+		if child is MeshInstance3D and (child.get_active_material(0) == frame_material or child.name == "EntryLintel"):
+			closet_frames.append(child)
+	if closet_frames.size() != 11:
+		_fail("Network closet must retain all posts, rails and its lintel")
 		return
+	for i in range(closet_frames.size()):
+		var bounds: AABB = closet_frames[i].transform * closet_frames[i].get_aabb()
+		for j in range(i + 1, closet_frames.size()):
+			var other_bounds: AABB = closet_frames[j].transform * closet_frames[j].get_aabb()
+			var overlap := bounds.intersection(other_bounds)
+			if overlap.size.x > 0.00001 and overlap.size.y > 0.00001 and overlap.size.z > 0.00001:
+				_fail("Network closet frame meshes overlap: %s and %s (%s, %s)" % [closet_frames[i].name, closet_frames[j].name, bounds, other_bounds])
+				return
 	var threshold_wall: MeshInstance3D = office.get_node("DepartmentStairs/EastMiddleWall")
 	var upper_floor: MeshInstance3D = office.get_node("DepartmentsWing/DepartmentsCommonFloor")
 	var wall_top := threshold_wall.global_position.y + (threshold_wall.mesh as BoxMesh).size.y / 2.0
