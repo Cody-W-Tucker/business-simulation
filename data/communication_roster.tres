@@ -1,0 +1,19 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/communication_roster.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+routes = Array[Dictionary]([{
+"id": "delivery_engineering_request", "situation": "Customer delivery requires engineering work outside the delivery team's scope.",
+"role_path": [2, 18, 10, 9], "guidance": "Service Delivery Manager asks the COO to coordinate with Operations; Operations involves engineering after appropriate review and approval."
+}, {
+"id": "customer_financial_issue", "situation": "A customer request requires a financial decision outside client services authority.",
+"role_path": [21, 15, 18, 17], "guidance": "The representative raises the issue to the Client Services Manager, who seeks coordination through the COO with the CFO."
+}, {
+"id": "delivery_legal_issue", "situation": "Delivery encounters a contract or compliance concern outside its authority.",
+"role_path": [2, 18, 17, 12], "guidance": "The Service Delivery Manager raises the concern to the COO, who coordinates with the CFO and Legal and Compliance."
+}, {
+"id": "unclear_customer_request", "situation": "Reception cannot confidently identify the owner of a customer request.",
+"role_path": [1, 15], "guidance": "The receptionist asks the Client Services Manager to determine the appropriate next handoff."
+}])

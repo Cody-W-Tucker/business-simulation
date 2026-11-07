@@ -52,6 +52,29 @@ func _run() -> void:
 	if office == null or office.get_node_or_null("ProjectsResearchWing") == null or office.get_node_or_null("DepartmentsWing") == null:
 		_fail("Office or placeholder monitors missing")
 		return
+	if office.find_children("*ThinClient*", "Node3D", true, false).size() != 23 or office.find_children("*DevelopmentWorkstation*", "Node3D", true, false).size() != 3:
+		_fail("The office must contain 23 thin clients and three development workstations")
+		return
+	if office.get_node_or_null("DepartmentsWing/ITEngineeringandOperations/NetworkCloset/ServerRack/CollisionShape3D") == null or office.get_node_or_null("DepartmentsWing/ITEngineeringandOperations/NetworkCloset/NetworkSwitch") == null:
+		_fail("The network closet must contain a collidable server rack and switch")
+		return
+	var closet := office.get_node("DepartmentsWing/ITEngineeringandOperations/NetworkCloset")
+	var closet_frames: Array[MeshInstance3D] = []
+	var frame_material := (closet.get_node("FrontFrame") as MeshInstance3D).get_active_material(0)
+	for child in closet.get_children():
+		if child is MeshInstance3D and (child.get_active_material(0) == frame_material or child.name == "EntryLintel"):
+			closet_frames.append(child)
+	if closet_frames.size() != 11:
+		_fail("Network closet must retain all posts, rails and its lintel")
+		return
+	for i in range(closet_frames.size()):
+		var bounds: AABB = closet_frames[i].transform * closet_frames[i].get_aabb()
+		for j in range(i + 1, closet_frames.size()):
+			var other_bounds: AABB = closet_frames[j].transform * closet_frames[j].get_aabb()
+			var overlap := bounds.intersection(other_bounds)
+			if overlap.size.x > 0.00001 and overlap.size.y > 0.00001 and overlap.size.z > 0.00001:
+				_fail("Network closet frame meshes overlap: %s and %s (%s, %s)" % [closet_frames[i].name, closet_frames[j].name, bounds, other_bounds])
+				return
 	var threshold_wall: MeshInstance3D = office.get_node("DepartmentStairs/EastMiddleWall")
 	var upper_floor: MeshInstance3D = office.get_node("DepartmentsWing/DepartmentsCommonFloor")
 	var wall_top := threshold_wall.global_position.y + (threshold_wall.mesh as BoxMesh).size.y / 2.0
@@ -227,6 +250,11 @@ func _run() -> void:
 			return
 	# Check openings and adjacent solid walls, using the actual player capsule.
 	for route in [
+		[Vector3(246.85, 4, -20), Vector3(0, 0, -3), false],
+		[Vector3(246.85, 4, -23), Vector3(0, 0, 3), false],
+		[Vector3(249, 4, -22), Vector3(-1.2, 0, 0), true],
+		[Vector3(247.2, 4, -14.5), Vector3(0, 0, -3), false],
+		[Vector3(281.2, 4, -14.5), Vector3(0, 0, -3), false],
 		[Vector3(254, 0, 0), Vector3(2, 0, 0), false],
 		[Vector3(254, 0, 3.5), Vector3(2, 0, 0), false],
 		[Vector3(256, 0, 3.5), Vector3(-2, 0, 0), false],

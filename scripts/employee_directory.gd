@@ -16,7 +16,7 @@ func initialize(office: Node3D, definitions: Resource) -> bool:
 		for error in errors:
 			push_error(error)
 		return false
-	var sorted: Array = roster.employees.duplicate()
+	var sorted: Array = roster.staffed_employees()
 	sorted.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)
 	var next_desk := {}
 	for employee in sorted:
@@ -42,7 +42,7 @@ func validate(office: Node3D, definitions: Resource) -> bool:
 	for room in desks:
 		desks[room].sort_custom(func(a: Marker3D, b: Marker3D) -> bool: return a.get_meta("desk_number") < b.get_meta("desk_number"))
 	var by_id := {}
-	for employee in roster.employees:
+	for employee in roster.staffed_employees():
 		var id = employee.get("id")
 		if not id is int or id <= 0 or by_id.has(id):
 			errors.append("Invalid or duplicate employee ID: " + str(id))
@@ -52,7 +52,7 @@ func validate(office: Node3D, definitions: Resource) -> bool:
 			if not employee.get(field) is String or String(employee.get(field, "")).strip_edges().is_empty():
 				errors.append("Missing %s for employee %s" % [field, str(id)])
 	var roots := 0
-	for employee in roster.employees:
+	for employee in roster.staffed_employees():
 		var manager = employee.get("manager_id")
 		if not manager is int or manager < 0 or (manager != 0 and not by_id.has(manager)):
 			errors.append("Invalid manager for employee %s" % str(employee.get("id")))
@@ -90,7 +90,7 @@ func _index_desks(node: Node) -> void:
 
 
 func get_employee(id: int) -> Dictionary:
-	for employee in roster.employees:
+	for employee in roster.staffed_employees():
 		if employee.get("id") == id:
 			return employee.duplicate(true)
 	return {}
@@ -98,7 +98,7 @@ func get_employee(id: int) -> Dictionary:
 
 func get_direct_reports(manager_id: int) -> Array[Dictionary]:
 	var reports: Array[Dictionary] = []
-	for employee in roster.employees:
+	for employee in roster.staffed_employees():
 		if employee.get("manager_id") == manager_id:
 			reports.append(employee.duplicate(true))
 	reports.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)

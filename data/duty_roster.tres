@@ -1,0 +1,181 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/duty_roster.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+employees = Array[Dictionary]([{
+"role_id": 1, "sources": ["https://www.bls.gov/ooh/office-and-administrative-support/receptionists.htm"], "duties": [
+{"id": 0, "name": "Call handling", "description": "Answer, screen, and direct telephone calls; take and deliver messages."},
+{"id": 1, "name": "Visitor reception", "description": "Greet visitors, check them in, and direct them to their destinations."},
+{"id": 2, "name": "Visitor notifications", "description": "Notify employees when visitors arrive or appointments are canceled."},
+{"id": 3, "name": "General inquiries", "description": "Answer general inquiries and direct more complex requests to the appropriate person."},
+{"id": 4, "name": "Appointments and calendars", "description": "Schedule and confirm appointments and maintain relevant calendars."},
+{"id": 5, "name": "Correspondence and deliveries", "description": "Handle incoming and outgoing correspondence, mail, and deliveries."},
+{"id": 6, "name": "Contact and visitor records", "description": "Enter and update customer and visitor information as appropriate."},
+{"id": 7, "name": "Document filing", "description": "Copy, file, and maintain paper and electronic documents."},
+{"id": 8, "name": "Reception area and privacy", "description": "Keep the reception area organized and follow visitor access and confidentiality procedures."}
+]
+}, {
+"role_id": 2, "sources": ["https://academy.capgemini.com/insights/role-service-delivery-manager", "https://xerox.avature.net/en_US/careers/JobDetail/Service-Delivery-Manager-Baltimore-MD/47040"], "duties": [
+{"id": 0, "name": "Lead delivery team", "description": "Lead the customer delivery team and coordinate service delivery work."},
+{"id": 1, "name": "Service quality", "description": "Monitor service quality and delivery against customer commitments."},
+{"id": 2, "name": "Resolve delivery issues", "description": "Coordinate with project managers and specialists to resolve delivery issues."},
+{"id": 3, "name": "Delivery updates", "description": "Communicate delivery progress, risks, and issues to customers and leadership."},
+{"id": 4, "name": "Improve delivery", "description": "Review service performance and identify improvements to delivery processes."}
+]
+}, {
+"role_id": 3, "sources": ["https://www.bls.gov/ooh/computer-and-information-technology/web-developers.htm"], "duties": [
+{"id": 0, "name": "Website requirements", "description": "Discuss website requirements and functionality with customers and colleagues."},
+{"id": 1, "name": "Website development", "description": "Build and maintain customer websites and their features."},
+{"id": 2, "name": "Integrate content and design", "description": "Integrate content and designs in collaboration with the project team."},
+{"id": 3, "name": "Website testing", "description": "Test website functionality, identify errors, and make corrections."},
+{"id": 4, "name": "Technical updates", "description": "Communicate progress and technical issues to the project team."}
+]
+}, {
+"role_id": 4, "sources": ["https://www.bls.gov/ooh/arts-and-design/graphic-designers.htm", "https://www.expertia.ai/blogs/jd/graphic-designer-content-writer-job-description-52642o"], "duties": [
+{"id": 0, "name": "Content and design needs", "description": "Discuss content and design needs with customers and colleagues."},
+{"id": 1, "name": "Content writing", "description": "Write and edit customer content for its intended audience."},
+{"id": 2, "name": "Visual design", "description": "Create visual concepts, graphics, and layouts consistent with the customer's needs."},
+{"id": 3, "name": "Review and revisions", "description": "Present work for review and incorporate feedback."},
+{"id": 4, "name": "Quality review", "description": "Review content and designs for errors before delivery or publication."}
+]
+}, {
+"role_id": 5, "sources": ["https://www.bls.gov/ooh/business-and-financial/management-analysts.htm"], "duties": [
+{"id": 0, "name": "Customer needs", "description": "Meet with customers to understand their needs and objectives."},
+{"id": 1, "name": "Research and analysis", "description": "Gather and analyze information about customer problems and existing practices."},
+{"id": 2, "name": "Develop solutions", "description": "Develop and assess possible solutions or service approaches."},
+{"id": 3, "name": "Present recommendations", "description": "Present recommendations to customers in conversations or written reports."},
+{"id": 4, "name": "Delivery coordination", "description": "Coordinate with the delivery team and follow up on recommendations."}
+]
+}, {
+"role_id": 6, "sources": ["https://careers.bixal.com/jobs/695816-knowledge-management-specialist-service-delivery", "https://polaris.wd5.myworkdayjobs.com/en-US/PolarisJobs/job/Knowledge-Maagement-Specialist_R31142"], "duties": [
+{"id": 0, "name": "Gather knowledge", "description": "Gather knowledge from employees, customers, and subject-matter experts."},
+{"id": 1, "name": "Maintain knowledge", "description": "Create, organize, and maintain company and customer knowledge resources."},
+{"id": 2, "name": "Review knowledge", "description": "Review knowledge for accuracy, relevance, and clarity with appropriate contributors."},
+{"id": 3, "name": "Organize knowledge", "description": "Use categories and other organization methods to make information discoverable."},
+{"id": 4, "name": "Find knowledge gaps", "description": "Identify knowledge gaps and help people find and use relevant information."},
+{"id": 5, "name": "Information boundaries", "description": "Respect boundaries between internal and customer information."}
+]
+}, {
+"role_id": 7, "sources": ["https://www.bls.gov/ooh/business-and-financial/project-management-specialists.htm"], "duties": [
+{"id": 0, "name": "Discuss requirements", "description": "Discuss project requirements and objectives with customers."},
+{"id": 1, "name": "Project planning", "description": "Develop project plans, schedules, milestones, and resource needs."},
+{"id": 2, "name": "Coordinate assignments", "description": "Coordinate and assign project work with the delivery team."},
+{"id": 3, "name": "Monitor progress", "description": "Monitor progress and deliverables and address project issues."},
+{"id": 4, "name": "Project updates", "description": "Communicate project changes and status to customers and colleagues."},
+{"id": 5, "name": "Project documentation", "description": "Maintain project documents and coordinate project completion."}
+]
+}, {
+"role_id": 8, "sources": ["https://www.bls.gov/ooh/computer-and-information-technology/computer-support-specialists.htm", "https://www.indeed.com/hire/job-description/it-support"], "duties": [
+{"id": 0, "name": "Support requests", "description": "Respond to and document employee technology support requests."},
+{"id": 1, "name": "Troubleshooting", "description": "Diagnose and resolve hardware, software, and connectivity problems."},
+{"id": 2, "name": "Device and software setup", "description": "Set up and maintain employee computers and approved software."},
+{"id": 3, "name": "Account access", "description": "Set up accounts and manage access according to company procedures."},
+{"id": 4, "name": "User guidance", "description": "Explain solutions to users and escalate or report recurring problems."}
+]
+}, {
+"role_id": 9, "sources": ["https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm"], "duties": [
+{"id": 0, "name": "Engineering requirements", "description": "Understand requirements for internal systems and approved customer engineering work."},
+{"id": 1, "name": "Software development", "description": "Design and develop software changes to meet those requirements."},
+{"id": 2, "name": "Software testing", "description": "Test and maintain software and investigate defects."},
+{"id": 3, "name": "System documentation", "description": "Document systems and changes for future maintenance."},
+{"id": 4, "name": "Technical collaboration", "description": "Collaborate with colleagues on technical work and communicate issues."}
+]
+}, {
+"role_id": 10, "sources": ["https://storm2.com/resources/type/storm2-voice/how-to-move-from-operations-manager-to-coo/", "https://www.onetonline.org/link/summary/11-1021.00"], "duties": [
+{"id": 0, "name": "Coordinate operations", "description": "Coordinate day-to-day operational needs and requests across teams."},
+{"id": 1, "name": "Engineering requests", "description": "Coordinate engineering requests with IT, engineers, and relevant stakeholders."},
+{"id": 2, "name": "Resolve operational issues", "description": "Identify operational issues, help resolve them, and escalate when appropriate."},
+{"id": 3, "name": "Improve workflows", "description": "Review workflows and recommend improvements to operating procedures."},
+{"id": 4, "name": "Operational updates", "description": "Communicate operational priorities and progress to the COO and affected teams."}
+]
+}, {
+"role_id": 11, "sources": ["https://www.bls.gov/ooh/business-and-financial/human-resources-specialists.htm"], "duties": [
+{"id": 0, "name": "Recruitment", "description": "Identify staffing needs with relevant managers and support recruitment."},
+{"id": 1, "name": "Applicant screening", "description": "Screen and interview applicants and communicate job details."},
+{"id": 2, "name": "Employee onboarding", "description": "Support employee onboarding and orientation."},
+{"id": 3, "name": "Employment records", "description": "Maintain employment records and process people-related paperwork confidentially."},
+{"id": 4, "name": "Employee guidance", "description": "Answer employee questions about company policies and people procedures."}
+]
+}, {
+"role_id": 12, "sources": ["https://www.bls.gov/ooh/business-and-financial/compliance-officers.htm", "https://www.bls.gov/ooh/legal/lawyers.htm"], "duties": [
+{"id": 0, "name": "Regulatory monitoring", "description": "Monitor relevant legal and regulatory requirements."},
+{"id": 1, "name": "Review policies", "description": "Review company policies and procedures for compliance risks."},
+{"id": 2, "name": "Compliance issues", "description": "Assess and document compliance issues and recommend corrective actions."},
+{"id": 3, "name": "Legal review", "description": "Support reviews of agreements and other legal matters, involving qualified counsel as appropriate."},
+{"id": 4, "name": "Compliance guidance", "description": "Provide employees and leadership with guidance on company compliance procedures."}
+]
+}, {
+"role_id": 13, "sources": ["https://www.bls.gov/ooh/management/sales-managers.htm"], "duties": [
+{"id": 0, "name": "Lead sales team", "description": "Lead and support the sales team in finding and winning new business."},
+{"id": 1, "name": "Sales goals", "description": "Set sales goals and monitor progress with sales employees."},
+{"id": 2, "name": "Find customers", "description": "Develop approaches for reaching prospective customers."},
+{"id": 3, "name": "Review sales activity", "description": "Review sales activity and customer feedback to guide sales efforts."},
+{"id": 4, "name": "Resolve sales issues", "description": "Help resolve escalated sales issues and coordinate with other teams."}
+]
+}, {
+"role_id": 14, "sources": ["https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm"], "duties": [
+{"id": 0, "name": "Lead marketing", "description": "Lead marketing work and coordinate with content and design."},
+{"id": 1, "name": "Marketing campaigns", "description": "Plan campaigns and communications to reach prospective customers."},
+{"id": 2, "name": "Market research", "description": "Review customer and market information to guide marketing priorities."},
+{"id": 3, "name": "Coordinate marketing", "description": "Coordinate marketing plans and materials with sales and other teams."},
+{"id": 4, "name": "Campaign review", "description": "Review campaign results and recommend changes to marketing activity."}
+]
+}, {
+"role_id": 15, "sources": ["https://www.indeed.com/hire/job-description/client-services-manager", "https://app.ohr.psu.edu/JobCatalog/job/view/jobCode/PSU0851"], "duties": [
+{"id": 0, "name": "Lead client services", "description": "Lead and support the client services representatives."},
+{"id": 1, "name": "Customer relationships", "description": "Maintain customer relationships and understand customer needs."},
+{"id": 2, "name": "Customer concerns", "description": "Oversee customer requests and resolve or escalate complex concerns."},
+{"id": 3, "name": "Coordinate customer issues", "description": "Coordinate with delivery and other departments on customer issues."},
+{"id": 4, "name": "Service quality", "description": "Review customer feedback and service quality to improve the customer experience."}
+]
+}, {
+"role_id": 16, "sources": ["https://resources.workable.com/software-product-manager-job-description", "https://handbook.gitlab.com/job-description-library/product/product-manager/"], "duties": [
+{"id": 0, "name": "Gather product needs", "description": "Gather customer, business, and employee needs relevant to the product."},
+{"id": 1, "name": "Product priorities", "description": "Define product problems, requirements, and priorities in line with company goals."},
+{"id": 2, "name": "Coordinate engineering", "description": "Coordinate approved engineering work with engineers and operations."},
+{"id": 3, "name": "Product updates", "description": "Communicate product decisions and progress to stakeholders."},
+{"id": 4, "name": "Review features", "description": "Review delivered features and customer feedback to inform future priorities."}
+]
+}, {
+"role_id": 17, "sources": ["https://www.netsuite.com/portal/resource/articles/accounting/chief-financial-officer-cfo.shtml", "https://www.bls.gov/ooh/management/financial-managers.htm"], "duties": [
+{"id": 0, "name": "Financial leadership", "description": "Lead financial planning and management for the company."},
+{"id": 1, "name": "Budgets and forecasts", "description": "Develop budgets and forecasts with company leadership and departments."},
+{"id": 2, "name": "Financial results", "description": "Review financial results, cash flow, revenues, and expenses."},
+{"id": 3, "name": "Financial reporting", "description": "Oversee financial reporting and financial controls."},
+{"id": 4, "name": "Financial advice", "description": "Advise leadership on financial risks, resources, and business decisions."}
+]
+}, {
+"role_id": 18, "sources": ["https://www.iod.com/resources/company-structure/the-role-of-the-chief-operating-officer/", "https://www.indeed.com/hire/job-description/chief-operating-officer"], "duties": [
+{"id": 0, "name": "Lead operations", "description": "Lead company operations in support of the CEO's direction."},
+{"id": 1, "name": "Operational priorities", "description": "Coordinate operational priorities and resources across departments."},
+{"id": 2, "name": "Operational policies", "description": "Develop and oversee operational policies and procedures."},
+{"id": 3, "name": "Operational performance", "description": "Review operational performance, risks, and improvement opportunities."},
+{"id": 4, "name": "Supervise managers", "description": "Support and supervise reporting managers and coordinate with other executives."}
+]
+}, {
+"role_id": 19, "sources": ["https://www.bls.gov/ooh/management/print/top-executives.htm", "https://www.onetonline.org/link/summary/11-1011.00"], "duties": [
+{"id": 0, "name": "Company direction", "description": "Set the company's overall direction, goals, and policies."},
+{"id": 1, "name": "Executive leadership", "description": "Lead and coordinate the work of executives and department leaders."},
+{"id": 2, "name": "Company performance", "description": "Review company performance and make strategic decisions."},
+{"id": 3, "name": "Major approvals", "description": "Approve major plans, agreements, and resource decisions as appropriate."},
+{"id": 4, "name": "Represent company", "description": "Communicate company direction and represent the business to external stakeholders."}
+]
+}, {
+"role_id": 20, "sources": ["https://www.bls.gov/ooh/sales/wholesale-and-manufacturing-sales-representatives.htm"], "duties": [
+{"id": 0, "name": "Find prospects", "description": "Identify and contact prospective customers."},
+{"id": 1, "name": "Discuss customer needs", "description": "Discuss customer needs and explain relevant company services."},
+{"id": 2, "name": "Coordinate solutions", "description": "Answer questions and work with colleagues on proposed solutions."},
+{"id": 3, "name": "Sales proposals", "description": "Prepare proposals and discuss sales terms with customers."},
+{"id": 4, "name": "Sales follow-up", "description": "Record sales activity and follow up with customers and prospects."}
+]
+}, {
+"role_id": 21, "sources": ["https://www.bls.gov/ooh/office-and-administrative-support/customer-service-representatives.htm", "https://www.glassdoor.com/employers/Job-Descriptions/Client-Services-Representative"], "duties": [
+{"id": 0, "name": "Customer inquiries", "description": "Receive and respond to customer inquiries and requests."},
+{"id": 1, "name": "Service information", "description": "Explain company services and help address customer concerns."},
+{"id": 2, "name": "Customer records", "description": "Record customer interactions and actions taken."},
+{"id": 3, "name": "Route requests", "description": "Connect customer requests with the appropriate employee or team."},
+{"id": 4, "name": "Request follow-up", "description": "Follow up with customers and colleagues on outstanding requests."}
+]
+}])

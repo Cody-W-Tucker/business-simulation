@@ -1,0 +1,23 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/hardware_roster.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+hardware = Array[Dictionary]([{
+"id": "office_server", "name": "Shared office server", "quantity": 1, "owner_role_id": 10, "maintainer_role_id": 8,
+"purpose": "Hosts the shared tool services and storage, and is the preferred shared compute resource. Capacity is not yet specified or validated.",
+"hosts_all_tools": true, "role_ids": []
+}, {
+"id": "thin_client", "name": "Thin client", "quantity": "per_employee", "owner_role_id": 10, "maintainer_role_id": 8,
+"purpose": "Provides an employee interface to shared services; voice and video peripherals and external connectivity are assumed where needed.",
+"hosts_all_tools": false, "role_ids": [1, 2, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+}, {
+"id": "development_workstation", "name": "Development workstation", "quantity": "per_employee", "owner_role_id": 10, "maintainer_role_id": 8,
+"purpose": "Provides a development interface and local execution when necessary; shared compute remains on the office server where practical.",
+"hosts_all_tools": false, "role_ids": [3, 9]
+}, {
+"id": "office_network", "name": "Office network and gateway", "quantity": 1, "owner_role_id": 10, "maintainer_role_id": 8,
+"purpose": "Connects clients and the server and provides external network access; external phone and messaging services remain separate dependencies.",
+"hosts_all_tools": false, "role_ids": []
+}])
